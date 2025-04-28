@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const baseURL = "/api/";
+const baseURL = "/auth/";
 
 export const http = axios.create({
   baseURL: baseURL,
