@@ -1,0 +1,27 @@
+@mixin panel-style($bg-color, $padding, $border) {
+  background-color: $bg-color;
+  padding: $padding;
+  border-right: $border;
+}
+
+@mixin flex-column-space-between($padding) {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: $padding;
+}
+
+@mixin input-style($padding, $border, $border-radius) {
+  padding: $padding;
+  border: $border;
+  border-radius: $border-radius;
+}
+
+@mixin button-style($padding, $bg-color, $color, $border-radius) {
+  padding: $padding;
+  border: none;
+  background-color: $bg-color;
+  color: $color;
+  border-radius: $border-radius;
+  cursor: pointer;
+}

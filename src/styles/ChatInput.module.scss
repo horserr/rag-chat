@@ -1,0 +1,25 @@
+// filepath: i:\Web\try\src\components\ChatInput.module.scss
+.chatInput {
+  display: flex;
+  gap: 0.5rem; /* 输入框和按钮之间的间距 */
+}
+
+.input {
+  flex: 1; /* 输入框占据剩余宽度 */
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.button {
+  padding: 0.5rem 1rem;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #0056b3;
+  }
+}

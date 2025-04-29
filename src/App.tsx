@@ -1,34 +1,46 @@
 import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import "./App.css";
+import ChatMessages from "./components/ChatMessages";
+import ChatInput from "./components/ChatInput";
+import styles from "./styles/App.module.scss"; // 导入 CSS Modules
 
 function App() {
-  const [count, setCount] = useState(0);
+  const [messages, setMessages] = useState([
+    { id: 1, sender: "user", text: "Hello!" },
+    { id: 2, sender: "bot", text: "Hi there! How can I help you?" },
+  ]);
+  const [input, setInput] = useState("");
+
+  const handleSend = () => {
+    if (input.trim() === "") return;
+
+    // Add user message
+    setMessages((prev) => [
+      ...prev,
+      { id: prev.length + 1, sender: "user", text: input },
+    ]);
+
+    // Simulate bot response
+    setTimeout(() => {
+      setMessages((prev) => [
+        ...prev,
+        { id: prev.length + 1, sender: "bot", text: "This is a bot response." },
+      ]);
+    }, 1000);
+
+    setInput("");
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className={styles["app-container"]}>
+      <div className={styles["history-panel"]}>
+        {/* 预留历史记录区域 */}
+        <p>History (Coming Soon)</p>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
+      <div className={styles["chat-panel"]}>
+        <ChatMessages messages={messages} />
+        <ChatInput input={input} setInput={setInput} handleSend={handleSend} />
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    </div>
   );
 }
 
