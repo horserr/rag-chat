@@ -1,4 +1,5 @@
 import styles from "../styles/ChatInput.module.scss";
+import sendIcon from "../assets/send.svg";
 
 interface ChatInputProps {
   input: string;
@@ -17,7 +18,7 @@ const ChatInput = ({ input, setInput, handleSend }: ChatInputProps) => {
         className={styles.input}
       />
       <button onClick={handleSend} className={styles.button}>
-        Send
+        <img src={sendIcon} alt="Send" className={styles.icon} />
       </button>
     </div>
   );
