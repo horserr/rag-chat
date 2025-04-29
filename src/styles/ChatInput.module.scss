@@ -1,14 +1,17 @@
-@import "mixins.scss";
-@import "variables.scss";
+@use "mixins.scss" as *;
+@use "variables.scss" as *;
 
 // 样式规则
 .chatInput {
   @include flex-center;
+  margin-right: 5%;
+  margin-left: 5%;
+  margin-bottom: 3.5rem;
   justify-content: space-between;
   background-color: white;
   border: 1px solid $border-color;
   border-radius: 4px;
-  padding: 0.5rem;
+  padding: 1rem;
 }
 
 .input {
