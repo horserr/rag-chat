@@ -5,10 +5,7 @@
   padding: 1rem;
   border-right: 1px solid #ddd;
 
-  flex-basis: 25%;
-  flex-grow: 1;
-  max-width: 25rem;
-  min-width: 15rem;
+  grid-area: history;
 
   display: flex;
   flex-direction: column;
