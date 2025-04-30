@@ -1,5 +1,5 @@
-import styles from "../styles/ChatInput.module.scss";
-import sendIcon from "../assets/send.svg";
+import sendIcon from "@assets/send.svg";
+import styles from "@styles/components/ChatPanel/ChatInput.module.scss";
 
 interface ChatInputProps {
   input: string;

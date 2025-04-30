@@ -4,13 +4,6 @@
   border-right: $border;
 }
 
-@mixin flex-column-space-between($padding) {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: $padding;
-}
-
 @mixin input-style($padding, $border, $border-radius) {
   padding: $padding;
   border: $border;

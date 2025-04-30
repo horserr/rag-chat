@@ -1,4 +1,13 @@
 {
+  "compilerOptions": {
+    "baseUrl": ".", // 设置项目的根目录
+    "paths": {
+      "@/*": ["src/*"], // 对应 Vite 的 "@": "/src"
+      "@styles/*": ["src/styles/*"], // 对应 Vite 的 "@styles": "/src/styles"
+      "@components/*": ["src/components/*"], // 对应 Vite 的 "@components": "/src/components"
+      "@assets/*": ["src/assets/*"], // 对应 Vite 的 "@assets": "/src/assets"
+    }
+  },
   "files": [],
   "references": [
     { "path": "./tsconfig.app.json" },

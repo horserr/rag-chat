@@ -1,0 +1,17 @@
+@use "@styles/abstracts/mixins" as mixin; // 引入混合宏定义文件
+
+.historyPanel {
+  @include mixin.panel-style(
+    #f4f4f4,
+    1rem,
+    1px solid #ddd
+  ); // 使用混合宏定义样式
+  flex-basis: 25%;
+  flex-grow: 1;
+  max-width: 25rem;
+  min-width: 15rem;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

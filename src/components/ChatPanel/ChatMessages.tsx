@@ -1,4 +1,4 @@
-import styles from "../styles/ChatMessages.module.scss";
+import styles from "@styles/components/ChatPanel/ChatMessages.module.scss";
 
 interface Message {
   id: number;

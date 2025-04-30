@@ -1,0 +1,87 @@
+@use "@styles/abstracts/mixins.scss" as mixin;
+@use "@styles/abstracts/variables.scss" as vars;
+
+// 样式规则
+.chatInput {
+  display: flex;
+  justify-content: space-between;
+
+  width: 80%;
+  max-width: 50vw;
+  padding: 1rem;
+  margin-right: 5%;
+  margin-left: 5%;
+  margin-bottom: 3.5rem;
+
+  background-color: vars.$input-background-color;
+  border: 1px solid vars.$input-border-color;
+  border-radius: 4px;
+
+  transition: box-shadow 0.3s ease;
+
+  &:focus-within {
+    box-shadow: 0 0 2rem rgba(95, 123, 168, 0.603);
+    border-color: vars.$input-border-color;
+  }
+}
+
+.input {
+  flex-grow: 1;
+  padding: 0;
+  border: none;
+  outline: none;
+  background-color: transparent;
+  min-width: 10rem;
+}
+
+.button {
+  position: relative;
+  width: vars.$button-size;
+  height: vars.$button-size;
+  margin-right: 0.5rem;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  @include mixin.flex-center;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: vars.$gradient-colors;
+    border-radius: 50%;
+    @include mixin.transition(background-position 0.5s, opacity 0.5s);
+    background-size: 200%;
+    background-position: 0% 0%;
+  }
+
+  &:hover {
+    background-color: transparent;
+
+    &::before {
+      background-position: 100% 0%;
+      opacity: vars.$hover-opacity;
+    }
+  }
+
+  .icon {
+    width: vars.$icon-size;
+    height: vars.$icon-size;
+    stroke: skyblue;
+    stroke-width: 2;
+    z-index: 1;
+    @include mixin.transition(transform, 0.3s, ease);
+
+    &:hover {
+      stroke: #fff;
+      transform: rotate(-20deg);
+    }
+
+    &:active {
+      transform: rotate(-10deg);
+    }
+  }
+}
