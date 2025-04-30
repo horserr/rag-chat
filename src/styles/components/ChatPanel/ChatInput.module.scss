@@ -13,15 +13,15 @@
   margin-left: 5%;
   margin-bottom: 3.5rem;
 
-  background-color: vars.$input-background-color;
-  border: 1px solid vars.$input-border-color;
+  background-color: vars.$color-input-background;
+  border: 1px solid vars.$color-input-border;
   border-radius: 4px;
 
   transition: box-shadow 0.3s ease;
 
   &:focus-within {
     box-shadow: 0 0 2rem rgba(95, 123, 168, 0.603);
-    border-color: vars.$input-border-color;
+    border-color: vars.$color-input-border;
   }
 }
 
@@ -51,7 +51,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: vars.$gradient-colors;
+    background-image: vars.$color-button-gradient;
     border-radius: 50%;
     @include mixin.transition(background-position 0.5s, opacity 0.5s);
     background-size: 200%;

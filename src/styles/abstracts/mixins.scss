@@ -1,9 +1,3 @@
-@mixin panel-style($bg-color, $padding, $border) {
-  background-color: $bg-color;
-  padding: $padding;
-  border-right: $border;
-}
-
 @mixin input-style($padding, $border, $border-radius) {
   padding: $padding;
   border: $border;
