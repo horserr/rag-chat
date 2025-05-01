@@ -18,12 +18,12 @@ export function Login(prop : {
     const authService = new AuthService();
     const navigate = useNavigate();
 
-    let handle_login = () => {    
+    let handle_login = () => {
         let result = authService.login({
             email,
             password
         });
-    
+
         result.then((body : Result<any>) => {
             switch (body.status_code) {
                 case 400:
@@ -31,7 +31,7 @@ export function Login(prop : {
                     break
                 case 200:
                     let token = body.data
-                    localStorage.setItem("token", token);
+                    // Use setToken from props which now handles expiration
                     prop.setToken(token)
                     navigate("/")
                     break
@@ -42,7 +42,7 @@ export function Login(prop : {
             console.log(e)
         })
     }
-    
+
 
     return (
         <Grid sx={{ height: "100vh" }} container justifyContent="center" alignItems="center" >

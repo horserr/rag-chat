@@ -3,9 +3,10 @@ import ChatInput from "./ChatInput";
 import ChatMessages from "./ChatMessages";
 import Welcome from "./Welcome";
 import styles from "@styles/components/ChatPanel/ChatPanel.module.scss"; // Import CSS Modules
-import { Box, CircularProgress } from "@mui/material";
+import { Box, CircularProgress, Grid } from "@mui/material";
 import { MessageService } from "../../services/message_service";
 import { MessageDto } from "../../models/message";
+import DialogContent from '@mui/material/DialogContent';
 
 // Interface to convert MessageDto to the format expected by ChatMessages
 interface Message {
@@ -42,12 +43,19 @@ const ChatPanel = (param: {
         console.log("loading messages");
         const response = await messageService.get_messages(0, 100); // Get up to 100 messages
         // Convert MessageDto to Message format
-        const formattedMessages = response.data.map((msg: MessageDto) => ({
-          id: msg.id,
-          sender: msg.role === "User" ? "user" as const : "bot" as const,
-          text: msg.content,
-          timestamp: new Date(msg.created_at)
-        }));
+        const formattedMessages = response.data.map((msg: MessageDto) => {
+          // Parse the UTC timestamp string to a Date object
+          // Ensure it's treated as UTC by appending 'Z' if it doesn't have timezone info
+          const timestampStr = msg.created_at.endsWith('Z') ? msg.created_at : msg.created_at + 'Z';
+          const timestamp = new Date(timestampStr);
+
+          return {
+            id: msg.id,
+            sender: msg.role === "User" ? "user" as const : "bot" as const,
+            text: msg.content,
+            timestamp: timestamp
+          };
+        });
         setMessages(formattedMessages);
       } catch (error) {
         console.error("Error fetching messages:", error);
@@ -65,10 +73,15 @@ const ChatPanel = (param: {
     // Always create a fresh MessageService with the latest token and sessionId
     const currentMessageService = new MessageService(param.token, param.sessionId);
 
+    // Get current time in ISO format for the user message
+    const now = new Date();
+    const isoTimestamp = now.toISOString();
+
     const userMessage: Message = {
       id: Date.now(), // Temporary ID until we get the real one from the server
       sender: "user",
       text: input,
+      timestamp: new Date(isoTimestamp), // Use ISO format for consistency with server timestamps
     };
 
     // Optimistically add the user message to the UI
@@ -79,11 +92,16 @@ const ChatPanel = (param: {
     try {
       // Create a temporary bot message for streaming updates
       const tempBotMessageId = Date.now() + 1;
+
+      // Get current time in ISO format to match server timestamp format
+      const now = new Date();
+      const isoTimestamp = now.toISOString();
+
       const tempBotMessage: Message = {
         id: tempBotMessageId,
         sender: "bot",
         text: "", // Start with empty text that will be updated
-        timestamp: new Date(),
+        timestamp: new Date(isoTimestamp), // Use ISO format for consistency with server timestamps
         isStreaming: true // Flag to indicate this message is being streamed
       };
 
@@ -112,12 +130,20 @@ const ChatPanel = (param: {
       const messagesResponse = await currentMessageService.get_messages(0, 100);
 
       // Convert MessageDto to Message format
-      const formattedMessages = messagesResponse.data.map((msg: MessageDto) => ({
-        id: msg.id,
-        sender: msg.role === "User" ? "user" as const : "bot" as const,
-        text: msg.content,
-        timestamp: new Date(msg.created_at)
-      }));
+      const formattedMessages = messagesResponse.data.map((msg: MessageDto) => {
+        // Parse the UTC timestamp string to a Date object
+        // The created_at format is like "2025-05-01T13:59:50.133104"
+        // Ensure it's treated as UTC by appending 'Z' if it doesn't have timezone info
+        const timestampStr = msg.created_at.endsWith('Z') ? msg.created_at : msg.created_at + 'Z';
+        const timestamp = new Date(timestampStr);
+
+        return {
+          id: msg.id,
+          sender: msg.role === "User" ? "user" as const : "bot" as const,
+          text: msg.content,
+          timestamp: timestamp
+        };
+      });
 
       setMessages(formattedMessages);
     } catch (error) {
@@ -142,10 +168,14 @@ const ChatPanel = (param: {
 
   // Otherwise, show the chat interface
   return (
-    <Box className={styles.chatPanel}>
-      <ChatMessages messages={messages} />
-      <ChatInput input={input} setInput={setInput} handleSend={handleSend} />
-    </Box>
+    <Grid container width={"100%"} height={"100%"} direction="column" alignContent="center" padding={"2rem"}>
+      <Grid size="grow" sx={{ overflowY: 'auto' }}>
+        <ChatMessages messages={messages} />
+      </Grid>
+      <Grid size="auto" width={"100%"}>
+        <ChatInput input={input} setInput={setInput} handleSend={handleSend} />
+      </Grid>
+    </Grid>
   );
 };
 

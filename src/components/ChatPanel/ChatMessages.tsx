@@ -15,17 +15,24 @@ interface ChatMessagesProps {
 }
 
 const ChatMessages = ({ messages }: ChatMessagesProps) => {
-  // Create a ref for the messages container
+  // Create refs for the messages container and end element
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Function to scroll to the bottom of the messages
   const scrollToBottom = () => {
+    // Try both methods for better compatibility
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+    }
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   // Scroll to bottom when messages change
   useEffect(() => {
-    scrollToBottom();
+    // Small delay to ensure DOM is updated
+    const timeoutId = setTimeout(scrollToBottom, 100);
+    return () => clearTimeout(timeoutId);
   }, [messages]);
 
   // Function to format text based on sender
@@ -58,14 +65,48 @@ const ChatMessages = ({ messages }: ChatMessagesProps) => {
     }
   };
 
-  // Format timestamp to a readable format
+  // Format timestamp to a readable format using local timezone
   const formatTime = (date?: Date) => {
     if (!date) return '';
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    // Get today's date at midnight for comparison
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Get yesterday's date at midnight for comparison
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    // Format options for different cases
+    if (date >= today) {
+      // If the message is from today, show only time
+      return date.toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+    } else if (date >= yesterday) {
+      // If the message is from yesterday, show "Yesterday" and time
+      return `Yesterday, ${date.toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      })}`;
+    } else {
+      // For older messages, show full date and time
+      return date.toLocaleString([], {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+    }
   };
 
   return (
-    <div className={styles.chatMessages}>
+    <div className={styles.chatMessages} ref={messagesContainerRef}>
       {messages.map((message) => (
         <div
           key={message.id}
@@ -87,7 +128,7 @@ const ChatMessages = ({ messages }: ChatMessagesProps) => {
         </div>
       ))}
       {/* This empty div is used as a reference for scrolling to the bottom */}
-      <div ref={messagesEndRef} />
+      <div ref={messagesEndRef} style={{ height: '1px', marginTop: '8px' }} />
     </div>
   );
 };
