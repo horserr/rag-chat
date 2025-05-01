@@ -1,7 +1,6 @@
 import { Button, message, Steps } from "antd";
 import { useState } from "react";
 import Step_1 from "./SetUp_Step1";
-import Step_2 from "./SetUp_Step2";
 import Step_3 from "./SetUp_Step3";
 import Step_4 from "./SetUp_Step4";
 import { useNavigate } from "react-router-dom";

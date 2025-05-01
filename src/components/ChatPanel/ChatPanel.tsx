@@ -6,7 +6,6 @@ import styles from "@styles/components/ChatPanel/ChatPanel.module.scss"; // Impo
 import { Box, CircularProgress, Grid } from "@mui/material";
 import { MessageService } from "../../services/message_service";
 import { MessageDto } from "../../models/message";
-import DialogContent from '@mui/material/DialogContent';
 
 // Interface to convert MessageDto to the format expected by ChatMessages
 interface Message {

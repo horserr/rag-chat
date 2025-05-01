@@ -1,6 +1,5 @@
-import { SmileOutlined } from "@ant-design/icons";
 import type { DescriptionsProps } from "antd";
-import { Button, Card, Descriptions, Result } from "antd";
+import { Card, Descriptions } from "antd";
 
 const items: DescriptionsProps["items"] = [
   {

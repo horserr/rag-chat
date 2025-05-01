@@ -1,15 +1,6 @@
-import ListItem from '@mui/material/ListItem';
 import { IconButton, ListItemButton, ListItemText, TextField } from "@mui/material";
 import { Delete, Edit, Check } from '@mui/icons-material';
-import { SessionDto } from '../../models/session';
-import react from '@vitejs/plugin-react-swc';
 import { useState } from 'react';
-
-
-interface HistoryEntryType {
-  id: string;
-  title: string;
-}
 
 
 const HistoryEntry = (param: { title: string, handleDelete : any, handleEdit : any , onClick: any, selected: boolean}) => {
@@ -18,9 +9,9 @@ const HistoryEntry = (param: { title: string, handleDelete : any, handleEdit : a
 
   return (
     <ListItemButton sx={{ flexGrow: 1 }} onClick={param.onClick}>
-      {!editing ? 
+      {!editing ?
         <>
-        <ListItemText primary={param.title} sx={{color: param.selected ? "royalblue" : "inherit"}} /> 
+        <ListItemText primary={param.title} sx={{color: param.selected ? "royalblue" : "inherit"}} />
         <IconButton onClick={param.handleDelete}>
         <Delete/>
         </IconButton>

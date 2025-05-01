@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Transfer } from "antd";
 import type { TransferProps } from "antd";
 

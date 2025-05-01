@@ -1,9 +1,7 @@
 import {rag_http} from "./http_common.ts";
-import {LoginDto} from "../models/auth.ts";
 import { AxiosInstance } from "axios";
 import { SessionDto } from "../models/session.ts";
 import { PaginatedResult } from "../models/result.ts";
-import { data } from "react-router-dom";
 
 export class SessionService {
     http : AxiosInstance
@@ -45,7 +43,7 @@ export class SessionService {
             throw error
         }
     }
-    
+
     async put_session(id: number, content: string) {
         try {
             const response = await this.http.put("/session/" + id, {
