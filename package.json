@@ -20,7 +20,10 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.5.1",
-    "scss": "^0.2.4"
+    "scss": "^0.2.4",
+    "antd": "^5.24.9",
+    "echarts": "^5.6.0",
+    "echarts-for-react": "^3.0.2",
   },
   "devDependencies": {
     "@eslint/js": "^9.22.0",
@@ -35,6 +38,10 @@
     "http-proxy-middleware": "^3.0.5",
     "sass-embedded": "^1.87.0",
     "ts-jest": "^29.3.2",
-    "vite": "^6.3.1"
+    "vite": "^6.3.1",
+    "sass": "^1.87.0",
+    "typescript": "~5.7.2",
+    "typescript-eslint": "^8.26.1",
+    "vite-plugin-svgr": "^4.3.0"
   }
 }

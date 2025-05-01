@@ -1,0 +1,50 @@
+@use "@styles/abstracts/variables" as vars;
+
+// used App page
+.normalLayout {
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: space-around;
+  width: 100vw;
+  height: 100vh;
+}
+
+.normalInnerLayout {
+  display: flex;
+  flex-direction: column;
+
+  padding: 24px 24px 8px;
+}
+
+// used in separate pages
+@mixin contentLayoutMixin {
+  background-color: vars.$color-entry-light;
+  border-radius: 5px;
+  padding: 24px;
+  // crying: too hard
+  height: calc(100vh - 10vh - 4rem - 8px - 24px  - 3rem - 7vh);
+}
+
+// not used
+.navBar {
+  font-size: 10rem;
+
+  display: flex;
+  align-items: center;
+  height: 10vh;
+}
+
+.footer {
+  height: 7vh;
+  font-size: 1.5rem;
+  padding-top: 0.8rem;
+  margin-top: 3rem;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background-color: vars.$color-footer-background;
+}
