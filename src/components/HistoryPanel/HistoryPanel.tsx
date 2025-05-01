@@ -1,11 +1,12 @@
 import styles from "@styles/components/HistoryPanel/HistoryPanel.module.scss";
 import HistoryList from "./HistoryList";
+import { Box } from "@mui/material";
 
 const HistoryPanel = () => {
   return (
-    <div className={styles.historyPanel}>
+    <Box className={styles.historyPanel} sx={{ height: "100%" }}>
       <HistoryList />
-    </div>
+    </Box>
   );
 };
 

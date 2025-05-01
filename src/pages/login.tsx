@@ -1,12 +1,12 @@
 import React from "react";
 import Card from '@mui/material/Card';
 import { Button, Grid, IconButton, Input, InputAdornment, InputLabel } from "@mui/material";
-import "./login.css";
 import { AuthService } from "../services/auth_service";
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { Result } from "../models/result";
 import { useNavigate } from "react-router-dom";
+import "@styles/pages/Login.css";
 
 interface LoginProp {
     setToken: Function

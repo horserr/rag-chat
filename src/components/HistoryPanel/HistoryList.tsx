@@ -1,5 +1,8 @@
 import HistoryEntry from "./HistoryEntry";
 import styles from "@styles/components/HistoryPanel/HistoryList.module.scss";
+import List from '@mui/material/List';
+import { ListItem, ListItemButton, ListItemText } from "@mui/material";
+
 
 interface HistoryEntryType {
   id: string;
@@ -20,11 +23,15 @@ const HistoryList = () => {
   };
 
   return (
-    <div className={styles.historyList}>
+    <List>
       {data.map((entry) => (
-        <HistoryEntry key={entry.id} entry={entry} onClick={handleClick} />
+        <ListItemButton sx={{ flexGrow: 1 }} key={entry.id}>
+         <ListItemText primary={entry.title} /> 
+        </ListItemButton>
       ))}
-    </div>
+
+
+    </List>
   );
 };
 

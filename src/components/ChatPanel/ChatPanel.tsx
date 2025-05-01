@@ -2,6 +2,7 @@ import { useState } from "react";
 import ChatInput from "./ChatInput";
 import ChatMessages from "./ChatMessages";
 import styles from "@styles/components/ChatPanel/ChatPanel.module.scss"; // Import CSS Modules
+import { Box } from "@mui/material";
 
 interface Message {
   id: number;
@@ -47,10 +48,10 @@ const ChatPanel = () => {
   };
 
   return (
-    <div className={styles.chatPanel}>
+    <Box className={styles.chatPanel}>
       <ChatMessages messages={messages} />
       <ChatInput input={input} setInput={setInput} handleSend={handleSend} />
-    </div>
+    </Box>
   );
 };
 

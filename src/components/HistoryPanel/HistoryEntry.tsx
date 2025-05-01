@@ -1,4 +1,6 @@
 import styles from "@styles/components/HistoryPanel/HistoryEntry.module.scss";
+import ListItem from '@mui/material/ListItem';
+import { ListItemButton } from "@mui/material";
 
 interface HistoryEntryType {
   id: string;
@@ -12,9 +14,15 @@ interface HistoryEntryProps {
 
 const HistoryEntry = ({ entry, onClick }: HistoryEntryProps) => {
   return (
-    <div className={styles.historyEntry} onClick={() => onClick(entry)}>
-      <div>{entry.title}</div>
-    </div>
+    // <div className={styles.historyEntry} onClick={() => onClick(entry)}>
+    //   <div>{entry.title}</div>
+    // </div>
+
+    <ListItem >
+      <ListItemButton >
+      {entry.title}
+      </ListItemButton>
+    </ListItem>
   );
 };
 
