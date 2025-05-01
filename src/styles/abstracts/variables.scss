@@ -1,8 +1,20 @@
 // color
-$color-input-background: #d6d3d1b1;
-$color-button-gradient: linear-gradient(222deg, #2379ff 0, #1efbe9 54%, #a2ff7c 97%);
+$color-button-gradient: linear-gradient(
+  222deg,
+  #2379ff 0,
+  #1efbe9 54%,
+  #a2ff7c 97%
+);
+
 $color-input-border: #1118278d;
-$color-entry:#afba9f85;
+$color-input-background: #d6d3d1b1;
+
+$color-entry: #afba9f85;
+$color-entry-light: #c7d3b681;
+
+$color-footer-background: #6a6c7066;
+$color-evaluation-background: #6d93bf93;
+
 
 $button-size: 3rem;
 $icon-size: 2.5rem;

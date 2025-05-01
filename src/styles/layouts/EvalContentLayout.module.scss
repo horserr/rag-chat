@@ -1,0 +1,12 @@
+@use "./NormalLayout.module.scss" as normalStyles;
+@use "@styles/abstracts/variables" as vars;
+
+.evalContentLayout {
+  @include normalStyles.contentLayoutMixin;
+
+  background-color: vars.$color-evaluation-background;
+  // 添加或覆盖样式
+  // display: flex;
+  // flex-direction: row;
+  // gap: 16px; // 设置子元素之间的间距
+}

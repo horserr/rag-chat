@@ -1,30 +1,23 @@
-import React from "react";
-import { Layout, theme } from "antd";
-import Breadcrumbs from "../components/Breadcrumbs";
-
-const { Content } = Layout;
+import { Route, Routes } from "react-router-dom"; // 引入路由组件
+import EvaluationPanel from "../components/EvaluationPanel/EvaluationPanel";
+import EvaluationReviewPanel from "../components/EvaluationPanel/EvaluationReviewPanel"; // 引入子页面组件
+import SetUpPanel from "../components/EvaluationPanel/SetUpPanel/SetUpPanel"; // 引入子页面组件
+import LayoutFactory from "../layouts/LayoutFactory";
+import types from "../layouts/LayoutTypes"; // 引入布局类型枚举
 
 const Evaluation: React.FC = () => {
-  const {
-    token: { colorBgContainer, borderRadiusLG },
-  } = theme.useToken();
-
   return (
-    <Layout>
-      <Content style={{ padding: "0 48px" }}>
-        <Breadcrumbs items={["Home", "Evaluation"]} />
-        <div
-          style={{
-            background: colorBgContainer,
-            minHeight: 280,
-            padding: 24,
-            borderRadius: borderRadiusLG,
-          }}
-        >
-          Content
-        </div>
-      </Content>
-    </Layout>
+    <LayoutFactory
+      breadcrumbs={["Home", "Evaluation"]}
+      layoutType={types.evalLayout}
+    >
+      <Routes>
+        <Route path="/" element={<EvaluationPanel />} />
+        <Route path="/set-up/*" element={<SetUpPanel />} />
+        <Route path="/review" element={<EvaluationReviewPanel />} />
+        {/* todo do not find then return to evaluation page */}
+      </Routes>
+    </LayoutFactory>
   );
 };
 

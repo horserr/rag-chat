@@ -1,8 +1,8 @@
 import React from "react";
-import NormalLayout from "../layouts/NormalLayout";
+import LayoutFactory from "../layouts/LayoutFactory";
 
 const Home: React.FC = () => {
-  return <NormalLayout breadcrumbs={["Home"]}>content</NormalLayout>;
+  return <LayoutFactory breadcrumbs={["Home"]}>content</LayoutFactory>;
 };
 
 export default Home;

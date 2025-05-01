@@ -1,13 +1,18 @@
-import NormalLayout from "../layouts/NormalLayout";
+import { Link } from "react-router-dom";
+import LayoutFactory from "../layouts/LayoutFactory";
+import { Result } from "antd";
 
 const NotFound = () => {
   return (
-    <NormalLayout>
-      <div>
-        <h1>404 Not Found</h1>
-        <p>The page you are looking for does not exist.</p>
-      </div>
-    </NormalLayout>
+    <LayoutFactory>
+      <Result
+        status="404"
+        title="404"
+        subTitle="Sorry, the page you visited does not exist."
+        extra={<Link to="/">Back Home</Link>}
+
+      />
+    </LayoutFactory>
   );
 };
 
