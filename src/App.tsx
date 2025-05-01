@@ -46,7 +46,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={
+        <Route path="/*" element={
           <PrivateRoute loggedIn={token !== null} children={
             <Home setToken={handleSetToken} token={token || ''}/>
           }/>

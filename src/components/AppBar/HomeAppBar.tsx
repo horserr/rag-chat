@@ -1,13 +1,19 @@
 import { useState } from "react";
-import { AppBar, Box, IconButton, Toolbar, Typography, Menu, MenuItem } from "@mui/material";
+import { AppBar, Box, IconButton, Toolbar, Typography, Menu, MenuItem, Button } from "@mui/material";
 import MenuIcon from '@mui/icons-material/Menu';
-import { AccountCircle, Logout } from "@mui/icons-material";
+import { AccountCircle, Logout, Chat as ChatIcon, Assessment } from "@mui/icons-material";
 import { theme } from '../../theme';
+import { useNavigate } from "react-router-dom";
 
-export function HomeAppBar(prop: { setToken: Function }) {
+export function HomeAppBar(prop: {
+    setToken: Function,
+    currentView?: string,
+    onViewChange?: (view: string) => void
+}) {
     // State to manage the user menu
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
+    const navigate = useNavigate();
 
     // Handler for opening the menu
     const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -45,6 +51,37 @@ export function HomeAppBar(prop: { setToken: Function }) {
                         南京大学 RAG 问答平台
                     </Typography>
 
+                    {/* Navigation buttons */}
+                    <Box sx={{ display: 'flex', mr: 2 }}>
+                        <Button
+                            color="inherit"
+                            onClick={() => {
+                                if (prop.onViewChange) prop.onViewChange('chat');
+                                navigate('/');
+                            }}
+                            startIcon={<ChatIcon />}
+                            sx={{
+                                mr: 1,
+                                backgroundColor: prop.currentView === 'chat' ? 'rgba(255, 255, 255, 0.15)' : 'transparent'
+                            }}
+                        >
+                            聊天
+                        </Button>
+                        <Button
+                            color="inherit"
+                            onClick={() => {
+                                if (prop.onViewChange) prop.onViewChange('eval');
+                                navigate('/eval');
+                            }}
+                            startIcon={<Assessment />}
+                            sx={{
+                                backgroundColor: prop.currentView === 'eval' ? 'rgba(255, 255, 255, 0.15)' : 'transparent'
+                            }}
+                        >
+                            评估
+                        </Button>
+                    </Box>
+
                     <IconButton
                         size="large"
                         edge="end"
@@ -65,8 +102,10 @@ export function HomeAppBar(prop: { setToken: Function }) {
                         anchorEl={anchorEl}
                         open={open}
                         onClose={handleMenuClose}
-                        MenuListProps={{
-                            'aria-labelledby': 'user-button',
+                        slotProps={{
+                            list: {
+                                'aria-labelledby': 'user-button',
+                            }
                         }}
                     >
                         <MenuItem onClick={handleLogout}>
