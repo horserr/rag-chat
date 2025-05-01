@@ -1,0 +1,9 @@
+.chatPanel {
+  // flex-basis: 70%;
+  // flex-grow: 3;
+  grid-area: chat;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}

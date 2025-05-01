@@ -1,0 +1,22 @@
+.chatMessages {
+  display: flex;
+  flex: 1; /* 占据剩余空间 */
+  flex-direction: column;
+  overflow-y: auto; /* 如果消息过多，启用滚动 */
+}
+
+.message {
+  padding: 0.5rem;
+  margin: 0.5rem 0;
+  border-radius: 4px;
+}
+
+.user {
+  background-color: #d1e7dd;
+  align-self: flex-end;
+}
+
+.bot {
+  background-color: #f8d7da;
+  align-self: flex-start;
+}

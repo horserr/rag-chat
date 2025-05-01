@@ -1,0 +1,14 @@
+@use "@styles/abstracts/variables" as vars;
+
+.historyEntry {
+  font-size: 1.2rem;
+  font-weight: 400;
+  padding: 0.4rem;
+  margin: 1rem;
+  // width: 100%;
+
+  border-radius: 4px;
+  background-color: vars.$color-entry;
+  filter: drop-shadow(4px 5px 6px rgba(145, 227, 44, 0.603));
+  box-shadow: inset -29px -8px 21px 12px rgba(17, 17, 26, 0.08);
+}
