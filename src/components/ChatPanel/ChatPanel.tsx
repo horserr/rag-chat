@@ -12,6 +12,8 @@ interface Message {
   id: number;
   sender: "user" | "bot";
   text: string;
+  timestamp?: Date;
+  isStreaming?: boolean; // Flag to indicate if this message is currently being streamed
 }
 
 const ChatPanel = (param: {
@@ -37,12 +39,14 @@ const ChatPanel = (param: {
 
       setLoading(true);
       try {
+        console.log("loading messages");
         const response = await messageService.get_messages(0, 100); // Get up to 100 messages
         // Convert MessageDto to Message format
         const formattedMessages = response.data.map((msg: MessageDto) => ({
           id: msg.id,
           sender: msg.role === "User" ? "user" as const : "bot" as const,
-          text: msg.content
+          text: msg.content,
+          timestamp: new Date(msg.created_at)
         }));
         setMessages(formattedMessages);
       } catch (error) {
@@ -53,10 +57,13 @@ const ChatPanel = (param: {
     };
 
     fetchMessages();
-  }, [param.sessionId, messageService]);
+  }, [messageService]);
 
   const handleSend = async () => {
-    if (input.trim() === "" || !messageService) return;
+    if (input.trim() === "" || param.sessionId === 0) return;
+
+    // Always create a fresh MessageService with the latest token and sessionId
+    const currentMessageService = new MessageService(param.token, param.sessionId);
 
     const userMessage: Message = {
       id: Date.now(), // Temporary ID until we get the real one from the server
@@ -66,22 +73,50 @@ const ChatPanel = (param: {
 
     // Optimistically add the user message to the UI
     setMessages((prev) => [...prev, userMessage]);
-    const inputContent = input; // Store the input before clearing it
+    const messageContent = input; // Store the input before clearing it
     setInput("");
 
     try {
-      // Send the message to the server
-      await messageService.sendMessage(inputContent);
+      // Create a temporary bot message for streaming updates
+      const tempBotMessageId = Date.now() + 1;
+      const tempBotMessage: Message = {
+        id: tempBotMessageId,
+        sender: "bot",
+        text: "", // Start with empty text that will be updated
+        timestamp: new Date(),
+        isStreaming: true // Flag to indicate this message is being streamed
+      };
 
-      // The server should automatically generate the assistant's response
-      // Refresh the messages to get both the user message and the assistant's response
-      const messagesResponse = await messageService.get_messages(0, 100);
+      // Add the temporary bot message to the UI
+      setMessages((prev) => [...prev, tempBotMessage]);
+
+      // Define the streaming update callback
+      const handleStreamUpdate = (content: string) => {
+        setMessages((prevMessages) => {
+          // Find and update the temporary bot message
+          return prevMessages.map((msg) => {
+            if (msg.id === tempBotMessageId) {
+              return { ...msg, text: content };
+            }
+            return msg;
+          });
+        });
+      };
+
+      console.log(`Sending message to session ${param.sessionId} with token ${param.token.substring(0, 10)}...`);
+
+      // Send the message to the server with streaming updates
+      await currentMessageService.send_message(messageContent, handleStreamUpdate);
+
+      // After streaming is complete, fetch all messages to ensure consistency
+      const messagesResponse = await currentMessageService.get_messages(0, 100);
 
       // Convert MessageDto to Message format
       const formattedMessages = messagesResponse.data.map((msg: MessageDto) => ({
         id: msg.id,
         sender: msg.role === "User" ? "user" as const : "bot" as const,
-        text: msg.content
+        text: msg.content,
+        timestamp: new Date(msg.created_at)
       }));
 
       setMessages(formattedMessages);
