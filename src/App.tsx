@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Home } from './pages/home';
 import { Login } from './pages/login';
-import { NotFound } from './pages/not_found';
+import NotFound from './pages/not_found';
 import { TokenService } from './services/token_service';
 
 function PrivateRoute({ loggedIn, children }: { loggedIn: boolean; children: React.ReactNode }) {
@@ -41,30 +41,6 @@ export default function App() {
 
     // Cleanup interval on component unmount
     return () => clearInterval(tokenCheckInterval);
-  }, [token]);
-
-  // Refresh token expiry on activity
-  useEffect(() => {
-    const handleActivity = () => {
-      // Only refresh if we have a token
-      if (token) {
-        TokenService.refreshTokenExpiry();
-      }
-    };
-
-    // Add event listeners for user activity
-    window.addEventListener('click', handleActivity);
-    window.addEventListener('keypress', handleActivity);
-    window.addEventListener('scroll', handleActivity);
-    window.addEventListener('mousemove', handleActivity);
-
-    // Cleanup event listeners on component unmount
-    return () => {
-      window.removeEventListener('click', handleActivity);
-      window.removeEventListener('keypress', handleActivity);
-      window.removeEventListener('scroll', handleActivity);
-      window.removeEventListener('mousemove', handleActivity);
-    };
   }, [token]);
 
   return (
