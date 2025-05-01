@@ -8,11 +8,9 @@ import { Result } from "../models/result";
 import { useNavigate } from "react-router-dom";
 import "@styles/pages/Login.css";
 
-interface LoginProp {
+export function Login(prop : {
     setToken: Function
-}
-
-export function Login(prop : LoginProp) {
+}) {
     const [email, setEmail] = React.useState("");
     const [password, setPassword] = React.useState("");
     const [showPassword, setShowPassword] = React.useState(false)

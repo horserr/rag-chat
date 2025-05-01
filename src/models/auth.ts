@@ -1,14 +1,12 @@
-class LoginDto {
+interface LoginDto {
     email: string;
     password: string;
 }
 
-
-
-class RegisterDto {
+interface RegisterDto {
     email: string;
     password: string;
     name: string;
 }
 
-export {LoginDto, RegisterDto};
+export type {LoginDto, RegisterDto};

@@ -15,7 +15,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<PrivateRoute loggedIn={token !== null} children={
-          <Home setToken={setToken}/>
+          <Home setToken={setToken} token={token!}/>
           }/>} />
         <Route path="/login" element={<Login setToken={setToken}/>} />
         <Route path="*" element={<NotFound />} />

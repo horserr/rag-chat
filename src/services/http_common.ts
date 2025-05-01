@@ -1,11 +1,21 @@
-import axios from "axios";
+import axios, { AxiosInstance } from "axios";
 
-const baseURL = "/auth/";
+const baseAuthURL = "/auth/";
+const baseRagURL = "/rag/";
 
-export const http = axios.create({
-  baseURL: baseURL,
+export const auth_http = axios.create({
+  baseURL: baseAuthURL,
   headers: {
     "Content-Type": "application/json",
   }
 });
 
+export function rag_http(token : string) : AxiosInstance { 
+  return axios.create({
+  baseURL: baseRagURL,
+  headers: {
+    "Content-Type": "application/json",
+    "Authorization": "Bearer " + token
+  }
+})
+}

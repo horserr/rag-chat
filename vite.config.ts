@@ -19,6 +19,10 @@ export default defineConfig({
           target: 'http://127.0.0.1:8080',
           changeOrigin: true,
         },
+        '/rag': {
+          target: 'http://127.0.0.1:8082',
+          changeOrigin: true,
+        },
       },
     },
 });
