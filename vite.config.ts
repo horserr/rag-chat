@@ -25,6 +25,14 @@ export default defineConfig({
           target: 'http://127.0.0.1:8082',
           changeOrigin: true,
         },
+        '/api/prompt': {
+          target: 'http://127.0.0.1:8000',
+          changeOrigin: true,
+        },
+        '/api/rag': {
+          target: 'http://127.0.0.1:8081',
+          changeOrigin: true,
+        },
       },
     },
 });

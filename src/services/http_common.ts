@@ -2,6 +2,8 @@ import axios, { AxiosInstance } from "axios";
 
 const baseAuthURL = "/auth/";
 const baseRagURL = "/rag/";
+const evalPromptURL = "/api/prompt/";
+const evalRagURL = "/api/rag/";
 
 export const auth_http = axios.create({
   baseURL: baseAuthURL,
@@ -19,3 +21,18 @@ export function rag_http(token : string) : AxiosInstance {
   }
 })
 }
+
+
+export const eval_prompt_http = axios.create({
+  baseURL: evalPromptURL,
+  headers: {
+    "Content-Type": "application/json",
+  }
+});
+
+export const eval_rag_http = axios.create({
+  baseURL: evalRagURL,
+  headers: {
+    "Content-Type": "application/json",
+  }
+});
