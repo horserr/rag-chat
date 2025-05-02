@@ -1,0 +1,16 @@
+stages:
+  - build
+
+variables:
+  CUSTOM_REGISTRY: "reg.si-qi.wang"
+  CUSTOM_REGISTRY_IMAGE: "reg.si-qi.wang/frontend"
+
+build-docker:
+  stage: build
+  tags:
+    - shell
+  script:
+    - docker pull $CUSTOM_REGISTRY_IMAGE:latest || true
+    - docker build -f Dockerfile --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from $CUSTOM_REGISTRY_IMAGE:latest --tag $CUSTOM_REGISTRY_IMAGE:$CI_COMMIT_SHA --tag $CUSTOM_REGISTRY_IMAGE:latest .
+    - docker push $CUSTOM_REGISTRY_IMAGE:$CI_COMMIT_SHA
+    - docker push $CUSTOM_REGISTRY_IMAGE:latest
