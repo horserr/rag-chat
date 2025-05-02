@@ -3,7 +3,8 @@ import { HomeAppBar } from "../components/AppBar/HomeAppBar";
 import { useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Chat from "./chat";
-import Evaluation from "./evaluation";
+import PromptEvaluation from "./prompt_evaluation";
+import RAGEvaluation from "./rag_evaluation";
 
 export function Home(prop: {setToken : Function, token: string}) {
   const [currentView, setCurrentView] = useState<string>('chat');
@@ -29,7 +30,8 @@ export function Home(prop: {setToken : Function, token: string}) {
       <Grid size="grow">
         <Routes>
           <Route path="/" element={<Chat token={prop.token} />} />
-          <Route path="/eval/*" element={<Evaluation />} />
+          <Route path="/prompt-eval/*" element={<PromptEvaluation />} />
+          <Route path="/rag-eval/*" element={<RAGEvaluation />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Grid>

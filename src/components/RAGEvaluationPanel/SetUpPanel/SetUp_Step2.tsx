@@ -1,5 +1,5 @@
 import React from "react";
-import { Transfer } from "antd";
+import { Card, Transfer } from "antd";
 import type { TransferProps } from "antd";
 
 interface RecordType {
@@ -10,19 +10,23 @@ interface RecordType {
 
 const mockData = Array.from({ length: 20 }).map<RecordType>((_, i) => ({
   key: i.toString(),
-  title: `content${i + 1}`,
-  description: `description of content${i + 1}`,
+  title: `Sample ${i + 1}`,
+  description: `Sample data for RAG evaluation ${i + 1}`,
 }));
 
 const initialTargetKeys = mockData
-  .filter((item) => Number(item.key) > 10)
+  .filter((item) => Number(item.key) > 15)
   .map((item) => item.key);
 
 // This is a factory function that returns an object with title and content
-const Step_2 = () => {
+const Step_2 = ({ cardStyle }: { cardStyle: React.CSSProperties }) => {
   return {
-    title: "Step 2",
-    content: <TransferComponent />
+    title: "Select Samples",
+    content: (
+      <Card title="Select Samples for Evaluation" style={cardStyle}>
+        <TransferComponent />
+      </Card>
+    ),
   };
 };
 
@@ -59,13 +63,14 @@ const TransferComponent = () => {
   return (
     <Transfer
       dataSource={mockData}
-      titles={["Source", "Target"]}
+      titles={["Available Samples", "Selected Samples"]}
       targetKeys={targetKeys}
       selectedKeys={selectedKeys}
       onChange={onChange}
       onSelectChange={onSelectChange}
       onScroll={onScroll}
       render={(item) => item.title}
+      style={{ marginTop: "20px" }}
     />
   );
 };

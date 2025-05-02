@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { AppBar, Box, IconButton, Toolbar, Typography, Menu, MenuItem, Button } from "@mui/material";
 import MenuIcon from '@mui/icons-material/Menu';
-import { AccountCircle, Logout, Chat as ChatIcon, Assessment } from "@mui/icons-material";
+import { AccountCircle, Logout, Chat as ChatIcon, Assessment, RateReview, Storage } from "@mui/icons-material";
 import { theme } from '../../theme';
 import { useNavigate } from "react-router-dom";
 
@@ -70,15 +70,29 @@ export function HomeAppBar(prop: {
                         <Button
                             color="inherit"
                             onClick={() => {
-                                if (prop.onViewChange) prop.onViewChange('eval');
-                                navigate('/eval');
+                                if (prop.onViewChange) prop.onViewChange('prompt-eval');
+                                navigate('/prompt-eval');
                             }}
-                            startIcon={<Assessment />}
+                            startIcon={<RateReview />}
                             sx={{
-                                backgroundColor: prop.currentView === 'eval' ? 'rgba(255, 255, 255, 0.15)' : 'transparent'
+                                mr: 1,
+                                backgroundColor: prop.currentView === 'prompt-eval' ? 'rgba(255, 255, 255, 0.15)' : 'transparent'
                             }}
                         >
-                            评估
+                            提示词评估
+                        </Button>
+                        <Button
+                            color="inherit"
+                            onClick={() => {
+                                if (prop.onViewChange) prop.onViewChange('rag-eval');
+                                navigate('/rag-eval');
+                            }}
+                            startIcon={<Storage />}
+                            sx={{
+                                backgroundColor: prop.currentView === 'rag-eval' ? 'rgba(255, 255, 255, 0.15)' : 'transparent'
+                            }}
+                        >
+                            RAG评估
                         </Button>
                     </Box>
 
