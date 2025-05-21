@@ -1,8 +1,8 @@
 import React from 'react';
 import type { ReactNode } from 'react';
 import {
-  AppBar, Toolbar, Typography, Container, Box, Tabs, Tab, Paper,
-  Avatar, IconButton, useTheme
+  AppBar, Toolbar, Typography, Container, Box, Tabs, Tab,
+  Avatar, useTheme
 } from '@mui/material';
 import { Link, useLocation } from 'react-router-dom';
 import ChatIcon from '@mui/icons-material/Chat';
@@ -25,11 +25,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     currentTab = '/evaluation';
   }
 
-
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', width: '100vw', overflow: 'hidden' }}>
       <AppBar position="static" className="gradient-primary" sx={{ flexShrink: 0 }}>
-        <Toolbar>
+        <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Avatar
               sx={{
@@ -55,8 +54,54 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
               RAG Assistant
             </Typography>
           </Box>
-
-          <Box sx={{ flexGrow: 1 }} />
+          
+          {/* Centered Tabs */}
+          <Tabs
+            value={currentTab}
+            indicatorColor="primary"
+            textColor="primary"
+            aria-label="navigation tabs"
+            sx={{
+              position: 'absolute',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: 1, // Ensure tabs are visible above other elements
+              '& .MuiTab-root': {
+                minHeight: '64px',
+                fontWeight: 600,
+                fontSize: '0.95rem',
+                color: 'white',
+              },
+              '& .Mui-selected': {
+                color: 'white',
+                opacity: 1
+              },
+              '& .MuiTabs-indicator': {
+                backgroundColor: 'white',
+              }
+            }}
+          >
+            <Tab              label={
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <ChatIcon sx={{ marginRight: 1, fontSize: '1.2rem', color: 'white' }} />
+                  <Box component="span" sx={{ color: 'white' }}>Chat</Box>
+                </Box>
+              }
+              value="/"
+              to="/"
+              component={Link}
+            />
+            <Tab              label={
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <AnalyticsIcon sx={{ marginRight: 1, fontSize: '1.2rem', color: 'white' }} />
+                  <Box component="span" sx={{ color: 'white' }}>Evaluation</Box>
+                </Box>
+              }
+              value="/evaluation"
+              to="/evaluation"
+              component={Link}
+            />
+          </Tabs>
 
           <Typography
             variant="subtitle2"
@@ -70,55 +115,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           </Typography>
         </Toolbar>
       </AppBar>
-      <Paper
-        elevation={0}
-        sx={{
-          flexShrink: 0,
-          borderBottom: '1px solid rgba(0,0,0,0.08)',
-          backgroundColor: 'white'
-        }}
-      >
-        <Tabs
-          value={currentTab}
-          indicatorColor="primary"
-          textColor="primary"
-          aria-label="navigation tabs"
-          centered
-          sx={{
-            '& .MuiTab-root': {
-              minHeight: '56px',
-              fontWeight: 600,
-              fontSize: '0.95rem',
-            },
-            '& .Mui-selected': {
-              color: theme.palette.primary.main
-            }
-          }}
-        >
-          <Tab
-            label={
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <ChatIcon sx={{ mr: 1, fontSize: '1.2rem' }} />
-                Chat
-              </Box>
-            }
-            value="/"
-            to="/"
-            component={Link}
-          />
-          <Tab
-            label={
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <AnalyticsIcon sx={{ mr: 1, fontSize: '1.2rem' }} />
-                Evaluation
-              </Box>
-            }
-            value="/evaluation"
-            to="/evaluation"
-            component={Link}
-          />
-        </Tabs>
-      </Paper>
       <Container
         component="main"
         sx={{
@@ -129,21 +125,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           overflow: 'hidden'
         }}
       >
-        {children}      </Container>
-      <Box
-        component="footer"
-        className="gradient-light"
-        sx={{
-          padding: '12px',
-          textAlign: 'center',
-          flexShrink: 0,
-          borderTop: '1px solid rgba(0,0,0,0.06)'
-        }}
-      >
-        <Typography variant="body2" color="textSecondary" sx={{ fontWeight: 500 }}>
-          © {new Date().getFullYear()} RAG Assistant Platform
-        </Typography>
-      </Box>
+        {children}
+      </Container>      {/* Footer removed and moved to chat input area */}
     </Box>
   );
 };
