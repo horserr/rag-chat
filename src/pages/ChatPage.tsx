@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
   Box, TextField, Paper, Typography, CircularProgress, Avatar,
-  IconButton, Divider, Tooltip, Badge, Button, Chip, useTheme
+  IconButton, Divider, Tooltip, Badge, Button, Chip, useTheme,
+  Collapse
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -33,20 +34,38 @@ const ChatPage: React.FC = () => {
   };
 
   return (
-    <Box sx={{ display: 'flex', height: '100%', width: '100%' }}> {/* Outermost container for row layout */}      {/* History Panel */}
-      {isHistoryPanelOpen && (
+    <Box sx={{ display: 'flex', height: '100%', width: '100%' }}>
+      {/* History Panel with animation */}
+      <Collapse
+        in={isHistoryPanelOpen}
+        orientation="horizontal"
+        timeout={300}
+        sx={{
+          height: '100%',
+          overflow: 'hidden',
+          transitionProperty: 'width, min-width, max-width',
+          transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+          transitionDuration: '300ms',
+          width: isHistoryPanelOpen ? '280px' : '0px',
+          minWidth: isHistoryPanelOpen ? '280px' : '0px',
+          maxWidth: isHistoryPanelOpen ? '280px' : '0px',
+          position: 'relative',
+        }}
+      >
         <Paper
           elevation={0}
           sx={{
             width: '280px',
-            flexShrink: 0, // Prevent panel from shrinking
+            flexShrink: 0,
             padding: '16px',
             borderRight: '1px solid rgba(0,0,0,0.06)',
             display: 'flex',
             flexDirection: 'column',
-            height: '100%', // Fill vertical space
+            height: '100%',
             overflowY: 'auto',
             backgroundColor: 'rgba(247,250,252,0.7)',
+            transition: 'opacity 300ms ease',
+            opacity: isHistoryPanelOpen ? 1 : 0,
           }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -139,7 +158,9 @@ const ChatPage: React.FC = () => {
             </Button>
           </Tooltip>
         </Paper>
-      )}      {/* Main Chat Content Area */}
+      </Collapse>
+
+      {/* Main Chat Content Area */}
       <Box sx={{
         flexGrow: 1,
         display: 'flex',
@@ -197,7 +218,9 @@ const ChatPage: React.FC = () => {
               fontSize: '0.7rem'
             }}
           />
-        </Box>        {/* Messages Area */}
+        </Box>
+
+        {/* Messages Area */}
         <Paper
           elevation={0}
           sx={{
@@ -374,7 +397,9 @@ const ChatPage: React.FC = () => {
             </Box>
           )}
           <div ref={messagesEndRef} />
-        </Paper>        {/* Input Area */}
+        </Paper>
+
+        {/* Input Area */}
         <Box
           sx={{
             display: 'flex',
