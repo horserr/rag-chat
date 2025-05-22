@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-import type { ChatMessage } from '../types';
+import { useState, useCallback } from "react";
+import type { ChatMessage } from "../types";
 
 // Mock API function - replace with actual API call
 const sendMessageToApi = async (message: string): Promise<ChatMessage> => {
@@ -8,7 +8,7 @@ const sendMessageToApi = async (message: string): Promise<ChatMessage> => {
       resolve({
         id: Math.random().toString(36).substring(7),
         text: `Bot response to: ${message}`,
-        sender: 'bot',
+        sender: "bot",
         timestamp: new Date(),
       });
     }, 1000);
@@ -23,7 +23,7 @@ export const useChat = () => {
     const userMessage: ChatMessage = {
       id: Math.random().toString(36).substring(7),
       text,
-      sender: 'user',
+      sender: "user",
       timestamp: new Date(),
     };
     setMessages((prevMessages) => [...prevMessages, userMessage]);
@@ -37,7 +37,7 @@ export const useChat = () => {
       const errorResponse: ChatMessage = {
         id: Math.random().toString(36).substring(7),
         text: "Sorry, I couldn't process your message.",
-        sender: 'bot',
+        sender: "bot",
         timestamp: new Date(),
       };
       setMessages((prevMessages) => [...prevMessages, errorResponse]);

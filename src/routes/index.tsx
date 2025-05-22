@@ -1,7 +1,7 @@
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
-import ChatPage from '../pages/ChatPage';
-import EvaluationPage from '../pages/EvaluationPage';
+import React from "react";
+import { Routes, Route } from "react-router-dom";
+import ChatPage from "../pages/ChatPage";
+import EvaluationPage from "../pages/EvaluationPage";
 
 // Route definitions
 const AppRoutes: React.FC = () => {
