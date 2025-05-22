@@ -41,6 +41,24 @@
   background: rgba(0, 0, 0, 0.3);
 }
 
+/* Icon Animation */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.icon-hover:hover {
+  animation: pulse 0.8s infinite;
+  transition: all 0.3s ease;
+}
+
 /* Gradient backgrounds */
 .gradient-primary {
   background: linear-gradient(135deg, #4361ee 0%, #3f37c9 100%);

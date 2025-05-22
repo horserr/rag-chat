@@ -100,7 +100,7 @@ const ChatHistorySidebar: React.FC<ChatHistorySidebarProps> = ({ isOpen }) => {
           </Button>
         ))}
       </Box>      <Box sx={{ flexGrow: 1 }} />
-      
+
       <Tooltip title="Create new chat">
         <Button
           variant="outlined"

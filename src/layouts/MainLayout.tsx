@@ -30,18 +30,19 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       <AppBar position="static" className="gradient-primary" sx={{ flexShrink: 0 }}>
         <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Avatar
+            <Box
+              component="img"
+              src="/icon.png"
+              alt="RAG Assistant Icon"
+              className="icon-hover"
               sx={{
-                backgroundColor: 'white',
-                color: theme.palette.primary.main,
                 width: 38,
                 height: 38,
                 marginRight: 1.5,
+                borderRadius: '50%',
                 boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
               }}
-            >
-              AI
-            </Avatar>
+            />
             <Typography
               variant="h6"
               component="div"
@@ -54,7 +55,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
               RAG Assistant
             </Typography>
           </Box>
-          
+
           {/* Centered Tabs */}
           <Tabs
             value={currentTab}
@@ -81,7 +82,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
               }
             }}
           >
-            <Tab              label={
+            <Tab
+              label={
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <ChatIcon sx={{ marginRight: 1, fontSize: '1.2rem', color: 'white' }} />
                   <Box component="span" sx={{ color: 'white' }}>Chat</Box>
@@ -91,7 +93,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
               to="/"
               component={Link}
             />
-            <Tab              label={
+            <Tab
+              label={
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <AnalyticsIcon sx={{ marginRight: 1, fontSize: '1.2rem', color: 'white' }} />
                   <Box component="span" sx={{ color: 'white' }}>Evaluation</Box>
@@ -103,16 +106,30 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             />
           </Tabs>
 
-          <Typography
-            variant="subtitle2"
-            sx={{
-              opacity: 0.9,
-              fontWeight: 500,
-              display: { xs: 'none', sm: 'block' }
-            }}
-          >
-            Evaluation Platform
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Typography
+              variant="subtitle2"
+              sx={{
+                opacity: 0.9,
+                fontWeight: 500,
+                marginRight: 2,
+                display: { xs: 'none', sm: 'block' }
+              }}
+            >
+              Evaluation Platform
+            </Typography>            <Avatar
+              className="icon-hover"
+              sx={{
+                backgroundColor: 'white',
+                color: theme.palette.primary.main,
+                width: 38,
+                height: 38,
+                boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+              }}
+            >
+              AI
+            </Avatar>
+          </Box>
         </Toolbar>
       </AppBar>
       <Container
@@ -126,7 +143,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         }}
       >
         {children}
-      </Container>      {/* Footer removed and moved to chat input area */}
+      </Container>
+      {/* Footer removed and moved to chat input area */}
     </Box>
   );
 };
