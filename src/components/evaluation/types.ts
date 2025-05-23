@@ -28,4 +28,5 @@ export const animations = {
   glowTransition:
     "background 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1)",
   diagonalLineAnimation: "0.45s cubic-bezier(0.16, 1, 0.3, 1)", // Adjusted timing for better visual harmony
+  tagAnimation: "0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
 };

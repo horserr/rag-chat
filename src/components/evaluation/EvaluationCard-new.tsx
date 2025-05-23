@@ -9,7 +9,6 @@ import type { EvaluationCardProps } from "./types";
 import CardHoverEffects from "./components/CardHoverEffects";
 import CardTag from "./components/CardTag";
 import CardMetadata from "./components/CardMetadata";
-import { colorToRgba } from "./components/ColorUtils";
 
 const EvaluationCard: React.FC<{ evaluation: EvaluationCardProps }> = ({
   evaluation,
@@ -17,22 +16,12 @@ const EvaluationCard: React.FC<{ evaluation: EvaluationCardProps }> = ({
   const [isCardHovered, setIsCardHovered] = useState(false);
   const isRAG = evaluation.type === "rag";
   const theme = useTheme();
-  // Improved background colors with better theme integration
+
+  // Get dynamic background based on evaluation type with theme colors
   const getBackground = () => {
-    const primaryColor = theme.palette.primary.main;
-    const secondaryColor = theme.palette.secondary.main;
-
-    // Convert hex to rgba with proper transparency
-    const colorToRgba = (color: string, alpha: number) => {
-      const r = parseInt(color.slice(1, 3), 16);
-      const g = parseInt(color.slice(3, 5), 16);
-      const b = parseInt(color.slice(5, 7), 16);
-      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-    };
-
     return isRAG
-      ? colorToRgba(primaryColor, 0.08)
-      : colorToRgba(secondaryColor, 0.08);
+      ? `rgba(${parseInt(theme.palette.primary.main.slice(1, 3), 16)}, ${parseInt(theme.palette.primary.main.slice(3, 5), 16)}, ${parseInt(theme.palette.primary.main.slice(5, 7), 16)}, 0.12)`
+      : `rgba(${parseInt(theme.palette.secondary.main.slice(1, 3), 16)}, ${parseInt(theme.palette.secondary.main.slice(3, 5), 16)}, ${parseInt(theme.palette.secondary.main.slice(5, 7), 16)}, 0.12)`;
   };
 
   return (

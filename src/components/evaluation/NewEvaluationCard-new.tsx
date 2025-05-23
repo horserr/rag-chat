@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import { useTheme } from "@mui/material";
 import CardHoverEffects from "./components/CardHoverEffects";
 import NewEvaluationCardContent from "./components/NewEvaluationCardContent";
-import { colorToRgba } from "./components/ColorUtils";
 
 interface NewEvaluationCardProps {
   onCreateRag: () => void;
@@ -17,21 +16,20 @@ const NewEvaluationCard: React.FC<NewEvaluationCardProps> = ({
   const [hoveredSection, setHoveredSection] = useState<
     "none" | "card" | "rag" | "prompt"
   >("none");
-  const theme = useTheme();  // Get dynamic background based on hover state with themed colors
-  const getBackground = () => {
-    const primaryColor = theme.palette.primary.main;
-    const secondaryColor = theme.palette.secondary.main;
+  const theme = useTheme();
 
+  // Get dynamic background based on hover state with themed colors
+  const getBackground = () => {
     if (hoveredSection === "rag")
-      return colorToRgba(primaryColor, 0.12);
+      return `rgba(${parseInt(theme.palette.primary.main.slice(1, 3), 16)}, ${parseInt(theme.palette.primary.main.slice(3, 5), 16)}, ${parseInt(theme.palette.primary.main.slice(5, 7), 16)}, 0.12)`;
     if (hoveredSection === "prompt")
-      return colorToRgba(secondaryColor, 0.12);
+      return `rgba(${parseInt(theme.palette.secondary.main.slice(1, 3), 16)}, ${parseInt(theme.palette.secondary.main.slice(3, 5), 16)}, ${parseInt(theme.palette.secondary.main.slice(5, 7), 16)}, 0.12)`;
 
     return hoveredSection === "none"
-      ? theme.palette.mode === 'light' ? theme.palette.grey[100] : theme.palette.grey[800]
+      ? theme.palette.grey[200]
       : `linear-gradient(95deg,
-          ${colorToRgba(primaryColor, 0.1)} -13.14%,
-          ${colorToRgba(secondaryColor, 0.1)} 109.8%)`;
+          rgba(${parseInt(theme.palette.primary.main.slice(1, 3), 16)}, ${parseInt(theme.palette.primary.main.slice(3, 5), 16)}, ${parseInt(theme.palette.primary.main.slice(5, 7), 16)}, 0.1) -13.14%,
+          rgba(${parseInt(theme.palette.secondary.main.slice(1, 3), 16)}, ${parseInt(theme.palette.secondary.main.slice(3, 5), 16)}, ${parseInt(theme.palette.secondary.main.slice(5, 7), 16)}, 0.1) 109.8%)`;
   };
 
   return (

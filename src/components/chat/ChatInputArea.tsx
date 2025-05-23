@@ -62,22 +62,32 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({ onSendMessage, isLoading 
               borderColor: 'rgba(0,0,0,0.1)',
             },
           }}
-        />
-        <IconButton
+        />        <IconButton
           color="primary"
           onClick={handleSendMessage}
           disabled={isLoading || inputText.trim() === ''}
           sx={{
             width: '48px',
             height: '48px',
-            backgroundColor: (isLoading || inputText.trim() === '') ? 'rgba(67, 97, 238, 0.3)' : theme.palette.primary.main,
+            backgroundColor: (isLoading || inputText.trim() === '')
+              ? '#e0e0e0'
+              : theme.palette.primary.main,
             '&:hover': {
-              backgroundColor: theme.palette.primary.dark
+              backgroundColor: (isLoading || inputText.trim() === '')
+                ? '#e0e0e0'
+                : theme.palette.primary.dark
+            },
+            '&:disabled': {
+              backgroundColor: '#e0e0e0',
+              cursor: 'not-allowed'
             },
             transition: 'all 0.2s ease-in-out'
           }}
         >
-          <SendIcon sx={{ color: 'white', fontSize: '1.2rem' }}/>
+          <SendIcon sx={{
+            color: (isLoading || inputText.trim() === '') ? '#9e9e9e' : 'white',
+            fontSize: '1.2rem'
+          }}/>
         </IconButton>
       </Box>      {/* Footer with information */}
       <Box sx={{
