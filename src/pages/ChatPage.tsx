@@ -1,18 +1,56 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Collapse } from "@mui/material";
 import ChatHistorySidebar from "../components/chat/ChatHistorySidebar";
 import ChatHeader from "../components/chat/ChatHeader";
 import ChatMessageList from "../components/chat/ChatMessageList";
 import ChatInputArea from "../components/chat/ChatInputArea";
 import { useChat } from "../hooks/useChat";
+import { SessionService } from "../services/session_service";
+import { TokenService } from "../services/token_service";
+import { useNavigate } from "react-router-dom";
 
 /**
  * ChatPage component represents the main chat interface
  * It includes the chat history sidebar, message list, and input area
  */
 const ChatPage: React.FC = () => {
-  const { messages, sendMessage, isLoading } = useChat();
+  const navigate = useNavigate();
+  const [sessionId, setSessionId] = useState<number | undefined>(undefined);
+  const { messages, sendMessage, isLoading, setSession, currentSessionId } = useChat(sessionId);
   const [isHistoryPanelOpen, setIsHistoryPanelOpen] = useState(true);
+  const [sessionService, setSessionService] = useState<SessionService | null>(null);
+
+  // Check for token and init session service
+  useEffect(() => {
+    const token = TokenService.getToken();
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    setSessionService(new SessionService(token));
+  }, [navigate]);
+
+  // Create a new session if none exists
+  useEffect(() => {
+    const createNewSession = async () => {
+      if (!sessionService) return;
+
+      try {
+        const response = await sessionService.new_session();
+        if (response.status_code === 200 && response.data) {
+          setSessionId(response.data.id);
+          setSession(response.data.id);
+        }
+      } catch (error) {
+        console.error("Error creating new session:", error);
+      }
+    };
+
+    if (sessionService && !sessionId) {
+      createNewSession();
+    }
+  }, [sessionService, sessionId, setSession]);
 
   const handleToggleHistoryPanel = () => {
     setIsHistoryPanelOpen(!isHistoryPanelOpen);
@@ -24,8 +62,7 @@ const ChatPage: React.FC = () => {
 
   return (
     <Box sx={{ display: "flex", height: "100%", width: "100%" }}>
-      {/* History Panel with animation */}
-      <Collapse
+      {/* History Panel with animation */}      <Collapse
         in={isHistoryPanelOpen}
         orientation="horizontal"
         timeout={300}
@@ -41,7 +78,14 @@ const ChatPage: React.FC = () => {
           position: "relative",
         }}
       >
-        <ChatHistorySidebar isOpen={isHistoryPanelOpen} />
+        <ChatHistorySidebar
+          isOpen={isHistoryPanelOpen}
+          sessionId={currentSessionId}
+          onSelectSession={(id) => {
+            setSessionId(id);
+            setSession(id);
+          }}
+        />
       </Collapse>
 
       {/* Main Chat Content Area */}

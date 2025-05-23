@@ -1,18 +1,18 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import type { ChatMessage } from "../types";
+import { MessageService } from "../services/message_service";
+import { TokenService } from "../services/token_service";
+import { SessionService } from "../services/session_service";
+import { MessageDto } from "../models/message";
 
-// Mock API function - replace with actual API call
-const sendMessageToApi = async (message: string): Promise<ChatMessage> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        id: Math.random().toString(36).substring(7),
-        text: `Bot response to: ${message}`,
-        sender: "bot",
-        timestamp: new Date(),
-      });
-    }, 1000);
-  });
+// Convert MessageDto to ChatMessage format
+const convertMessageDtoToChatMessage = (msg: MessageDto): ChatMessage => {
+  return {
+    id: msg.id.toString(),
+    text: msg.content,
+    sender: msg.role === "User" ? "user" : "bot",
+    timestamp: new Date(msg.created_at.endsWith('Z') ? msg.created_at : msg.created_at + 'Z'),
+  };
 };
 
 export const useChat = () => {

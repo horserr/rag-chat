@@ -1,0 +1,59 @@
+import { rag_http } from "./http_common";
+import { AxiosInstance } from "axios";
+import { SessionDto } from "../models/session";
+import { PaginatedResult, Result } from "../models/result";
+
+export class SessionService {
+    http: AxiosInstance;
+
+    constructor(token: string) {
+        this.http = rag_http(token);
+    }
+
+    async get_sessions(page: number, page_size: number = 20): Promise<PaginatedResult<SessionDto[]>> {
+        try {
+            const response = await this.http.get("/session", {
+                params: {
+                    "page": page,
+                    "page_size": page_size
+                }
+            });
+            return response.data;
+        } catch(error) {
+            console.error("Error fetching sessions:", error);
+            throw error;
+        }
+    }
+
+    async delete_session(id: number): Promise<Result<any>> {
+        try {
+            const response = await this.http.delete("/session/" + id);
+            return response.data;
+        } catch(error) {
+            console.error("Error deleting session:", error);
+            throw error;
+        }
+    }
+
+    async new_session(): Promise<Result<SessionDto>> {
+        try {
+            const response = await this.http.post("/session");
+            return response.data;
+        } catch(error) {
+            console.error("Error creating new session:", error);
+            throw error;
+        }
+    }
+
+    async put_session(id: number, title: string): Promise<Result<SessionDto>> {
+        try {
+            const response = await this.http.put("/session/" + id, {
+                "title": title
+            });
+            return response.data;
+        } catch(error) {
+            console.error("Error updating session:", error);
+            throw error;
+        }
+    }
+}
