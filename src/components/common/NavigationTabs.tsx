@@ -18,6 +18,9 @@ const NavigationTabs: React.FC = () => {
   } else if (location.pathname.startsWith("/evaluation")) {
     currentTab = "/evaluation";
   }
+  else if(location.pathname.startsWith("/cloud")) {
+    currentTab = "/cloud";
+  }
 
   return (
     <Tabs
@@ -73,6 +76,21 @@ const NavigationTabs: React.FC = () => {
         }
         value="/evaluation"
         to="/evaluation"
+        component={Link}
+      />
+      <Tab
+        label={
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <AnalyticsIcon
+              sx={{ marginRight: 1, fontSize: "1.2rem", color: "white" }}
+            />
+            <Box component="span" sx={{ color: "white" }}>
+              Cloud
+            </Box>
+          </Box>
+        }
+        value="/cloud"
+        to="/cloud"
         component={Link}
       />
     </Tabs>
