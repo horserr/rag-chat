@@ -1,0 +1,28 @@
+stages:
+  - build
+  - deploy
+
+variables:
+  CUSTOM_REGISTRY: "reg.si-qi.wang"
+  CUSTOM_REGISTRY_IMAGE: "reg.si-qi.wang/neo_frontend"
+
+build-docker:
+  stage: build
+  tags:
+    - shell
+  script:
+    - docker pull $CUSTOM_REGISTRY_IMAGE:latest || true
+    - docker build -f Dockerfile --build-arg BUILDKIT_INLINE_CACHE=1 --cache-from $CUSTOM_REGISTRY_IMAGE:latest --tag $CUSTOM_REGISTRY_IMAGE:$CI_COMMIT_SHA --tag $CUSTOM_REGISTRY_IMAGE:latest .
+    - docker push $CUSTOM_REGISTRY_IMAGE:$CI_COMMIT_SHA
+    - docker push $CUSTOM_REGISTRY_IMAGE:latest
+
+deploy-docker-swarm:
+  stage: deploy
+  tags:
+    - shell
+  script:
+    - export GIT_SSH_COMMAND="ssh -i /gitlab-runner/.ssh/id_ed25519 -o StrictHostKeyChecking=no" && cd $DEPLOY_ROOT_PATH && git pull
+    - cd $DEPLOY_ROOT_PATH
+    - pwd
+    - export $(grep -v '^#' .env | xargs)
+    - FRONTEND_IMAGE=$CUSTOM_REGISTRY_IMAGE:$CI_COMMIT_SHA docker stack deploy $DEPLOY_DOCKER_STACK -c ./docker-stack.yml
