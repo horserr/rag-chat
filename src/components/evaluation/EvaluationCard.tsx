@@ -9,7 +9,6 @@ import type { EvaluationCardProps } from "./types";
 import CardHoverEffects from "./components/CardHoverEffects";
 import CardTag from "./components/CardTag";
 import CardMetadata from "./components/CardMetadata";
-import { colorToRgba } from "./components/ColorUtils";
 
 const EvaluationCard: React.FC<{ evaluation: EvaluationCardProps }> = ({
   evaluation,

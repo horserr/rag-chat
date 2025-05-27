@@ -2,6 +2,7 @@ import React from 'react';
 import {
   Box, Typography, IconButton, Chip, useTheme, Tooltip
 } from '@mui/material';
+
 import MenuIcon from '@mui/icons-material/Menu';
 
 interface ChatHeaderProps {

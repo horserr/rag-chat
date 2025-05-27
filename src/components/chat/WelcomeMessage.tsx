@@ -1,7 +1,8 @@
 import React from 'react';
-import { Box, Avatar, Typography, Paper, useTheme } from '@mui/material';
+import { Box, Avatar, Typography, useTheme } from '@mui/material';
 import SmartToyOutlinedIcon from '@mui/icons-material/SmartToyOutlined';
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface WelcomeMessageProps {
   // Can add props later if needed
 }
