@@ -7,7 +7,7 @@ import LoginPage from "../pages/LoginPage";
 import { TokenService } from "../services/token_service";
 
 // Protected route component
-const ProtectedRoute = ({ element }: { element: JSX.Element }) => {
+const ProtectedRoute = ({ element }: { element: React.ReactElement }) => {
   const isAuthenticated = TokenService.isTokenValid();
   return isAuthenticated ? element : <Navigate to="/login" />;
 };

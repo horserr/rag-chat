@@ -38,15 +38,16 @@ const HomePage: React.FC = () => {
 
   const handleEvalClick = () => {
     navigate('/evaluation');
-  };
-
-  return (
+  };  return (
     <Box
+      className="home-page" // 添加类名以应用自定义滚动条样式
       sx={{
         minHeight: '100vh',
+        width: '100%',
         bgcolor: 'background.default',
         display: 'flex',
         flexDirection: 'column',
+        overflowY: 'overlay', // 使用overlay让滚动条覆盖在内容上，更加美观
       }}
     >
       {/* Header */}

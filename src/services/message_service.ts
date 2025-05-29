@@ -12,6 +12,19 @@ export class MessageService {
         this.http = rag_http(token);
         this.sessionId = sessionId;
         this.token = token;
+
+        // Add global error handler for unauthorized responses
+        this.http.interceptors.response.use(
+            response => response,
+            error => {
+                if (error.response && error.response.status === 401) {
+                    console.error("Authentication token expired or invalid");
+                    // Redirect to login page
+                    window.location.href = "/login";
+                }
+                return Promise.reject(error);
+            }
+        );
     }
 
     /**
@@ -19,10 +32,10 @@ export class MessageService {
      * @param page Page number (0-based)
      * @param page_size Number of messages per page
      * @returns Paginated result containing an array of messages
-     */
-    async get_messages(page: number, page_size: number = 20): Promise<PaginatedResult<MessageDto[]>> {
+     */    async get_messages(page: number, page_size: number = 20): Promise<PaginatedResult<MessageDto[]>> {
         try {
-            const response = await this.http.get(`/session/${this.sessionId}/message`, {
+            // Note: the rag_http baseURL already includes "/rag/", so we don't need to include it here
+            const response = await this.http.get(`session/${this.sessionId}/message`, {
                 params: {
                     "page": page,
                     "page_size": page_size
@@ -33,9 +46,7 @@ export class MessageService {
             console.error("Error fetching messages:", error);
             throw error;
         }
-    }
-
-    /**
+    }    /**
      * Send a new message in the current session
      * @param content The message content to send
      * @param onStreamUpdate Optional callback for streaming updates
@@ -48,13 +59,12 @@ export class MessageService {
         try {
             // If no streaming callback is provided, use regular request
             if (!onStreamUpdate) {
-                const response = await this.http.post(`/session/${this.sessionId}/message`, {
+                const response = await this.http.post(`session/${this.sessionId}/message`, {
                     "content": content
                 });
                 return response.data;
-            }
-
-            // For streaming, we need to use fetch API directly
+            }            // For streaming, we need to use fetch API directly
+            // Use the correct URL that matches our proxy configuration
             const response = await fetch(`/rag/session/${this.sessionId}/message`, {
                 method: 'POST',
                 headers: {
@@ -62,10 +72,14 @@ export class MessageService {
                     'Authorization': `Bearer ${this.token}`
                 },
                 body: JSON.stringify({ content })
-            });
-
-            // Check if response is ok
+            });            // Check if response is ok
             if (!response.ok) {
+                // Check for authentication errors
+                if (response.status === 401) {
+                    console.error('Authentication token expired or invalid');
+                    // Redirect to login page
+                    window.location.href = '/login';
+                }
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
@@ -100,8 +114,7 @@ export class MessageService {
                 }
 
                 // Process the chunk - simple approach without regex
-                try {
-                    // Split by double backslashes which separate the JSON objects
+                try {                    // Split by double backslashes which separate the JSON objects
                     const parts = chunkStr.split('\\\\');
 
                     for (const part of parts) {
@@ -129,10 +142,10 @@ export class MessageService {
                                 // Call the callback with the updated content
                                 onStreamUpdate(accumulatedContent);
 
-                                console.log('Updated content:', accumulatedContent);
+                                console.log('Updated content length:', accumulatedContent.length);
                             }
-                        } catch (e) {
-                            console.warn('Failed to parse JSON part:', trimmedPart);
+                        } catch (error) {
+                            console.warn('Failed to parse JSON part:', trimmedPart, error);
                         }
                     }
                 } catch (error) {
@@ -162,10 +175,10 @@ export class MessageService {
      * Delete a specific message
      * @param messageId ID of the message to delete
      * @returns Result of the deletion operation
-     */
-    async delete_message(messageId: number): Promise<Result<any>> {
+     */    async delete_message(messageId: number): Promise<Result<unknown>> {
         try {
-            const response = await this.http.delete(`/session/${this.sessionId}/message/${messageId}`);
+            // Fixed path - removed leading slash since baseURL already has it
+            const response = await this.http.delete(`session/${this.sessionId}/message/${messageId}`);
             return response.data;
         } catch (error) {
             console.error("Error deleting message:", error);
@@ -178,10 +191,10 @@ export class MessageService {
      * @param messageId ID of the message to update
      * @param content New content for the message
      * @returns Result containing the updated message
-     */
-    async update_message(messageId: number, content: string): Promise<Result<MessageDto>> {
+     */    async update_message(messageId: number, content: string): Promise<Result<MessageDto>> {
         try {
-            const response = await this.http.put(`/session/${this.sessionId}/message/${messageId}`, {
+            // Fixed path - removed leading slash since baseURL already has it
+            const response = await this.http.put(`session/${this.sessionId}/message/${messageId}`, {
                 content
             });
             return response.data;

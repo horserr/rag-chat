@@ -21,24 +21,36 @@
   animation: fadeIn 0.3s ease-in-out;
 }
 
-/* Custom Scrollbar */
+/* Custom Scrollbar - 更加细致和美观 */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px; /* 更窄的滚动条 */
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05);
+  background: transparent; /* 透明背景 */
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.15); /* 更淡的颜色 */
   border-radius: 10px;
+  transition: background 0.2s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.25); /* 悬停时稍微深一点 */
+}
+
+/* 为首页和登录页特殊优化滚动条 */
+.home-page::-webkit-scrollbar,
+.login-page::-webkit-scrollbar {
+  width: 4px; /* 更细的滚动条 */
+}
+
+.home-page::-webkit-scrollbar-thumb,
+.login-page::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.1); /* 更淡的颜色 */
 }
 
 /* Icon Animation */

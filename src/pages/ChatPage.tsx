@@ -16,19 +16,40 @@ import { useNavigate } from "react-router-dom";
 const ChatPage: React.FC = () => {
   const navigate = useNavigate();
   const [sessionId, setSessionId] = useState<number | undefined>(undefined);
-  const { messages, sendMessage, isLoading, setSession, currentSessionId } = useChat(sessionId);
+  const {
+    messages,
+    sendMessage,
+    isLoading,
+    setSession,
+    currentSessionId,
+    loadingMessages,
+  } = useChat(sessionId);
   const [isHistoryPanelOpen, setIsHistoryPanelOpen] = useState(true);
-  const [sessionService, setSessionService] = useState<SessionService | null>(null);
-
+  const [sessionService, setSessionService] = useState<SessionService | null>(
+    null
+  );
   // Check for token and init session service
   useEffect(() => {
     const token = TokenService.getToken();
     if (!token) {
+      console.log("No valid token found, redirecting to login");
       navigate("/login");
       return;
     }
 
+    // Set up periodic token validation check
+    const tokenCheckInterval = setInterval(() => {
+      if (!TokenService.isTokenValid()) {
+        console.log("Token expired during session, redirecting to login");
+        clearInterval(tokenCheckInterval);
+        navigate("/login");
+      }
+    }, 30000); // Check every 30 seconds
+
     setSessionService(new SessionService(token));
+
+    // Clean up interval on component unmount
+    return () => clearInterval(tokenCheckInterval);
   }, [navigate]);
 
   // Create a new session if none exists
@@ -62,7 +83,8 @@ const ChatPage: React.FC = () => {
 
   return (
     <Box sx={{ display: "flex", height: "100%", width: "100%" }}>
-      {/* History Panel with animation */}      <Collapse
+      {/* History Panel with animation */}{" "}
+      <Collapse
         in={isHistoryPanelOpen}
         orientation="horizontal"
         timeout={300}
@@ -87,7 +109,6 @@ const ChatPage: React.FC = () => {
           }}
         />
       </Collapse>
-
       {/* Main Chat Content Area */}
       <Box
         sx={{

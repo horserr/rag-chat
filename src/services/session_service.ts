@@ -8,11 +8,10 @@ export class SessionService {
 
     constructor(token: string) {
         this.http = rag_http(token);
-    }
-
-    async get_sessions(page: number, page_size: number = 20): Promise<PaginatedResult<SessionDto[]>> {
+    }    async get_sessions(page: number, page_size: number = 20): Promise<PaginatedResult<SessionDto[]>> {
         try {
-            const response = await this.http.get("/session", {
+            // Remove leading slash since baseURL already includes it
+            const response = await this.http.get("session", {
                 params: {
                     "page": page,
                     "page_size": page_size
@@ -23,31 +22,28 @@ export class SessionService {
             console.error("Error fetching sessions:", error);
             throw error;
         }
-    }
-
-    async delete_session(id: number): Promise<Result<any>> {
+    }    async delete_session(id: number): Promise<Result<unknown>> {
         try {
-            const response = await this.http.delete("/session/" + id);
+            // Remove leading slash since baseURL already includes it
+            const response = await this.http.delete("session/" + id);
             return response.data;
         } catch(error) {
             console.error("Error deleting session:", error);
             throw error;
         }
-    }
-
-    async new_session(): Promise<Result<SessionDto>> {
+    }    async new_session(): Promise<Result<SessionDto>> {
         try {
-            const response = await this.http.post("/session");
+            // Remove leading slash since baseURL already includes it
+            const response = await this.http.post("session");
             return response.data;
         } catch(error) {
             console.error("Error creating new session:", error);
             throw error;
         }
-    }
-
-    async put_session(id: number, title: string): Promise<Result<SessionDto>> {
+    }    async put_session(id: number, title: string): Promise<Result<SessionDto>> {
         try {
-            const response = await this.http.put("/session/" + id, {
+            // Remove leading slash since baseURL already includes it
+            const response = await this.http.put("session/" + id, {
                 "title": title
             });
             return response.data;

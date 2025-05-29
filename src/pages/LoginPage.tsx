@@ -1,28 +1,28 @@
-import React, { useState } from 'react';
+import { Email, Lock, Visibility, VisibilityOff } from "@mui/icons-material";
 import {
+  Avatar,
   Box,
+  Button,
   Card,
   CardContent,
-  TextField,
-  Button,
-  Typography,
-  InputAdornment,
-  IconButton,
   CircularProgress,
   Grid,
+  IconButton,
+  InputAdornment,
   Paper,
-  Avatar,
-  useTheme
-} from '@mui/material';
-import { Visibility, VisibilityOff, Lock, Email } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { AuthService } from '../services/auth_service';
-import { TokenService } from '../services/token_service';
+  TextField,
+  Typography,
+  useTheme,
+} from "@mui/material";
+import { motion } from "framer-motion";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthService } from "../services/auth_service";
+import { TokenService } from "../services/token_service";
 
 const LoginPage: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +33,7 @@ const LoginPage: React.FC = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
-      setError('Please enter both email and password.');
+      setError("Please enter both email and password.");
       return;
     }
 
@@ -43,54 +43,58 @@ const LoginPage: React.FC = () => {
     try {
       const result = await authService.login({
         email,
-        password
+        password,
       });
-
-      if (result.status_code === 200 && result.data) {
+      if (result.status_code === 200 && result.data && result.data.token) {
         // Store token with expiration time
-        TokenService.setToken(result.data);
+        TokenService.setToken(result.data.token);
+        console.log("Login successful, token stored");
 
         // Navigate to chat page
-        navigate('/chat');
+        navigate("/chat");
       } else {
         // Handle failed login
-        setError(result.message || 'Login failed. Please try again.');
+        setError(result.message || "Login failed. Please try again.");
+        console.error("Login failed:", result);
       }
     } catch (err) {
-      setError('An error occurred. Please try again.');
-      console.error('Login error:', err);
+      setError("An error occurred. Please try again.");
+      console.error("Login error:", err);
     } finally {
       setLoading(false);
     }
   };
 
   const handleHomeClick = () => {
-    navigate('/');
-  };
-
-  return (
-    <Box sx={{
-      minHeight: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      bgcolor: 'background.default'
-    }}>
+    navigate("/");
+  };  return (
+    <Box
+      className="login-page" // 添加类名以应用自定义滚动条样式
+      sx={{
+        minHeight: "100vh",
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+        bgcolor: "background.default",
+        overflowY: "overlay", // 使用overlay让滚动条覆盖在内容上，更加美观
+      }}
+    >
       {/* Header */}
       <Box
         sx={{
           py: 2,
           px: 4,
-          display: 'flex',
-          alignItems: 'center',
+          display: "flex",
+          alignItems: "center",
           borderBottom: 1,
-          borderColor: 'divider',
+          borderColor: "divider",
         }}
       >
         <Box
           sx={{
-            display: 'flex',
-            alignItems: 'center',
-            cursor: 'pointer'
+            display: "flex",
+            alignItems: "center",
+            cursor: "pointer",
           }}
           onClick={handleHomeClick}
         >
@@ -106,13 +110,15 @@ const LoginPage: React.FC = () => {
       </Box>
 
       {/* Main Content */}
-      <Box sx={{
-        flexGrow: 1,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        p: 3
-      }}>
+      <Box
+        sx={{
+          flexGrow: 1,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          p: 3,
+        }}
+      >
         <Grid container justifyContent="center" alignItems="center" spacing={4}>
           <Grid item xs={12} md={6} lg={5}>
             <motion.div
@@ -128,8 +134,13 @@ const LoginPage: React.FC = () => {
                   background: `linear-gradient(135deg, ${theme.palette.background.paper} 0%, ${theme.palette.background.paper} 100%)`,
                 }}
               >
-                <Box sx={{ mb: 3, textAlign: 'center' }}>
-                  <Typography variant="h4" fontWeight="bold" color="primary" gutterBottom>
+                <Box sx={{ mb: 3, textAlign: "center" }}>
+                  <Typography
+                    variant="h4"
+                    fontWeight="bold"
+                    color="primary"
+                    gutterBottom
+                  >
                     Welcome Back
                   </Typography>
                   <Typography variant="body1" color="text.secondary">
@@ -166,7 +177,7 @@ const LoginPage: React.FC = () => {
                     fullWidth
                     name="password"
                     label="Password"
-                    type={showPassword ? 'text' : 'password'}
+                    type={showPassword ? "text" : "password"}
                     id="password"
                     autoComplete="current-password"
                     value={password}
@@ -194,7 +205,11 @@ const LoginPage: React.FC = () => {
                   />
 
                   {error && (
-                    <Typography color="error" variant="body2" sx={{ mt: 1, mb: 2 }}>
+                    <Typography
+                      color="error"
+                      variant="body2"
+                      sx={{ mt: 1, mb: 2 }}
+                    >
                       {error}
                     </Typography>
                   )}
@@ -210,8 +225,8 @@ const LoginPage: React.FC = () => {
                       mt: 1,
                       mb: 2,
                       py: 1.5,
-                      fontWeight: 'bold',
-                      position: 'relative'
+                      fontWeight: "bold",
+                      position: "relative",
                     }}
                   >
                     {loading ? (
@@ -219,15 +234,15 @@ const LoginPage: React.FC = () => {
                         size={24}
                         sx={{
                           color: theme.palette.primary.contrastText,
-                          position: 'absolute',
-                          top: '50%',
-                          left: '50%',
-                          marginTop: '-12px',
-                          marginLeft: '-12px',
+                          position: "absolute",
+                          top: "50%",
+                          left: "50%",
+                          marginTop: "-12px",
+                          marginLeft: "-12px",
                         }}
                       />
                     ) : (
-                      'Sign In'
+                      "Sign In"
                     )}
                   </Button>
                 </Box>
@@ -241,7 +256,7 @@ const LoginPage: React.FC = () => {
             md={6}
             lg={5}
             sx={{
-              display: { xs: 'none', md: 'block' }
+              display: { xs: "none", md: "block" },
             }}
           >
             <motion.div
@@ -252,11 +267,11 @@ const LoginPage: React.FC = () => {
               <Card
                 elevation={0}
                 sx={{
-                  bgcolor: 'transparent',
-                  height: '100%',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'center'
+                  bgcolor: "transparent",
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
                 }}
               >
                 <CardContent>
@@ -271,8 +286,9 @@ const LoginPage: React.FC = () => {
                   </Typography>
 
                   <Typography variant="body1" color="text.secondary" paragraph>
-                    Get access to our advanced retrieval-augmented generation platform
-                    for more accurate and contextually relevant answers.
+                    Get access to our advanced retrieval-augmented generation
+                    platform for more accurate and contextually relevant
+                    answers.
                   </Typography>
 
                   <Box sx={{ mt: 4 }}>
@@ -281,16 +297,19 @@ const LoginPage: React.FC = () => {
                       "Context-aware responses powered by LLMs",
                       "Performance evaluation and comparison tools",
                     ].map((feature, index) => (
-                      <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                      <Box
+                        key={index}
+                        sx={{ display: "flex", alignItems: "center", mb: 2 }}
+                      >
                         <Box
                           sx={{
                             width: 30,
                             height: 30,
-                            borderRadius: '50%',
+                            borderRadius: "50%",
                             bgcolor: `${theme.palette.primary.main}22`,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
                             mr: 2,
                           }}
                         >
@@ -319,11 +338,11 @@ const LoginPage: React.FC = () => {
         sx={{
           py: 2,
           px: 2,
-          mt: 'auto',
-          backgroundColor: 'background.paper',
+          mt: "auto",
+          backgroundColor: "background.paper",
           borderTop: 1,
-          borderColor: 'divider',
-          textAlign: 'center',
+          borderColor: "divider",
+          textAlign: "center",
         }}
       >
         <Typography variant="body2" color="text.secondary">

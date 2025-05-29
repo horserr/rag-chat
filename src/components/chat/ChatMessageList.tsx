@@ -16,6 +16,21 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({ messages, isLoading }
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
   const theme = useTheme();
 
+  // Add blinking cursor animation for streaming messages
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0; }
+      }
+    `;
+    document.head.appendChild(style);
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -106,14 +121,19 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({ messages, isLoading }
                   >
                     {new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                   </Typography>
-                </Box>
-                <Paper
+                </Box>                <Paper
                   elevation={0}
                   className={msg.sender === 'user' ? 'chat-bubble-user' : 'chat-bubble-bot'}
                   sx={{
                     padding: '14px 20px',
                     display: 'inline-block',
                     maxWidth: '100%',
+                    borderColor: msg.isError ? 'error.light' : 'inherit',
+                    borderWidth: msg.isError ? 1 : 0,
+                    borderStyle: msg.isError ? 'solid' : 'none',
+                    backgroundColor: msg.isError
+                      ? 'rgba(211, 47, 47, 0.05)'
+                      : undefined
                   }}
                 >
                   <Typography
@@ -121,10 +141,14 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({ messages, isLoading }
                     sx={{
                       whiteSpace: 'pre-wrap',
                       wordBreak: 'break-word',
-                      lineHeight: 1.6
+                      lineHeight: 1.6,
+                      color: msg.isError ? 'error.main' : 'inherit'
                     }}
                   >
                     {msg.text}
+                    {msg.isStreaming && (
+                      <Box component="span" sx={{ display: 'inline-block', width: '8px', height: '16px', ml: 0.5, backgroundColor: theme.palette.primary.main, animation: 'blink 1s infinite' }} />
+                    )}
                   </Typography>
                 </Paper>
               </Box>
