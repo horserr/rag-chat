@@ -2,8 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import type { ChatMessage } from "../types";
 import { MessageService } from "../services/message_service";
 import { TokenService } from "../services/token_service";
-import { SessionService } from "../services/session_service";
-import { MessageDto } from "../models/message";
+import type { MessageDto } from "../models/message";
 
 // Convert MessageDto to ChatMessage format
 const convertMessageDtoToChatMessage = (msg: MessageDto): ChatMessage => {

@@ -8,66 +8,6 @@ import type {
   FormData,
 } from "../components/evaluation/types";
 
-// Sample evaluation data (mock data)
-const sampleEvaluations: EvaluationCardProps[] = [
-  {
-    id: "1",
-    title: "RAG Knowledge Base Test",
-    date: "May 21, 2025",
-    type: "rag",
-    metrics: [
-      { name: "Relevance", value: 0.89, status: "good" },
-      { name: "Context Recall", value: 0.76, status: "neutral" },
-    ],
-    description:
-      "Evaluating knowledge retrieval accuracy from the finance corpus",
-  },
-  {
-    id: "2",
-    title: "Prompt Effectiveness Eval",
-    date: "May 20, 2025",
-    type: "prompt",
-    metrics: [
-      { name: "Clarity", value: 0.92, status: "good" },
-      { name: "Consistency", value: 0.85, status: "good" },
-    ],
-    description: "Testing variations of customer service prompts",
-  },
-  {
-    id: "3",
-    title: "Retrieval Accuracy Test",
-    date: "May 19, 2025",
-    type: "rag",
-    metrics: [
-      { name: "Precision", value: 0.65, status: "bad" },
-      { name: "Answer Quality", value: 0.71, status: "neutral" },
-    ],
-    description: "Measuring retrieval accuracy on technical documentation",
-  },
-  {
-    id: "4",
-    title: "Prompt Variation Analysis",
-    date: "May 18, 2025",
-    type: "prompt",
-    metrics: [
-      { name: "Response Time", value: 0.94, status: "good" },
-      { name: "Accuracy", value: 0.67, status: "bad" },
-    ],
-    description: "Comparing different prompt structures for code generation",
-  },
-  {
-    id: "5",
-    title: "QA Context Relevance",
-    date: "May 17, 2025",
-    type: "rag",
-    metrics: [
-      { name: "Context Quality", value: 0.83, status: "good" },
-      { name: "Citation Accuracy", value: 0.79, status: "neutral" },
-    ],
-    description: "Testing Q&A with various context window sizes",
-  },
-];
-
 const EvaluationPage: React.FC = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
@@ -192,3 +132,63 @@ const EvaluationPage: React.FC = () => {
 };
 
 export default EvaluationPage;
+
+// Sample evaluation data (mock data)
+const sampleEvaluations: EvaluationCardProps[] = [
+  {
+    id: "1",
+    title: "RAG Knowledge Base Test",
+    date: "May 21, 2025",
+    type: "rag",
+    metrics: [
+      { name: "Relevance", value: 0.89, status: "good" },
+      { name: "Context Recall", value: 0.76, status: "neutral" },
+    ],
+    description:
+      "Evaluating knowledge retrieval accuracy from the finance corpus",
+  },
+  {
+    id: "2",
+    title: "Prompt Effectiveness Eval",
+    date: "May 20, 2025",
+    type: "prompt",
+    metrics: [
+      { name: "Clarity", value: 0.92, status: "good" },
+      { name: "Consistency", value: 0.85, status: "good" },
+    ],
+    description: "Testing variations of customer service prompts",
+  },
+  {
+    id: "3",
+    title: "Retrieval Accuracy Test",
+    date: "May 19, 2025",
+    type: "rag",
+    metrics: [
+      { name: "Precision", value: 0.65, status: "bad" },
+      { name: "Answer Quality", value: 0.71, status: "neutral" },
+    ],
+    description: "Measuring retrieval accuracy on technical documentation",
+  },
+  {
+    id: "4",
+    title: "Prompt Variation Analysis",
+    date: "May 18, 2025",
+    type: "prompt",
+    metrics: [
+      { name: "Response Time", value: 0.94, status: "good" },
+      { name: "Accuracy", value: 0.67, status: "bad" },
+    ],
+    description: "Comparing different prompt structures for code generation",
+  },
+  {
+    id: "5",
+    title: "QA Context Relevance",
+    date: "May 17, 2025",
+    type: "rag",
+    metrics: [
+      { name: "Context Quality", value: 0.83, status: "good" },
+      { name: "Citation Accuracy", value: 0.79, status: "neutral" },
+    ],
+    description: "Testing Q&A with various context window sizes",
+  },
+];

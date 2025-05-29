@@ -1,15 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
   Box, Typography, Button, Divider, useTheme, Paper,
-  List, ListItem, ListItemText, ListItemIcon, IconButton, CircularProgress
+  List, ListItem, IconButton, CircularProgress
 } from '@mui/material';
 import HistoryIcon from '@mui/icons-material/History';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import ChatIcon from '@mui/icons-material/Chat';
-import { SessionService } from '../../services/session_service';
-import { TokenService } from '../../services/token_service';
-import { SessionDto } from '../../models/session';
+import { useSessions, useCreateSession, useDeleteSession } from '../../hooks/useSessions';
 
 interface ChatHistorySidebarProps {
   isOpen: boolean;
@@ -19,75 +16,33 @@ interface ChatHistorySidebarProps {
 
 const ChatHistorySidebar: React.FC<ChatHistorySidebarProps> = ({ isOpen, sessionId, onSelectSession }) => {
   const theme = useTheme();
-  const [sessions, setSessions] = useState<SessionDto[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [sessionService, setSessionService] = useState<SessionService | null>(null);
 
-  // Initialize session service
-  useEffect(() => {
-    const token = TokenService.getToken();
-    if (token) {
-      setSessionService(new SessionService(token));
-    }
-  }, []);
-
-  // Load sessions
-  useEffect(() => {
-    const loadSessions = async () => {
-      if (!sessionService) return;
-
-      setLoading(true);
-      try {
-        const response = await sessionService.get_sessions(0, 50);
-        if (response.status_code === 200 && response.data) {
-          setSessions(response.data);
-        }
-      } catch (error) {
-        console.error("Error loading sessions:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (sessionService) {
-      loadSessions();
-    }
-  }, [sessionService]);
+  // Use React Query hooks for session management
+  const { data: sessions = [], isLoading: loading } = useSessions();
+  const createSessionMutation = useCreateSession();
+  const deleteSessionMutation = useDeleteSession();
 
   const handleNewSession = async () => {
-    if (!sessionService || !onSelectSession) return;
+    if (!onSelectSession) return;
 
-    try {
-      const response = await sessionService.new_session();
-      if (response.status_code === 200 && response.data) {
-        // Add the new session to the list
-        setSessions(prev => [response.data, ...prev]);
+    createSessionMutation.mutate(undefined, {
+      onSuccess: (newSession) => {
         // Select the new session
-        onSelectSession(response.data.id);
+        onSelectSession(newSession.id);
+      },
+      onError: (error) => {
+        console.error("Error creating new session:", error);
       }
-    } catch (error) {
-      console.error("Error creating new session:", error);
-    }
+    });
   };
-
   const handleDeleteSession = async (id: number, event: React.MouseEvent) => {
     event.stopPropagation(); // Prevent selection when deleting
-    if (!sessionService) return;
 
-    try {
-      const response = await sessionService.delete_session(id);
-      if (response.status_code === 200) {
-        // Remove the session from the list
-        setSessions(prev => prev.filter(session => session.id !== id));
+    deleteSessionMutation.mutate(id, {
+      onError: (error) => {
+        console.error("Error deleting session:", error);
       }
-    } catch (error) {
-      console.error("Error deleting session:", error);
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    });
   };
 
   return (

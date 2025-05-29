@@ -1,4 +1,4 @@
-import { AppBar, Box, Container, Toolbar, Typography } from "@mui/material";
+import { AppBar, Box, Container, Toolbar } from "@mui/material";
 import type { ReactNode } from "react";
 import React from "react";
 import { useLocation } from "react-router-dom";

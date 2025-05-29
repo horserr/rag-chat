@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Box, Collapse } from "@mui/material";
 import ChatHistorySidebar from "../components/chat/ChatHistorySidebar";
 import ChatHeader from "../components/chat/ChatHeader";
 import ChatMessageList from "../components/chat/ChatMessageList";
 import ChatInputArea from "../components/chat/ChatInputArea";
-import { useChat } from "../hooks/useChat";
-import { SessionService } from "../services/session_service";
-import { TokenService } from "../services/token_service";
+import { useChatQuery } from "../hooks/useChatQuery";
+import { useAuthCheck } from "../hooks/useAuth";
+import { useCreateSession } from "../hooks/useSessions";
 import { useNavigate } from "react-router-dom";
 
 /**
@@ -16,62 +16,42 @@ import { useNavigate } from "react-router-dom";
 const ChatPage: React.FC = () => {
   const navigate = useNavigate();
   const [sessionId, setSessionId] = useState<number | undefined>(undefined);
+  const [isHistoryPanelOpen, setIsHistoryPanelOpen] = useState(true);
+
+  // Check authentication status using React Query
+  const { data: authData } = useAuthCheck();
+  const createSessionMutation = useCreateSession();
+
+  // Use React Query for chat functionality
   const {
     messages,
     sendMessage,
     isLoading,
     setSession,
     currentSessionId,
-    loadingMessages,
-  } = useChat(sessionId);
-  const [isHistoryPanelOpen, setIsHistoryPanelOpen] = useState(true);
-  const [sessionService, setSessionService] = useState<SessionService | null>(
-    null
-  );
-  // Check for token and init session service
-  useEffect(() => {
-    const token = TokenService.getToken();
-    if (!token) {
-      console.log("No valid token found, redirecting to login");
+  } = useChatQuery(sessionId);
+
+  // Redirect to login if not authenticated
+  React.useEffect(() => {
+    if (authData && !authData.isLoggedIn) {
       navigate("/login");
-      return;
     }
+  }, [authData, navigate]);
 
-    // Set up periodic token validation check
-    const tokenCheckInterval = setInterval(() => {
-      if (!TokenService.isTokenValid()) {
-        console.log("Token expired during session, redirecting to login");
-        clearInterval(tokenCheckInterval);
-        navigate("/login");
-      }
-    }, 30000); // Check every 30 seconds
-
-    setSessionService(new SessionService(token));
-
-    // Clean up interval on component unmount
-    return () => clearInterval(tokenCheckInterval);
-  }, [navigate]);
-
-  // Create a new session if none exists
-  useEffect(() => {
-    const createNewSession = async () => {
-      if (!sessionService) return;
-
-      try {
-        const response = await sessionService.new_session();
-        if (response.status_code === 200 && response.data) {
-          setSessionId(response.data.id);
-          setSession(response.data.id);
+  // Create a new session if none exists and user is authenticated
+  React.useEffect(() => {
+    if (authData?.isLoggedIn && !sessionId && !createSessionMutation.isPending) {
+      createSessionMutation.mutate(undefined, {
+        onSuccess: (newSession) => {
+          setSessionId(newSession.id);
+          setSession(newSession.id);
+        },
+        onError: (error) => {
+          console.error("Error creating new session:", error);
         }
-      } catch (error) {
-        console.error("Error creating new session:", error);
-      }
-    };
-
-    if (sessionService && !sessionId) {
-      createNewSession();
+      });
     }
-  }, [sessionService, sessionId, setSession]);
+  }, [authData, sessionId, createSessionMutation, setSession]);
 
   const handleToggleHistoryPanel = () => {
     setIsHistoryPanelOpen(!isHistoryPanelOpen);

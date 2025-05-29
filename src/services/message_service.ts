@@ -1,7 +1,7 @@
 import { rag_http } from "./http_common";
-import { AxiosInstance } from "axios";
-import { MessageDto } from "../models/message";
-import { PaginatedResult, Result } from "../models/result";
+import type { AxiosInstance } from "axios";
+import type { MessageDto } from "../models/message";
+import type { PaginatedResult, Result } from "../models/result";
 
 export class MessageService {
     http: AxiosInstance;

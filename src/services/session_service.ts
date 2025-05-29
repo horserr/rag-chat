@@ -1,7 +1,7 @@
 import { rag_http } from "./http_common";
-import { AxiosInstance } from "axios";
-import { SessionDto } from "../models/session";
-import { PaginatedResult, Result } from "../models/result";
+import type { AxiosInstance } from "axios";
+import type { SessionDto } from "../models/session";
+import type { PaginatedResult, Result } from "../models/result";
 
 export class SessionService {
     http: AxiosInstance;

@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Chip, Typography } from "@mui/material";
+import { Box, Chip } from "@mui/material";
 
 interface MetricProps {
   name: string;
