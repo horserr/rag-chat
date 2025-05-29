@@ -24,7 +24,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     return "RAG Assistant";
   };
   // Check if current page is homepage or login page
-  const isHomeOrLoginPage = location.pathname === "/" || location.pathname === "/login";
+  const isHomeOrLoginPage =
+    location.pathname === "/" || location.pathname === "/login";
 
   return (
     <Box
@@ -53,7 +54,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             <AppHeader subtitle={getSubtitle()} />
             <NavigationTabs />
           </Toolbar>
-        </AppBar>      ) : null}      <Container
+        </AppBar>
+      ) : null}{" "}
+      <Container
         component="main"
         maxWidth={false} // 占据整个屏幕宽度，没有左右边距
         disableGutters // 移除容器的默认内边距

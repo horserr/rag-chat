@@ -2,7 +2,6 @@
 // Run with Node.js: node test_api.js
 
 // Import fetch for Node.js
-const fetch = require('node-fetch');
 
 // Test function
 async function testChatAPI() {
