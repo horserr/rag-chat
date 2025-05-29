@@ -8,7 +8,7 @@ export const useSessions = () => {
   const token = TokenService.getToken();
 
   return useQuery({
-    queryKey: ['sessions'],
+    queryKey: ['sessions', token], // Include token in query key to handle token changes
     queryFn: async () => {
       if (!token) throw new Error('No token');
 
@@ -22,9 +22,12 @@ export const useSessions = () => {
     },
     enabled: !!token,
     staleTime: 10 * 60 * 1000, // 10 minutes
+    gcTime: 15 * 60 * 1000, // Keep in cache for 15 minutes
     refetchInterval: false, // Disable automatic refetching
-    retry: 1, // Retry only once on failure    refetchOnWindowFocus: false, // Don't refetch when window regains focus
-    refetchOnMount: false // Don't refetch when component mounts
+    refetchOnWindowFocus: false, // Don't refetch when window regains focus
+    refetchOnMount: false, // Don't refetch when component mounts
+    refetchOnReconnect: false, // Don't refetch on network reconnect
+    retry: 1, // Retry only once on failure
   });
 };
 
@@ -44,10 +47,10 @@ export const useCreateSession = () => {
         return response.data;
       }
       throw new Error('Failed to create session');
-    },
-    onSuccess: (newSession: SessionDto) => {
-      // Add the new session to the sessions cache
-      queryClient.setQueryData(['sessions'], (oldSessions: SessionDto[] = []) => [
+    },    onSuccess: (newSession: SessionDto) => {
+      // Add the new session to the sessions cache for the current token
+      const token = TokenService.getToken();
+      queryClient.setQueryData(['sessions', token], (oldSessions: SessionDto[] = []) => [
         newSession,
         ...oldSessions
       ]);
@@ -66,10 +69,10 @@ export const useDeleteSession = () => {
 
       const sessionService = new SessionService(token);
       return await sessionService.delete_session(sessionId);
-    },
-    onSuccess: (_, sessionId) => {
-      // Remove the session from the cache
-      queryClient.setQueryData(['sessions'], (oldSessions: SessionDto[] = []) =>
+    },    onSuccess: (_, sessionId) => {
+      // Remove the session from the cache for the current token
+      const token = TokenService.getToken();
+      queryClient.setQueryData(['sessions', token], (oldSessions: SessionDto[] = []) =>
         oldSessions.filter(session => session.id !== sessionId)
       );
       // Also clear messages cache for this session

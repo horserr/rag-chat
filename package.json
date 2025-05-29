@@ -2,8 +2,7 @@
   "name": "rag-chat",
   "private": true,
   "version": "2.0.0",
-  "type": "module",
-  "scripts": {
+  "type": "module",  "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
@@ -11,7 +10,8 @@
     "test": "jest --config tests/jest.config.js",
     "test:api": "jest --config tests/jest.config.js tests/api",
     "test:unit": "jest --config tests/jest.config.js tests/unit",
-    "test:integration": "jest --config tests/jest.config.js tests/integration"
+    "test:integration": "jest --config tests/jest.config.js tests/integration",
+    "generate:launch": "node .vscode/launch-config.js"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -25,7 +25,8 @@
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.6.0",
-    "use-immer": "^0.11.0"
+    "use-immer": "^0.11.0",
+    "zod": "^3.25.36"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",

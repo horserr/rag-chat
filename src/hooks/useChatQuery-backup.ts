@@ -22,10 +22,8 @@ export const useChatQuery = (initialSessionId?: number) => {
 
   // Get current token
   const token = TokenService.getToken();
-
-  // Query for messages
-  const { data: messages = [], isLoading: loadingMessages } = useQuery({
-    queryKey: ['messages', currentSessionId, token],
+  // Query for messages  const { data: messages = [], isLoading: loadingMessages } = useQuery({
+    queryKey: ['messages', currentSessionId],
     queryFn: async () => {
       if (!token || !currentSessionId) return [];
 
@@ -37,7 +35,6 @@ export const useChatQuery = (initialSessionId?: number) => {
     staleTime: 30 * 1000, // Consider data stale after 30 seconds
     refetchInterval: false, // Disable automatic refetching
     refetchOnWindowFocus: false, // Don't refetch when window regains focus
-    refetchOnMount: false, // Don't refetch when component mounts
   });
 
   // Mutation for sending messages
@@ -51,7 +48,7 @@ export const useChatQuery = (initialSessionId?: number) => {
       // Define streaming update callback
       const handleStreamUpdate = (content: string) => {
         // Update the query cache with streaming content
-        queryClient.setQueryData(['messages', currentSessionId, token], (oldMessages: ChatMessage[] = []) => {
+        queryClient.setQueryData(['messages', currentSessionId], (oldMessages: ChatMessage[] = []) => {
           const lastMessage = oldMessages[oldMessages.length - 1];
           if (lastMessage?.sender === "bot" && lastMessage.isStreaming) {
             // Update the streaming message
@@ -82,7 +79,7 @@ export const useChatQuery = (initialSessionId?: number) => {
         timestamp: new Date(),
       };
 
-      queryClient.setQueryData(['messages', currentSessionId, token], (oldMessages: ChatMessage[] = []) => [
+      queryClient.setQueryData(['messages', currentSessionId], (oldMessages: ChatMessage[] = []) => [
         ...oldMessages,
         userMessage
       ]);
@@ -91,7 +88,7 @@ export const useChatQuery = (initialSessionId?: number) => {
     },
     onSuccess: () => {
       // Refresh messages after sending to get the final state
-      queryClient.invalidateQueries({ queryKey: ['messages', currentSessionId, token] });
+      queryClient.invalidateQueries({ queryKey: ['messages', currentSessionId] });
     },
     onError: (error) => {
       console.error("Error sending message:", error);
@@ -104,7 +101,7 @@ export const useChatQuery = (initialSessionId?: number) => {
         isError: true
       };
 
-      queryClient.setQueryData(['messages', currentSessionId, token], (oldMessages: ChatMessage[] = []) => [
+      queryClient.setQueryData(['messages', currentSessionId], (oldMessages: ChatMessage[] = []) => [
         ...oldMessages,
         errorResponse
       ]);
