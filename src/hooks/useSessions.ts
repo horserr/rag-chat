@@ -21,7 +21,10 @@ export const useSessions = () => {
       return [];
     },
     enabled: !!token,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 10 * 60 * 1000, // 10 minutes
+    refetchInterval: false, // Disable automatic refetching
+    retry: 1, // Retry only once on failure    refetchOnWindowFocus: false, // Don't refetch when window regains focus
+    refetchOnMount: false // Don't refetch when component mounts
   });
 };
 

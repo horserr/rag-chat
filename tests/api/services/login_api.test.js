@@ -11,7 +11,7 @@ class LoginApiTest {
   async testLogin() {
     console.log("Testing: Login API");
     try {
-      const response = await fetch(`${this.baseUrl}/login`, {
+      const response = await fetch(`${this.baseUrl}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

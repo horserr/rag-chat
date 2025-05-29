@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Collapse } from "@mui/material";
 import ChatHistorySidebar from "../components/chat/ChatHistorySidebar";
 import ChatHeader from "../components/chat/ChatHeader";
@@ -18,11 +18,14 @@ const ChatPage: React.FC = () => {
   const [sessionId, setSessionId] = useState<number | undefined>(undefined);
   const [isHistoryPanelOpen, setIsHistoryPanelOpen] = useState(true);
 
-  // Check authentication status using React Query
-  const { data: authData } = useAuthCheck();
-  const createSessionMutation = useCreateSession();
+  // Authentication state
+  const { data: authData, isLoading: authLoading } = useAuthCheck();
 
-  // Use React Query for chat functionality
+  // Session creation state
+  const createSessionMutation = useCreateSession();
+  const [isCreatingSession, setIsCreatingSession] = useState(false);
+
+  // Chat functionality with React Query
   const {
     messages,
     sendMessage,
@@ -31,16 +34,29 @@ const ChatPage: React.FC = () => {
     currentSessionId,
   } = useChatQuery(sessionId);
 
-  // Redirect to login if not authenticated
-  React.useEffect(() => {
-    if (authData && !authData.isLoggedIn) {
+  // Handle authentication check and redirect if needed
+  useEffect(() => {
+    if (!authLoading && authData && !authData.isLoggedIn) {
       navigate("/login");
     }
-  }, [authData, navigate]);
+  }, [authData, authLoading, navigate]);
 
-  // Create a new session if none exists and user is authenticated
-  React.useEffect(() => {
-    if (authData?.isLoggedIn && !sessionId && !createSessionMutation.isPending) {
+  // Handle session creation once when authenticated
+  useEffect(() => {
+    // Only attempt to create a session when:
+    // 1. User is authenticated
+    // 2. We don't have a session ID yet
+    // 3. We haven't started the session creation process
+    // 4. The creation mutation isn't already in progress
+    if (
+      authData?.isLoggedIn &&
+      !sessionId &&
+      !isCreatingSession &&
+      !createSessionMutation.isPending
+    ) {
+      // Mark that we're starting session creation to prevent duplicate calls
+      setIsCreatingSession(true);
+
       createSessionMutation.mutate(undefined, {
         onSuccess: (newSession) => {
           setSessionId(newSession.id);
@@ -48,18 +64,42 @@ const ChatPage: React.FC = () => {
         },
         onError: (error) => {
           console.error("Error creating new session:", error);
+          // Allow retry on error by resetting the creation flag
+          setIsCreatingSession(false);
         }
       });
     }
-  }, [authData, sessionId, createSessionMutation, setSession]);
+  }, [
+    authData?.isLoggedIn,
+    sessionId,
+    isCreatingSession,
+    createSessionMutation,
+    setSession
+  ]);
 
   const handleToggleHistoryPanel = () => {
     setIsHistoryPanelOpen(!isHistoryPanelOpen);
   };
-
   const handleSendMessage = (text: string) => {
     sendMessage(text);
   };
+  // Show loading while auth is being checked or session is being created
+  if (authLoading || (isCreatingSession && createSessionMutation.isPending)) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          fontWeight: 500,
+          color: "text.secondary"
+        }}
+      >
+        Loading chat...
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ display: "flex", height: "100%", width: "100%" }}>

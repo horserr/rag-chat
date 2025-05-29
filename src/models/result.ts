@@ -1,7 +1,7 @@
-export interface Result<T> {
+export interface Result<T = string> {
     status_code: number;
     message: string;
-    data: T
+    data: T;
 }
 
 export interface PageInfo {

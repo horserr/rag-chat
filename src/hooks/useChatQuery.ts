@@ -22,7 +22,6 @@ export const useChatQuery = (initialSessionId?: number) => {
 
   // Get current token
   const token = TokenService.getToken();
-
   // Query for messages
   const { data: messages = [], isLoading: loadingMessages } = useQuery({
     queryKey: ['messages', currentSessionId],
@@ -34,7 +33,9 @@ export const useChatQuery = (initialSessionId?: number) => {
       return response.data.map(convertMessageDtoToChatMessage);
     },
     enabled: !!token && !!currentSessionId,
-    staleTime: 1000, // Consider data stale after 1 second to keep chat fresh
+    staleTime: 30 * 1000, // Consider data stale after 30 seconds
+    refetchInterval: false, // Disable automatic refetching
+    refetchOnWindowFocus: false, // Don't refetch when window regains focus
   });
 
   // Mutation for sending messages

@@ -4,21 +4,16 @@ import ChatPage from "../pages/ChatPage";
 import EvaluationPage from "../pages/EvaluationPage";
 import HomePage from "../pages/HomePage";
 import LoginPage from "../pages/LoginPage";
+import ProtectedRoute from "../components/common/ProtectedRoute";
 import { TokenService } from "../services/token_service";
-
-// Protected route component
-const ProtectedRoute = ({ element }: { element: React.ReactElement }) => {
-  const isAuthenticated = TokenService.isTokenValid();
-  return isAuthenticated ? element : <Navigate to="/login" />;
-};
 
 // Route definitions
 const AppRoutes: React.FC = () => {
-  const [lastVisitedPage, setLastVisitedPage] = useState<string>('/chat');
+  const [lastVisitedPage, setLastVisitedPage] = useState<string>("/chat");
 
   // Check local storage for last visited page
   useEffect(() => {
-    const savedPage = localStorage.getItem('lastVisitedPage');
+    const savedPage = localStorage.getItem("lastVisitedPage");
     if (savedPage) {
       setLastVisitedPage(savedPage);
     }
@@ -28,14 +23,14 @@ const AppRoutes: React.FC = () => {
   useEffect(() => {
     const handleBeforeUnload = () => {
       const pathname = window.location.pathname;
-      if (pathname === '/chat' || pathname === '/evaluation') {
-        localStorage.setItem('lastVisitedPage', pathname);
+      if (pathname === "/chat" || pathname === "/evaluation") {
+        localStorage.setItem("lastVisitedPage", pathname);
       }
     };
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener("beforeunload", handleBeforeUnload);
     return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, []);
 
@@ -43,16 +38,32 @@ const AppRoutes: React.FC = () => {
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
-      <Route path="/chat" element={<ProtectedRoute element={<ChatPage />} />} />
-      <Route path="/evaluation" element={<ProtectedRoute element={<EvaluationPage />} />} />
+      <Route
+        path="/chat"
+        element={
+          <ProtectedRoute>
+            <ChatPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/evaluation"
+        element={
+          <ProtectedRoute>
+            <EvaluationPage />
+          </ProtectedRoute>
+        }
+      />
 
       {/* Default redirect based on auth status */}
       <Route
         path="*"
         element={
-          TokenService.isTokenValid() ?
-            <Navigate to={lastVisitedPage} /> :
+          TokenService.isTokenValid() ? (
+            <Navigate to={lastVisitedPage} />
+          ) : (
             <Navigate to="/" />
+          )
         }
       />
     </Routes>

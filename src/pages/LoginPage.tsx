@@ -1,28 +1,23 @@
-import React from 'react';
-import {
-  Box,
-  Grid,
-  Paper,
-  Typography,
-  useTheme,
-} from '@mui/material';
-import { motion } from 'framer-motion';
-import LoginHeader from '../components/login/LoginHeader';
-import LoginForm from '../components/login/LoginForm';
-import LoginFeatures from '../components/login/LoginFeatures';
-import LoginFooter from '../components/login/LoginFooter';
+import React from "react";
+import { Box, Grid, Paper, Typography, useTheme } from "@mui/material";
+import { motion } from "framer-motion";
+import LoginHeader from "../components/login/LoginHeader";
+import LoginForm from "../components/login/LoginForm";
+import LoginFeatures from "../components/login/LoginFeatures";
+import LoginFooter from "../components/login/LoginFooter";
 
 const LoginPage: React.FC = () => {
-  const theme = useTheme();  return (
+  const theme = useTheme();
+  return (
     <Box
       className="login-page"
       sx={{
-        minHeight: '100vh',
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        bgcolor: 'background.default',
-        overflowY: 'overlay',
+        minHeight: "100vh",
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+        bgcolor: "background.default",
+        overflowY: "overlay",
       }}
     >
       <LoginHeader />
@@ -31,12 +26,14 @@ const LoginPage: React.FC = () => {
       <Box
         sx={{
           flexGrow: 1,
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
           p: 3,
         }}
-      >        <Grid container justifyContent="center" alignItems="center" spacing={4}>
+      >
+        {" "}
+        <Grid container justifyContent="center" alignItems="center" spacing={4}>
           <Grid size={{ xs: 12, md: 6, lg: 5 }}>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -51,7 +48,7 @@ const LoginPage: React.FC = () => {
                   background: `linear-gradient(135deg, ${theme.palette.background.paper} 0%, ${theme.palette.background.paper} 100%)`,
                 }}
               >
-                <Box sx={{ mb: 3, textAlign: 'center' }}>
+                <Box sx={{ mb: 3, textAlign: "center" }}>
                   <Typography
                     variant="h4"
                     fontWeight="bold"
@@ -74,7 +71,7 @@ const LoginPage: React.FC = () => {
           <Grid
             size={{ md: 6, lg: 5 }}
             sx={{
-              display: { xs: 'none', md: 'block' },
+              display: { xs: "none", md: "block" },
             }}
           >
             <LoginFeatures />

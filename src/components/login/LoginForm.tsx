@@ -1,23 +1,15 @@
-import React, { useState } from 'react';
-import {
-  Box,
-  TextField,
-  Button,
-  Typography,
-  CircularProgress,
-  InputAdornment,
-  IconButton,
-  useTheme,
-} from '@mui/material';
-import { Email, Lock, Visibility, VisibilityOff } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
-import { useLogin } from '../../hooks/useAuth';
+import React, { useState } from "react";
+import { Box } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import { useLogin } from "../../hooks/useAuth";
+import LoginFormFields from "./LoginFormFields";
+import LoginFormSubmit from "./LoginFormSubmit";
+import LoginFormError from "./LoginFormError";
 
 const LoginForm: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const theme = useTheme();
   const navigate = useNavigate();
 
   const loginMutation = useLogin();
@@ -32,115 +24,38 @@ const LoginForm: React.FC = () => {
       { email, password },
       {
         onSuccess: (result) => {
-          if (result.status_code === 200 && result.data && result.data.token) {
-            navigate('/chat');
+          if (result.status_code === 200 && result.data) {
+            navigate("/chat");
           }
         },
       }
     );
   };
-  const error = loginMutation.error ?
-    (loginMutation.error instanceof Error ? loginMutation.error.message : 'Login failed. Please try again.') :
-    null;
+
+  const error = loginMutation.error
+    ? loginMutation.error instanceof Error
+      ? loginMutation.error.message
+      : "Login failed. Please try again."
+    : null;
 
   return (
     <Box component="form" onSubmit={handleLogin} noValidate>
-      <TextField
-        margin="normal"
-        required
-        fullWidth
-        id="email"
-        label="Email Address"
-        name="email"
-        autoComplete="email"
-        autoFocus
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
+      <LoginFormFields
+        email={email}
+        password={password}
+        showPassword={showPassword}
         error={Boolean(error)}
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <Email color="action" />
-            </InputAdornment>
-          ),
-        }}
-        sx={{ mb: 2 }}
+        onEmailChange={setEmail}
+        onPasswordChange={setPassword}
+        onTogglePasswordVisibility={() => setShowPassword(!showPassword)}
       />
 
-      <TextField
-        margin="normal"
-        required
-        fullWidth
-        name="password"
-        label="Password"
-        type={showPassword ? 'text' : 'password'}
-        id="password"
-        autoComplete="current-password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        error={Boolean(error)}
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <Lock color="action" />
-            </InputAdornment>
-          ),
-          endAdornment: (
-            <InputAdornment position="end">
-              <IconButton
-                aria-label="toggle password visibility"
-                onClick={() => setShowPassword(!showPassword)}
-                edge="end"
-              >
-                {showPassword ? <VisibilityOff /> : <Visibility />}
-              </IconButton>
-            </InputAdornment>
-          ),
-        }}
-        sx={{ mb: 3 }}
+      <LoginFormError error={error} />
+
+      <LoginFormSubmit
+        isLoading={loginMutation.isPending}
+        onSubmit={() => {}}
       />
-
-      {error && (
-        <Typography
-          color="error"
-          variant="body2"
-          sx={{ mt: 1, mb: 2 }}
-        >
-          {error}
-        </Typography>
-      )}
-
-      <Button
-        type="submit"
-        fullWidth
-        variant="contained"
-        color="primary"
-        size="large"
-        disabled={loginMutation.isPending}
-        sx={{
-          mt: 1,
-          mb: 2,
-          py: 1.5,
-          fontWeight: 'bold',
-          position: 'relative',
-        }}
-      >
-        {loginMutation.isPending ? (
-          <CircularProgress
-            size={24}
-            sx={{
-              color: theme.palette.primary.contrastText,
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              marginTop: '-12px',
-              marginLeft: '-12px',
-            }}
-          />
-        ) : (
-          'Sign In'
-        )}
-      </Button>
     </Box>
   );
 };

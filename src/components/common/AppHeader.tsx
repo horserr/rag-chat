@@ -9,6 +9,7 @@ import {
 interface AppHeaderProps {
   title?: string;
   subtitle?: string;
+  showHomeNavigation?: boolean;
 }
 
 const AppHeader: React.FC<AppHeaderProps> = ({
