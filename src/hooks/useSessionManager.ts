@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useCreateSession } from "./useSessions";
 import { useAuthCheck } from "./useAuth";
 import { useNavigate } from "react-router-dom";
+import { TokenService } from "../services/token_service";
 import type { SessionDto } from "../models/session";
 
 // Constants
@@ -92,14 +93,27 @@ export const useSessionManager = () => {
     isCreatingSession,
     handleSessionSuccess,
     handleSessionError,
-  ]);
-
-  // Handle unauthenticated users - redirect to login
+  ]);  // Handle unauthenticated users - redirect to login
   const handleUnauthenticatedUser = useCallback(() => {
-    if (!authLoading && authData && !authData.isLoggedIn) {
+    // Additional check: verify token is still valid
+    const hasValidToken = TokenService.isTokenValid();
+
+    // Only redirect if:
+    // 1. Auth check is complete (not loading)
+    // 2. We have auth data
+    // 3. User is explicitly not logged in
+    // 4. We're not already creating a session (which might be due to a temporary auth state)
+    // 5. Token is actually invalid
+    if (!authLoading && authData && !authData.isLoggedIn && !isCreatingSession && !hasValidToken) {
+      console.log("User not authenticated, redirecting to login", {
+        authData,
+        authLoading,
+        isCreatingSession,
+        hasValidToken
+      });
       navigate("/login");
     }
-  }, [authData, authLoading, navigate]);
+  }, [authData, authLoading, navigate, isCreatingSession]);
 
   // Auto-create session when conditions are met
   const handleAutoSessionCreation = useCallback(() => {

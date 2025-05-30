@@ -45,7 +45,11 @@ const configurations = [
     userDataDir: "${workspaceFolder}/.vscode/msedge",
     timeout: 30000,
     preLaunchTask: "start-dev-server",
-    runtimeArgs: [...commonRuntimeArgs, "--allow-running-insecure-content"],
+    runtimeArgs: [
+      ...commonRuntimeArgs,
+      "--allow-running-insecure-content",
+      "--inprivate",
+    ],
   },
   {
     ...baseConfig,
@@ -80,7 +84,7 @@ const configurations = [
     program: "${workspaceFolder}/node_modules/.bin/jest",
     args: ["--runInBand", "--no-cache", "--watchAll=false"],
     env: {
-      "NODE_ENV": "test"
+      NODE_ENV: "test",
     },
   },
   {
@@ -90,7 +94,7 @@ const configurations = [
     program: "${workspaceFolder}/node_modules/.bin/jest",
     args: ["--runInBand", "--no-cache", "${relativeFile}"],
     env: {
-      "NODE_ENV": "test"
+      NODE_ENV: "test",
     },
   },
   {
@@ -100,7 +104,7 @@ const configurations = [
     program: "${workspaceFolder}/src/test_api.js",
     args: ["YOUR_TOKEN_HERE"], // 用户需要替换为实际的 token
     env: {
-      "NODE_ENV": "development"
+      NODE_ENV: "development",
     },
   },
   {
@@ -119,7 +123,7 @@ const configurations = [
     program: "${workspaceFolder}/node_modules/.bin/tsc",
     args: ["--noEmit", "--incremental"],
     env: {
-      "NODE_ENV": "development"
+      NODE_ENV: "development",
     },
   },
 
@@ -147,9 +151,9 @@ const inputs = [
       "test:api",
       "test:unit",
       "test:integration",
-      "generate:launch"
-    ]
-  }
+      "generate:launch",
+    ],
+  },
 ];
 
 // 生成完整的 launch.json 结构
@@ -159,7 +163,7 @@ const launchConfig = {
   // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   version: "0.2.0",
   configurations,
-  inputs
+  inputs,
 };
 
 // 写入 launch.json 文件

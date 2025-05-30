@@ -9,4 +9,5 @@ applyTo: "agent"
 添加注释和文档，以帮助其他开发人员理解代码的结构和功能。
 
 对于和外部服务器同步的问题，尽量使用 react query来处理，而不是use effect.
-并将每次修改记录到 FIXES.md 中.
+
+对于问题修复记录，请新建文件之后，将每次修改记录到 #file:../../docs/debuglogs 中
