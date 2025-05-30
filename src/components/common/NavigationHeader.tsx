@@ -1,6 +1,8 @@
 import React from 'react';
-import { Box, Typography, Avatar } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { Box, Typography, Avatar, Button } from '@mui/material';
+import { useNavigate, useLocation } from 'react-router-dom';
+import ChatIcon from '@mui/icons-material/Chat';
+import AssessmentIcon from '@mui/icons-material/Assessment';
 
 interface NavigationHeaderProps {
   showHomeNavigation?: boolean;
@@ -12,11 +14,16 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({
   title = "RAG Chat"
 }) => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleHomeClick = () => {
     if (showHomeNavigation) {
       navigate('/');
     }
+  };
+
+  const handleNavigation = (path: string) => {
+    navigate(path);
   };
 
   return (
@@ -29,6 +36,7 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({
         borderBottom: 1,
         borderColor: 'divider',
         backgroundColor: 'background.paper',
+        justifyContent: 'space-between'
       }}
     >
       <Box
@@ -50,6 +58,53 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({
         <Typography variant="h6" fontWeight="bold" color="primary">
           {title}
         </Typography>
+      </Box>      <Box sx={{ display: 'flex', gap: 2 }}>
+        <Button
+          color="primary"
+          variant={location.pathname.includes('/chat') ? "contained" : "text"}
+          onClick={() => handleNavigation('/chat')}
+          startIcon={<ChatIcon />}
+          sx={{
+            '&:focus': {
+              outline: 'none',
+              boxShadow: 'none',
+            },
+            '&:focus-visible': {
+              outline: '2px solid',
+              outlineColor: 'primary.main',
+              outlineOffset: '2px',
+            },
+            '&:active': {
+              outline: 'none',
+              boxShadow: 'none',
+            },
+          }}
+        >
+          Chat
+        </Button>
+        <Button
+          color="primary"
+          variant={location.pathname.includes('/evaluation') ? "contained" : "text"}
+          onClick={() => handleNavigation('/evaluation')}
+          startIcon={<AssessmentIcon />}
+          sx={{
+            '&:focus': {
+              outline: 'none',
+              boxShadow: 'none',
+            },
+            '&:focus-visible': {
+              outline: '2px solid',
+              outlineColor: 'primary.main',
+              outlineOffset: '2px',
+            },
+            '&:active': {
+              outline: 'none',
+              boxShadow: 'none',
+            },
+          }}
+        >
+          Evaluation
+        </Button>
       </Box>
     </Box>
   );

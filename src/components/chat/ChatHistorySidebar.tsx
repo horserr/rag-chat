@@ -108,8 +108,7 @@ const ChatHistorySidebar: React.FC<ChatHistorySidebarProps> = ({ isOpen, session
                   </IconButton>
                 }
                 sx={{ mb: 1 }}
-              >
-                <Button
+              >                <Button
                   fullWidth
                   onClick={() => onSelectSession && onSelectSession(session.id)}
                   sx={{
@@ -121,6 +120,14 @@ const ChatHistorySidebar: React.FC<ChatHistorySidebarProps> = ({ isOpen, session
                     backgroundColor: sessionId === session.id ? 'rgba(67, 97, 238, 0.08)' : 'transparent',
                     '&:hover': {
                       backgroundColor: 'rgba(67, 97, 238, 0.12)',
+                    },
+                    '&:focus': {
+                      outline: 'none',
+                      boxShadow: 'none',
+                    },
+                    '&.Mui-focusVisible': {
+                      outline: 'none',
+                      boxShadow: 'none',
                     },
                     color: theme.palette.text.primary
                   }}

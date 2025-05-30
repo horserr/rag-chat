@@ -43,7 +43,7 @@ const LoginForm: React.FC = () => {
         onEmailChange={setEmail}
         onPasswordChange={setPassword}
         onTogglePasswordVisibility={() => setShowPassword(!showPassword)}
-      />{" "}
+      />
       <LoginFormError error={errorMessage} />
       <LoginFormSubmit isLoading={isLoading} onSubmit={handleLogin} />
     </Box>

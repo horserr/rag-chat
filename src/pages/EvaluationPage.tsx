@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import { Box, Typography } from "@mui/material";
-import NavigationHeader from "../components/common/NavigationHeader";
-import NewEvaluationCard from "../components/evaluation/NewEvaluationCard";
+import { Box } from "@mui/material";
+import ImprovedEvaluationCard from "../components/evaluation/ImprovedEvaluationCard";
 import EvaluationCard from "../components/evaluation/EvaluationCard";
 import EvaluationFormDialog from "../components/evaluation/EvaluationFormDialog";
 import type {
@@ -78,20 +77,8 @@ const EvaluationPage: React.FC = () => {
         customMetric: "",
       });
     }
-  };
-
-  return (
-    <Box sx={{ display: "flex", flexDirection: "column", height: "100vh" }}>
-      <NavigationHeader title="RAG Chat - Evaluation" />
-
-      <Box sx={{ p: 3, height: "100%", overflowY: "auto" }}>
-        <Typography variant="h4" fontWeight="600" gutterBottom>
-          Evaluation Dashboard
-        </Typography>
-        <Typography variant="body1" color="text.secondary" mb={4}>
-          View recent evaluation results or create new evaluation tasks for RAG
-          applications and prompts
-        </Typography>
+  };  return (
+    <Box sx={{ display: "flex", flexDirection: "column", height: "100vh" }}><Box sx={{ p: 3, height: "100%", overflowY: "auto" }}>
 
         <Box sx={{ display: "flex", flexWrap: "wrap", margin: "-8px" }}>
           {/* New Evaluation Card */}
@@ -101,11 +88,11 @@ const EvaluationPage: React.FC = () => {
               padding: "8px",
             }}
           >
-            <NewEvaluationCard
+            <ImprovedEvaluationCard
               onCreateRag={() => handleNewEvaluation("rag")}
               onCreatePrompt={() => handleNewEvaluation("prompt")}
             />
-          </Box>{" "}
+          </Box>
           {/* Sample Evaluation Cards */}
           {sampleEvaluations.map((evaluation) => (
             <Box

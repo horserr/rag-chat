@@ -1,28 +1,28 @@
-import React from 'react';
-import { Box } from '@mui/material';
-import ChatHeader from './ChatHeader';
-import ChatMessageList from './ChatMessageList';
-import ChatInputArea from './ChatInputArea';
-import type { ChatMessage } from '../../types';
+import React from "react";
+import { Box } from "@mui/material";
+import ChatHeader from "./ChatHeader";
+import ChatMessageList from "./ChatMessageList";
+import ChatInputArea from "./ChatInputArea";
+import type { ChatMessage } from "../../types";
 
-interface ChatMainContentProps {
+interface ChatWorkspaceProps {
   messages: ChatMessage[];
   isLoading: boolean;
-  isHistoryPanelOpen: boolean;
-  onToggleHistoryPanel: () => void;
+  isHistoryPanelOpen: boolean; // Retaining for backwards compatibility
+  onToggleHistoryPanel: () => void; // Retaining for backwards compatibility
   onSendMessage: (text: string) => void;
 }
 
 /**
- * ChatMainContent - Main chat content area
+ * ChatWorkspace - Main chat content area
  * Contains the header, message list, and input area
  */
-const ChatMainContent: React.FC<ChatMainContentProps> = ({
+const ChatWorkspace: React.FC<ChatWorkspaceProps> = ({
   messages,
   isLoading,
   isHistoryPanelOpen,
   onToggleHistoryPanel,
-  onSendMessage
+  onSendMessage,
 }) => {
   return (
     <Box
@@ -35,7 +35,7 @@ const ChatMainContent: React.FC<ChatMainContentProps> = ({
         overflow: "hidden",
       }}
     >
-      {/* Header with toggle button for history panel */}
+      {/* Chat Header with toggle button */}
       <ChatHeader
         isHistoryPanelOpen={isHistoryPanelOpen}
         onToggleHistoryPanel={onToggleHistoryPanel}
@@ -45,12 +45,9 @@ const ChatMainContent: React.FC<ChatMainContentProps> = ({
       <ChatMessageList messages={messages} isLoading={isLoading} />
 
       {/* Input Area */}
-      <ChatInputArea
-        onSendMessage={onSendMessage}
-        isLoading={isLoading}
-      />
+      <ChatInputArea onSendMessage={onSendMessage} isLoading={isLoading} />
     </Box>
   );
 };
 
-export default ChatMainContent;
+export default ChatWorkspace;

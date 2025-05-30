@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, Grid, Paper, Typography, useTheme } from "@mui/material";
 import { motion } from "framer-motion";
-import LoginHeader from "../components/login/LoginHeader";
+import PageHeader from "../components/common/PageHeader";
 import LoginForm from "../components/login/LoginForm";
 import LoginFeatures from "../components/login/LoginFeatures";
 import LoginFooter from "../components/login/LoginFooter";
@@ -20,7 +20,7 @@ const LoginPage: React.FC = () => {
         overflowY: "overlay",
       }}
     >
-      <LoginHeader />
+      <PageHeader title="RAG Assistant" />
 
       {/* Main Content */}
       <Box
@@ -32,7 +32,7 @@ const LoginPage: React.FC = () => {
           p: 3,
         }}
       >
-        {" "}
+
         <Grid container justifyContent="center" alignItems="center" spacing={4}>
           <Grid size={{ xs: 12, md: 6, lg: 5 }}>
             <motion.div

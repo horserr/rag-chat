@@ -1,17 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
-  Box, TextField, IconButton, Typography, useTheme
+  Box, TextField, IconButton, Typography, useTheme,
+  Tooltip, Badge
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
+import AttachFileIcon from '@mui/icons-material/AttachFile';
+import CancelIcon from '@mui/icons-material/Cancel';
+import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined';
 
 interface ChatInputAreaProps {
   onSendMessage: (text: string) => void;
   isLoading: boolean;
 }
 
+type UploadedFile = {
+  name: string;
+  size: number;
+  type: string;
+  file: File;
+};
+
 const ChatInputArea: React.FC<ChatInputAreaProps> = ({ onSendMessage, isLoading }) => {
   const [inputText, setInputText] = useState('');
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const theme = useTheme();
+
+  const MAX_FILES = 5;
+  const ALLOWED_TYPES = ['.pdf', '.txt'];
+  const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
 
   // Add animations for loading state
   React.useEffect(() => {
@@ -32,6 +49,7 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({ onSendMessage, isLoading 
       document.head.removeChild(style);
     };
   }, []);
+
   const handleSendMessage = () => {
     if (inputText.trim() === '') return;
 
@@ -43,6 +61,65 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({ onSendMessage, isLoading 
     setTimeout(() => {
       onSendMessage(message);
     }, 50);
+
+    // Clear uploaded files after sending
+    setUploadedFiles([]);
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files) return;
+
+    const newFiles: UploadedFile[] = [];
+
+    // Check if we're exceeding max files
+    if (uploadedFiles.length + files.length > MAX_FILES) {
+      alert(`You can upload a maximum of ${MAX_FILES} files.`);
+      return;
+    }
+
+    Array.from(files).forEach(file => {
+      // Check file type
+      const fileExt = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+      const isValidType = ALLOWED_TYPES.includes(fileExt);
+
+      if (!isValidType) {
+        alert(`Only ${ALLOWED_TYPES.join(', ')} files are allowed.`);
+        return;
+      }
+
+      // Check file size
+      if (file.size > MAX_FILE_SIZE) {
+        alert(`File ${file.name} exceeds the maximum size limit.`);
+        return;
+      }
+
+      newFiles.push({
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        file
+      });
+    });
+
+    setUploadedFiles([...uploadedFiles, ...newFiles]);
+
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const removeFile = (index: number) => {
+    const newFiles = [...uploadedFiles];
+    newFiles.splice(index, 1);
+    setUploadedFiles(newFiles);
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return bytes + ' bytes';
+    else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+    else return (bytes / 1048576).toFixed(1) + ' MB';
   };
 
   return (
@@ -56,96 +133,111 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({ onSendMessage, isLoading 
         boxShadow: '0 -2px 10px rgba(0,0,0,0.03)'
       }}
     >
+      {/* File previews */}
+      {uploadedFiles.length > 0 && (
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
+          {uploadedFiles.map((file, index) => (
+            <Box
+              key={index}
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                padding: '4px 8px',
+                borderRadius: '16px',
+                border: '1px solid',
+                borderColor: theme.palette.divider,
+                backgroundColor: theme.palette.background.paper,
+              }}
+            >
+              <InsertDriveFileOutlinedIcon fontSize="small" color="primary" sx={{ mr: 0.5 }} />
+              <Typography variant="caption" sx={{ maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {file.name} ({formatFileSize(file.size)})
+              </Typography>
+              <IconButton
+                size="small"
+                onClick={() => removeFile(index)}
+                sx={{ ml: 0.5, p: 0.3 }}
+              >
+                <CancelIcon fontSize="small" sx={{ fontSize: '16px' }} />
+              </IconButton>
+            </Box>
+          ))}
+        </Box>
+      )}
+
       <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
+        {/* File upload button */}
+        <Tooltip
+          title={`Upload files (PDF, TXT only, max ${MAX_FILES} files)`}
+          placement="top"
+        >
+          <IconButton
+            disabled={uploadedFiles.length >= MAX_FILES || isLoading}
+            color="primary"
+            onClick={() => fileInputRef.current?.click()}
+            sx={{ mr: 1 }}
+          >
+            <Badge badgeContent={uploadedFiles.length || null} color="primary">
+              <AttachFileIcon color={isLoading ? "disabled" : "primary"} />
+            </Badge>
+          </IconButton>
+        </Tooltip>
+
+        {/* Hidden file input */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          hidden
+          multiple
+          accept=".pdf,.txt"
+          onChange={handleFileUpload}
+        />
+
         <TextField
           fullWidth
-          variant="outlined"
-          placeholder="Ask me anything..."
-          value={inputText}
+          placeholder="Type your message..."
           multiline
           maxRows={4}
+          value={inputText}
           onChange={(e) => setInputText(e.target.value)}
-          onKeyDown={(e) => {
+          onKeyPress={(e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
               e.preventDefault();
               handleSendMessage();
             }
           }}
+          disabled={isLoading}
+          variant="outlined"
           sx={{
-            marginRight: '12px',
-            flexGrow: 1,
             '& .MuiOutlinedInput-root': {
-              borderRadius: '16px',
-              backgroundColor: 'rgba(247, 250, 252, 0.7)',
-              '&:hover': {
-                backgroundColor: 'rgba(247, 250, 252, 0.9)',
-              },
+              borderRadius: '24px',
+              backgroundColor: '#f5f8fc',
               '&.Mui-focused': {
-                backgroundColor: 'white',
-              }
-            },
-            '& .MuiOutlinedInput-notchedOutline': {
-              borderColor: 'rgba(0,0,0,0.1)',
+                backgroundColor: '#ffffff',
+              },
+              '&.Mui-disabled': {
+                backgroundColor: '#f5f5f5',
+              },
             },
           }}
-        />        <IconButton
-          color="primary"
-          onClick={handleSendMessage}
-          disabled={isLoading || inputText.trim() === ''}
-          sx={{
-            width: '48px',
-            height: '48px',
-            backgroundColor: (isLoading || inputText.trim() === '')
-              ? '#e0e0e0'
-              : theme.palette.primary.main,
-            '&:hover': {
-              backgroundColor: (isLoading || inputText.trim() === '')
-                ? '#e0e0e0'
-                : theme.palette.primary.dark
-            },
-            '&:disabled': {
-              backgroundColor: '#e0e0e0',
-              cursor: 'not-allowed'
-            },
-            transition: 'all 0.2s ease-in-out',
-            animation: isLoading ? 'pulse 1.5s infinite' : 'none',
+          InputProps={{
+            endAdornment: (
+              <IconButton
+                color="primary"
+                disabled={inputText.trim() === '' || isLoading}
+                onClick={handleSendMessage}
+                sx={{
+                  animation: isLoading ? 'pulse 1.5s infinite ease-in-out' : 'none',
+                  '&.Mui-disabled': {
+                    color: '#bdbdbd',
+                  },
+                }}
+              >
+                <SendIcon />
+              </IconButton>
+            ),
           }}
-        >
-          <SendIcon sx={{
-            color: (isLoading || inputText.trim() === '') ? '#9e9e9e' : 'white',
-            fontSize: '1.2rem',
-            animation: isLoading ? 'rotate 2s infinite linear' : 'none',
-          }}/>
-        </IconButton>
-      </Box>      {/* Footer with information */}
-      <Box sx={{
-        mt: 1.5,
-        display: 'flex',
-        justifyContent: 'center',
-        flexDirection: 'column',
-        alignItems: 'center'
-      }}>
-        <Typography
-          variant="caption"
-          sx={{
-            color: theme.palette.text.secondary,
-            fontSize: '0.7rem',
-            opacity: 0.7,
-            mb: 0.5
-          }}
-        >
-          Powered by RAG Assistant • Press Enter to send, Shift+Enter for a new line
-        </Typography>
-        <Typography
-          variant="caption"
-          sx={{
-            color: theme.palette.text.secondary,
-            fontSize: '0.7rem',
-            opacity: 0.7
-          }}
-        >
-          © {new Date().getFullYear()} RAG Assistant Platform
-        </Typography>
+        />
       </Box>
     </Box>
   );

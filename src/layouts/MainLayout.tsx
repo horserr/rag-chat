@@ -1,9 +1,17 @@
-import { AppBar, Box, Container, Toolbar } from "@mui/material";
+import {
+  AppBar,
+  Box,
+  Container,
+  Toolbar,
+  Typography,
+  Avatar,
+  Button,
+} from "@mui/material";
 import type { ReactNode } from "react";
 import React from "react";
-import { useLocation } from "react-router-dom";
-import AppHeader from "../components/common/AppHeader";
-import NavigationTabs from "../components/common/NavigationTabs";
+import { useLocation, useNavigate } from "react-router-dom";
+import ChatIcon from "@mui/icons-material/Chat";
+import AssessmentIcon from "@mui/icons-material/Assessment";
 
 // Main layout
 interface MainLayoutProps {
@@ -12,17 +20,7 @@ interface MainLayoutProps {
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const location = useLocation();
-  // Determine subtitle based on current route
-  const getSubtitle = () => {
-    if (location.pathname === "/") {
-      return "Q&A Platform";
-    } else if (location.pathname.startsWith("/evaluation")) {
-      return "Evaluation Platform";
-    } else if (location.pathname === "/chat") {
-      return "Chat Page";
-    }
-    return "RAG Assistant";
-  };
+  const navigate = useNavigate();
   // Check if current page is homepage or login page
   const isHomeOrLoginPage =
     location.pathname === "/" || location.pathname === "/login";
@@ -49,13 +47,90 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
               display: "flex",
               justifyContent: "space-between",
               position: "relative",
+              px: 4,
             }}
           >
-            <AppHeader subtitle={getSubtitle()} />
-            <NavigationTabs />
+            <Box
+              sx={{ display: "flex", alignItems: "center", cursor: "pointer" }}
+              onClick={() => location.pathname !== "/" && navigate("/")}
+            >
+              <Avatar
+                src="/icon.png"
+                alt="Logo"
+                sx={{ width: 40, height: 40, mr: 2 }}
+              />
+              <Typography variant="h6" sx={{ fontWeight: 700, color: "white" }}>
+                {location.pathname.includes("evaluation")
+                  ? "RAG Evaluation"
+                  : "RAG Chat"}
+              </Typography>
+            </Box>            <Box sx={{ display: "flex", gap: 2 }}>
+              <Button
+                color="inherit"
+                variant={
+                  location.pathname.includes("/chat") ? "outlined" : "text"
+                }
+                onClick={() => navigate("/chat")}
+                startIcon={<ChatIcon />}
+                sx={{
+                  color: "white",
+                  borderColor: "white",
+                  "&:hover": {
+                    borderColor: "white",
+                    backgroundColor: "rgba(255,255,255,0.1)",
+                  },
+                  "&:focus": {
+                    outline: "none",
+                    boxShadow: "none",
+                  },
+                  "&:focus-visible": {
+                    outline: "2px solid white",
+                    outlineOffset: "2px",
+                  },
+                  "&:active": {
+                    outline: "none",
+                    boxShadow: "none",
+                  },
+                }}
+              >
+                Chat
+              </Button>
+              <Button
+                color="inherit"
+                variant={
+                  location.pathname.includes("/evaluation")
+                    ? "outlined"
+                    : "text"
+                }
+                onClick={() => navigate("/evaluation")}
+                startIcon={<AssessmentIcon />}
+                sx={{
+                  color: "white",
+                  borderColor: "white",
+                  "&:hover": {
+                    borderColor: "white",
+                    backgroundColor: "rgba(255,255,255,0.1)",
+                  },
+                  "&:focus": {
+                    outline: "none",
+                    boxShadow: "none",
+                  },
+                  "&:focus-visible": {
+                    outline: "2px solid white",
+                    outlineOffset: "2px",
+                  },
+                  "&:active": {
+                    outline: "none",
+                    boxShadow: "none",
+                  },
+                }}
+              >
+                Evaluation
+              </Button>
+            </Box>
           </Toolbar>
         </AppBar>
-      ) : null}{" "}
+      ) : null}
       <Container
         component="main"
         maxWidth={false} // 占据整个屏幕宽度，没有左右边距

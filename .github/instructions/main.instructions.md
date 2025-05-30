@@ -10,4 +10,4 @@ applyTo: "agent"
 
 对于和外部服务器同步的问题，尽量使用 react query来处理，而不是use effect.
 
-对于问题修复记录，请新建文件之后，将每次修改记录到 #file:../../docs/debuglogs 中
+<!-- 对于问题修复记录，请新建文件之后，将每次修改记录到 #file:../../docs/debuglogs 中 -->
