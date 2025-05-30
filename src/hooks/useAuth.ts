@@ -32,7 +32,17 @@ export const useAuthCheck = () => {
     queryKey: ["auth", "check"],
     queryFn: () => {
       const token = TokenService.getToken();
-      return { isLoggedIn: !!token, token };
+      const isValid = TokenService.isTokenValid();
+
+      // If token exists but is invalid, clear it
+      if (!isValid && token) {
+        TokenService.clearToken();
+      }
+
+      return {
+        isLoggedIn: isValid,
+        token: isValid ? token : null
+      };
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
     refetchInterval: false, // Disable automatic refetching

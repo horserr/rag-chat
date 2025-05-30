@@ -1,8 +1,29 @@
-import { useState, useEffect } from 'react';
-import { useCreateSession } from './useSessions';
-import { useAuthCheck } from './useAuth';
-import { useNavigate } from 'react-router-dom';
-import type { SessionDto } from '../models/session';
+import { useState, useEffect, useCallback } from "react";
+import { useCreateSession } from "./useSessions";
+import { useAuthCheck } from "./useAuth";
+import { useNavigate } from "react-router-dom";
+import type { SessionDto } from "../models/session";
+
+// Constants
+const MAX_RETRIES = 3;
+
+// Helper function to check if error is authentication related
+const isAuthenticationError = (error: unknown): boolean => {
+  if (error && typeof error === "object" && "response" in error) {
+    const axiosError = error as { response?: { status?: number } };
+    return axiosError.response?.status === 401;
+  }
+  return false;
+};
+
+// Helper function to determine if session should be created
+const shouldCreateSession = (
+  isAuthenticated: boolean | undefined,
+  hasSessionId: boolean,
+  retryCount: number
+): boolean => {
+  return Boolean(isAuthenticated && !hasSessionId && retryCount < MAX_RETRIES);
+};
 
 /**
  * Custom hook to manage session initialization and authentication
@@ -12,60 +33,104 @@ export const useSessionManager = () => {
   const navigate = useNavigate();
   const [sessionId, setSessionId] = useState<number | undefined>(undefined);
   const [isCreatingSession, setIsCreatingSession] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
 
-  // Authentication state
+  // External hooks
   const { data: authData, isLoading: authLoading } = useAuthCheck();
-
-  // Session creation state
   const createSessionMutation = useCreateSession();
 
-  // Handle authentication check and redirect if needed
-  useEffect(() => {
+  // Handle successful session creation
+  const handleSessionSuccess = useCallback((newSession: SessionDto) => {
+    setSessionId(newSession.id);
+    setIsCreatingSession(false);
+    setRetryCount(0);
+  }, []);
+
+  // Handle session creation error
+  const handleSessionError = useCallback(
+    (error: unknown) => {
+      console.error("Error creating new session:", error);
+      setIsCreatingSession(false);
+
+      // Handle authentication errors - redirect to login
+      if (isAuthenticationError(error)) {
+        console.error(
+          "Authentication failed - token may be invalid or expired"
+        );
+        navigate("/login");
+        return;
+      }
+
+      // Increment retry count for other errors
+      setRetryCount((prev) => {
+        const newRetryCount = prev + 1;
+        if (newRetryCount >= MAX_RETRIES) {
+          console.error(
+            `Failed to create session after ${MAX_RETRIES} attempts`
+          );
+        }
+        return newRetryCount;
+      });
+    },
+    [navigate]
+  );
+
+  // Main session creation function
+  const createSession = useCallback(() => {
+    // Prevent duplicate calls
+    if (isCreatingSession || createSessionMutation.isPending) {
+      return;
+    }
+
+    setIsCreatingSession(true);
+    createSessionMutation.mutate(undefined, {
+      onSuccess: handleSessionSuccess,
+      onError: handleSessionError,
+    });
+  }, [
+    createSessionMutation,
+    isCreatingSession,
+    handleSessionSuccess,
+    handleSessionError,
+  ]);
+
+  // Handle unauthenticated users - redirect to login
+  const handleUnauthenticatedUser = useCallback(() => {
     if (!authLoading && authData && !authData.isLoggedIn) {
       navigate("/login");
     }
   }, [authData, authLoading, navigate]);
 
-  // Handle session creation once when authenticated
-  useEffect(() => {
-    // Only attempt to create a session when:
-    // 1. User is authenticated
-    // 2. We don't have a session ID yet
-    // 3. We haven't started the session creation process
-    // 4. The creation mutation isn't already in progress
+  // Auto-create session when conditions are met
+  const handleAutoSessionCreation = useCallback(() => {
     if (
-      authData?.isLoggedIn &&
-      !sessionId &&
-      !isCreatingSession &&
-      !createSessionMutation.isPending
+      shouldCreateSession(authData?.isLoggedIn, Boolean(sessionId), retryCount)
     ) {
-      // Mark that we're starting session creation to prevent duplicate calls
-      setIsCreatingSession(true);
-
-      createSessionMutation.mutate(undefined, {
-        onSuccess: (newSession: SessionDto) => {
-          setSessionId(newSession.id);
-        },
-        onError: (error: unknown) => {
-          console.error("Error creating new session:", error);
-          // Allow retry on error by resetting the creation flag
-          setIsCreatingSession(false);
-        },
-      });
+      createSession();
     }
-  }, [
-    authData?.isLoggedIn,
-    sessionId,
-    isCreatingSession,
-    createSessionMutation,
-  ]);
+  }, [authData?.isLoggedIn, sessionId, retryCount, createSession]);
 
-  const isLoading = authLoading || (isCreatingSession && createSessionMutation.isPending);
+  // Manual retry function
+  const retryCreateSession = useCallback(() => {
+    setRetryCount(0);
+    setIsCreatingSession(false);
+  }, []);
+
+  // Effects
+  useEffect(handleUnauthenticatedUser, [handleUnauthenticatedUser]);
+  useEffect(handleAutoSessionCreation, [handleAutoSessionCreation]);
+
+  // Computed values
+  const isLoading =
+    authLoading || (isCreatingSession && createSessionMutation.isPending);
+  const hasFailedToCreateSession = retryCount >= MAX_RETRIES;
 
   return {
     sessionId,
     setSessionId,
     isLoading,
     isAuthenticated: authData?.isLoggedIn,
+    retryCreateSession,
+    hasFailedToCreateSession,
   };
 };
