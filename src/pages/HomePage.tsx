@@ -1,14 +1,12 @@
-import React from "react";
 import { Box } from "@mui/material";
 import FeaturesSection from "../components/home/FeaturesSection";
 import HeroSection from "../components/home/HeroSection";
 import HomeFooter from "../components/home/HomeFooter";
 import HomeHeader from "../components/home/HomeHeader";
-import { useAuthCheck } from "../hooks/useAuth";
+import useAuthCheck from "../hooks/auth/useAuthCheck";
 
-const HomePage: React.FC = () => {
-  const { data: authData } = useAuthCheck();
-  const isLoggedIn = authData?.isLoggedIn || false;
+const HomePage = () => {
+  const { data: isLoggedIn } = useAuthCheck();
   return (
     <Box
       className="home-page"
@@ -21,9 +19,9 @@ const HomePage: React.FC = () => {
         overflowY: "overlay",
       }}
     >
-      <HomeHeader isLoggedIn={isLoggedIn} />
+      <HomeHeader isLoggedIn={!!isLoggedIn} />
 
-      <HeroSection isLoggedIn={isLoggedIn} />
+      <HeroSection isLoggedIn={!!isLoggedIn} />
 
       <FeaturesSection />
 

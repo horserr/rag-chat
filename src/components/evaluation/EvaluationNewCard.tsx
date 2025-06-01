@@ -18,7 +18,7 @@ interface ImprovedEvaluationCardProps {
   onCreatePrompt: () => void;
 }
 
-const ImprovedEvaluationCard: React.FC<ImprovedEvaluationCardProps> = ({
+const EvaluationNewCard: React.FC<ImprovedEvaluationCardProps> = ({
   onCreateRag,
   onCreatePrompt,
 }) => {
@@ -102,4 +102,4 @@ const ImprovedEvaluationCard: React.FC<ImprovedEvaluationCardProps> = ({
   );
 };
 
-export default ImprovedEvaluationCard;
+export default EvaluationNewCard;

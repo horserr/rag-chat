@@ -6,7 +6,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import "./index.css";
 import App from "./App.tsx";
 import theme from "./theme";
-import { queryClient } from "./lib/react-query";
+import { queryClient } from "./lib/QueryClient.ts";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

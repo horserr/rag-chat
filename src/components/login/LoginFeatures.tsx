@@ -1,20 +1,14 @@
-import React from 'react';
-import {
-  Box,
-  Card,
-  CardContent,
-  Typography,
-  useTheme,
-} from '@mui/material';
-import { motion } from 'framer-motion';
+import React from "react";
+import { Box, Card, CardContent, Typography, useTheme } from "@mui/material";
+import { motion } from "framer-motion";
 
 const LoginFeatures: React.FC = () => {
   const theme = useTheme();
 
   const features = [
-    'Access to intelligent document retrieval',
-    'Context-aware responses powered by LLMs',
-    'Performance evaluation and comparison tools',
+    "Access to intelligent document retrieval",
+    "Context-aware responses powered by LLMs",
+    "Performance evaluation and comparison tools",
   ];
 
   return (
@@ -26,11 +20,11 @@ const LoginFeatures: React.FC = () => {
       <Card
         elevation={0}
         sx={{
-          bgcolor: 'transparent',
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
+          bgcolor: "transparent",
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
         }}
       >
         <CardContent>
@@ -45,34 +39,29 @@ const LoginFeatures: React.FC = () => {
           </Typography>
 
           <Typography variant="body1" color="text.secondary" paragraph>
-            Get access to our advanced retrieval-augmented generation
-            platform for more accurate and contextually relevant
-            answers.
+            Get access to our advanced retrieval-augmented generation platform
+            for more accurate and contextually relevant answers.
           </Typography>
 
           <Box sx={{ mt: 4 }}>
             {features.map((feature, index) => (
               <Box
                 key={index}
-                sx={{ display: 'flex', alignItems: 'center', mb: 2 }}
+                sx={{ display: "flex", alignItems: "center", mb: 2 }}
               >
                 <Box
                   sx={{
                     width: 30,
                     height: 30,
-                    borderRadius: '50%',
+                    borderRadius: "50%",
                     bgcolor: `${theme.palette.primary.main}22`,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                     mr: 2,
                   }}
                 >
-                  <Typography
-                    variant="body2"
-                    fontWeight="bold"
-                    color="primary"
-                  >
+                  <Typography variant="body2" fontWeight="bold" color="primary">
                     {index + 1}
                   </Typography>
                 </Box>

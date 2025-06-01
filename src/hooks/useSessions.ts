@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { SessionService } from "../services/session_service";
-import { TokenService } from "../services/token_service";
+import { SessionService } from "../services/session.service";
+import { TokenService } from "../services/token.service";
 import type { SessionDto } from "../models/session";
 
 // Hook for fetching sessions
@@ -52,7 +52,7 @@ export const useCreateSession = () => {
       // Provide more specific error information
       throw new Error(
         `Failed to create session: ${response.status_code} - ${
-          response.message || 'Unknown error'
+          response.message || "Unknown error"
         }`
       );
     },

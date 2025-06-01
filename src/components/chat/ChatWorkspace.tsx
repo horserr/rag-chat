@@ -1,38 +1,55 @@
-import React from "react";
 import { Box } from "@mui/material";
+import React from "react";
 import ChatHeader from "./ChatHeader";
-import ChatMessageList from "./ChatMessageList";
 import ChatInputArea from "./ChatInputArea";
-import type { ChatMessage } from "../../types";
+import ChatMessageList from "./ChatMessageList";
+import { useChatQuery } from "../../hooks/useChatQuery";
 
 interface ChatWorkspaceProps {
-  messages: ChatMessage[];
-  isLoading: boolean;
+  sessionId?: number;
   isHistoryPanelOpen: boolean; // Retaining for backwards compatibility
   onToggleHistoryPanel: () => void; // Retaining for backwards compatibility
-  onSendMessage: (text: string) => void;
 }
 
 /**
  * ChatWorkspace - Main chat content area
  * Contains the header, message list, and input area
  */
-const ChatWorkspace: React.FC<ChatWorkspaceProps> = ({
-  messages,
-  isLoading,
+const ChatWorkspace = ({
+  sessionId,
   isHistoryPanelOpen,
   onToggleHistoryPanel,
-  onSendMessage,
-}) => {
-  return (
+}: ChatWorkspaceProps) => {
+  // Use the chat query hook to manage messages and session state
+  const {
+    messages,
+    sendMessage,
+    isLoading: isThinking,
+    loadingMessages,
+    setSession,
+    currentSessionId,
+  } = useChatQuery(sessionId);
+
+  // Update session when sessionId prop changes
+  React.useEffect(() => {
+    if (sessionId && sessionId !== currentSessionId) {
+      setSession(sessionId);
+    }
+  }, [sessionId, currentSessionId, setSession]);
+
+  // Determine if we should show loading state
+  const isLoadingMessages = loadingMessages && !!sessionId;
+  // Disable input when loading messages or when no session is selected
+  const isInputDisabled = isLoadingMessages || !sessionId;  return (
     <Box
       sx={{
-        flexGrow: 1,
+        flex: 1,
         display: "flex",
         flexDirection: "column",
         height: "100%",
         backgroundColor: "background.default",
         overflow: "hidden",
+        minWidth: 0, // Prevent flex item from overflowing
       }}
     >
       {/* Chat Header with toggle button */}
@@ -42,10 +59,17 @@ const ChatWorkspace: React.FC<ChatWorkspaceProps> = ({
       />
 
       {/* Messages Area */}
-      <ChatMessageList messages={messages} isLoading={isLoading} />
+      <ChatMessageList
+        messages={messages}
+        isLoading={isLoadingMessages || isThinking}
+      />
 
       {/* Input Area */}
-      <ChatInputArea onSendMessage={onSendMessage} isLoading={isLoading} />
+      <ChatInputArea
+        onSendMessage={sendMessage}
+        isThinking={isThinking}
+        isDisabled={isInputDisabled}
+      />
     </Box>
   );
 };

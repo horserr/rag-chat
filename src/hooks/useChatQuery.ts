@@ -1,8 +1,8 @@
 import { useState, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { ChatMessage } from "../types";
-import { MessageService } from "../services/message_service";
-import { TokenService } from "../services/token_service";
+import { MessageService } from "../services/message.service";
+import { TokenService } from "../services/token.service";
 import type { MessageDto } from "../models/message";
 
 // Convert MessageDto to ChatMessage format

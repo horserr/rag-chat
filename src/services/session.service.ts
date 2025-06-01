@@ -1,24 +1,25 @@
-import { rag_http } from "./http_common";
+import { rag_http } from "./api";
 import type { AxiosInstance } from "axios";
 import type { SessionDto } from "../models/session";
 import type { PaginatedResult, Result } from "../models/result";
 
 export class SessionService {
   http: AxiosInstance;
+
   constructor(token: string) {
     // Use the token to create an HTTP client instance
     this.http = rag_http(token);
   }
+
   async new_session(): Promise<Result<SessionDto>> {
     try {
       // Remove leading slash since baseURL already includes it
       const response = await this.http.post("session");
 
-      // Debug logging
       console.log("Session creation response:", {
         status: response.status,
         statusText: response.statusText,
-        data: response.data
+        data: response.data,
       });
 
       return response.data;
@@ -29,8 +30,8 @@ export class SessionService {
       if (error instanceof Error) {
         console.error("Error message:", error.message);
       }
-        // Log axios error details if available
-      if (error && typeof error === 'object' && 'response' in error) {
+      // Log axios error details if available
+      if (error && typeof error === "object" && "response" in error) {
         const axiosError = error as {
           response?: {
             status?: number;
@@ -50,7 +51,6 @@ export class SessionService {
         console.error("Request Method:", axiosError.config?.method);
         console.error("Request Headers:", axiosError.config?.headers);
       }
-
       throw error;
     }
   }

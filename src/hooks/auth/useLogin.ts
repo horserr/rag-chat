@@ -1,35 +1,29 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { AuthService } from "../../services/auth_service";
-import { TokenService } from "../../services/token_service";
+import { AuthService } from "../../services/auth.service";
+import { TokenService } from "../../services/token.service";
+import type { LoginDto } from "../../models/auth";
 
 const authService = new AuthService();
 
-/**
- * Hook for login functionality
- * Only responsible for the login mutation
- */
+// Hook for login mutation
 export const useLogin = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({
-      email,
-      password,
-    }: {
-      email: string;
-      password: string;
-    }) => {
-      const result = await authService.login({ email, password });
-      return result;
+    mutationFn: async ({ email, password }: LoginDto) => {
+      const token_result = await authService.login({ email, password }); // Use authService instance
+      return token_result;
     },
     onSuccess: (result) => {
       if (result.status_code === 200 && result.data) {
-        console.log("Login successful, setting token:", result.data);
-        TokenService.setToken(result.data);
+        const token = result.data;
 
-        // Trigger re-fetch of auth status
-        queryClient.invalidateQueries({ queryKey: ["auth", "status"] });
+        console.log("Login successful, setting token:", token);
+        TokenService.setToken(token);
+        queryClient.setQueryData(["auth", "check"], token);
       }
     },
   });
 };
+
+export default useLogin;

@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { Box } from "@mui/material";
-import ImprovedEvaluationCard from "../components/evaluation/ImprovedEvaluationCard";
 import EvaluationCard from "../components/evaluation/EvaluationCard";
 import EvaluationFormDialog from "../components/evaluation/EvaluationFormDialog";
 import type {
   EvaluationCardProps,
   FormData,
 } from "../components/evaluation/types";
+import EvaluationNewCard from "../components/evaluation/EvaluationNewCard";
 
 const EvaluationPage: React.FC = () => {
   const [openDialog, setOpenDialog] = useState(false);
@@ -77,9 +77,11 @@ const EvaluationPage: React.FC = () => {
         customMetric: "",
       });
     }
-  };  return (
-    <Box sx={{ display: "flex", flexDirection: "column", height: "100vh" }}><Box sx={{ p: 3, height: "100%", overflowY: "auto" }}>
+  };
 
+  return (
+    <Box sx={{ display: "flex", flexDirection: "column", height: "100vh" }}>
+      <Box sx={{ p: 3, height: "100%", overflowY: "auto" }}>
         <Box sx={{ display: "flex", flexWrap: "wrap", margin: "-8px" }}>
           {/* New Evaluation Card */}
           <Box
@@ -88,7 +90,8 @@ const EvaluationPage: React.FC = () => {
               padding: "8px",
             }}
           >
-            <ImprovedEvaluationCard
+            {/* New Evaluation Card component to create RAG or Prompt evaluations */}
+            <EvaluationNewCard
               onCreateRag={() => handleNewEvaluation("rag")}
               onCreatePrompt={() => handleNewEvaluation("prompt")}
             />

@@ -1,6 +1,6 @@
-import React from 'react';
-import { Box, Typography, Avatar } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import { Box, Typography, Avatar } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 interface PageHeaderProps {
   title?: string;
@@ -9,13 +9,13 @@ interface PageHeaderProps {
 
 const PageHeader: React.FC<PageHeaderProps> = ({
   title = "RAG Assistant",
-  showHomeNavigation = true
+  showHomeNavigation = true,
 }) => {
   const navigate = useNavigate();
 
   const handleHomeClick = () => {
     if (showHomeNavigation) {
-      navigate('/');
+      navigate("/");
     }
   };
 
@@ -24,21 +24,23 @@ const PageHeader: React.FC<PageHeaderProps> = ({
       sx={{
         py: 2,
         px: 4,
-        display: 'flex',
-        alignItems: 'center',
+        display: "flex",
+        alignItems: "center",
         borderBottom: 1,
-        borderColor: 'divider',
-        backgroundColor: 'background.paper',
+        borderColor: "divider",
+        backgroundColor: "background.paper",
       }}
     >
       <Box
         sx={{
-          display: 'flex',
-          alignItems: 'center',
-          cursor: showHomeNavigation ? 'pointer' : 'default',
-          '&:hover': showHomeNavigation ? {
-            opacity: 0.8,
-          } : {},
+          display: "flex",
+          alignItems: "center",
+          cursor: showHomeNavigation ? "pointer" : "default",
+          "&:hover": showHomeNavigation
+            ? {
+                opacity: 0.8,
+              }
+            : {},
         }}
         onClick={handleHomeClick}
       >

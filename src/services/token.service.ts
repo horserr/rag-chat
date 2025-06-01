@@ -6,8 +6,8 @@
  */
 
 // Token storage keys
-const TOKEN_KEY = 'token';
-const TOKEN_EXPIRY_KEY = 'token_expiry';
+const TOKEN_KEY = "token";
+const TOKEN_EXPIRY_KEY = "token_expiry";
 
 // Token expiration time in seconds (1 hour)
 const TOKEN_EXPIRATION_TIME = 3600;

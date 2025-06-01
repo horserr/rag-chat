@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Box } from "@mui/material";
-import { useLoginWithNavigation } from "../../hooks/useAuth";
+import { useNavigateAfterLogin } from "../../hooks/auth/useNavigateAfterLogin";
 import LoginFormFields from "./LoginFormFields";
 import LoginFormSubmit from "./LoginFormSubmit";
 import LoginFormError from "./LoginFormError";
@@ -10,19 +10,16 @@ const LoginForm: React.FC = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  const { loginWithNavigation, isLoading, error } = useLoginWithNavigation();
+  const { navigateAfterLogin, isLoading, error } = useNavigateAfterLogin();
 
   const handleLogin = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!email || !password) {
-      return;
-    }
+    if (!email || !password) return;
 
     try {
-      await loginWithNavigation({ email, password });
+      await navigateAfterLogin({ email, password });
       // Navigation will happen automatically after auth check completes
     } catch (error) {
-      // Error is already handled by the hook
       console.error("Login failed:", error);
     }
   };

@@ -66,7 +66,10 @@ const NewEvaluationCardContent: React.FC<NewEvaluationCardContentProps> = ({
         }}
       >
         <AddIcon sx={{ fontSize: 48, color: theme.palette.text.secondary }} />
-        <Typography variant="body2" sx={{ mt: 1, color: theme.palette.text.secondary }}>
+        <Typography
+          variant="body2"
+          sx={{ mt: 1, color: theme.palette.text.secondary }}
+        >
           Create New Evaluation
         </Typography>
       </Box>

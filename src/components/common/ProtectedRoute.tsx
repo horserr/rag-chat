@@ -1,36 +1,30 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
-import { Box, CircularProgress } from "@mui/material";
-import { useAuthCheck } from "../../hooks/useAuth";
+import useAuthCheck from "../../hooks/auth/useAuthCheck";
 
 interface ProtectedRouteProps {
   children: React.ReactElement;
 }
 
-const LoadingIndicator = () => (
-  <Box
-    sx={{
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      height: "100vh",
-    }}
-  >
-    <CircularProgress />
-  </Box>
-);
+// const LoadingIndicator = () => (
+//   <Box
+//     sx={{
+//       display: "flex",
+//       justifyContent: "center",
+//       alignItems: "center",
+//       height: "100vh",
+//     }}
+//   >
+//     <CircularProgress />
+//   </Box>
+// );
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   // Use the optimized useAuthCheck hook
-  const { data: authData, isLoading } = useAuthCheck();
-
-  // While checking auth status, show loading indicator
-  if (isLoading) {
-    return <LoadingIndicator />;
-  }
+  const { data: hasToken } = useAuthCheck();
 
   // Once check is complete, either show children or redirect
-  return authData?.isLoggedIn ? children : <Navigate to="/login" replace />;
+  return hasToken ? children : <Navigate to="/login" replace />;
 };
 
 export default ProtectedRoute;

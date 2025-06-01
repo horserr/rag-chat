@@ -1,22 +1,21 @@
-import React from 'react';
-import { Collapse } from '@mui/material';
-import ChatHistorySidebar from './ChatHistorySidebar';
+import { Collapse } from "@mui/material";
+import ChatHistorySidebar from "./ChatHistorySidebar";
 
 interface ChatHistoryPanelProps {
   isOpen: boolean;
   sessionId?: number;
-  onSelectSession: (id: number) => void;
+  setSessionId: (id: number) => void;
 }
 
 /**
  * ChatHistoryPanel - Wrapper component for the collapsible chat history sidebar
  * Handles the animation and positioning of the history panel
  */
-const ChatHistoryPanel: React.FC<ChatHistoryPanelProps> = ({
+const ChatHistoryPanel = ({
   isOpen,
   sessionId,
-  onSelectSession
-}) => {
+  setSessionId: onSelectSession,
+}: ChatHistoryPanelProps) => {
   return (
     <Collapse
       in={isOpen}
@@ -31,13 +30,14 @@ const ChatHistoryPanel: React.FC<ChatHistoryPanelProps> = ({
         width: isOpen ? "280px" : "0px",
         minWidth: isOpen ? "280px" : "0px",
         maxWidth: isOpen ? "280px" : "0px",
-        position: "relative",
+        flexShrink: 0,
+        zIndex: 1,
       }}
     >
       <ChatHistorySidebar
         isOpen={isOpen}
         sessionId={sessionId}
-        onSelectSession={onSelectSession}
+        setSessionId={onSelectSession}
       />
     </Collapse>
   );

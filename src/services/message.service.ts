@@ -1,4 +1,4 @@
-import { rag_http } from "./http_common";
+import { rag_http } from "./api";
 import type { AxiosInstance } from "axios";
 import type { MessageDto } from "../models/message";
 import type { PaginatedResult, Result } from "../models/result";
@@ -19,7 +19,8 @@ export class MessageService {
    * @param page Page number (0-based)
    * @param page_size Number of messages per page
    * @returns Paginated result containing an array of messages
-   */ async get_messages(
+   */
+  async get_messages(
     page: number,
     page_size: number = 20
   ): Promise<PaginatedResult<MessageDto[]>> {

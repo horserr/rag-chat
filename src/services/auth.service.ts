@@ -1,4 +1,4 @@
-import { auth_http } from "./http_common";
+import { auth_http } from "./api";
 import type { LoginDto } from "../models/auth";
 import type { Result } from "../models/result";
 

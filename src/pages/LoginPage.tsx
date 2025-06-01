@@ -32,7 +32,6 @@ const LoginPage: React.FC = () => {
           p: 3,
         }}
       >
-
         <Grid container justifyContent="center" alignItems="center" spacing={4}>
           <Grid size={{ xs: 12, md: 6, lg: 5 }}>
             <motion.div

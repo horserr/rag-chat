@@ -5,9 +5,10 @@ import EvaluationPage from "../pages/EvaluationPage";
 import HomePage from "../pages/HomePage";
 import LoginPage from "../pages/LoginPage";
 import ProtectedRoute from "../components/common/ProtectedRoute";
-import { TokenService } from "../services/token_service";
+import { TokenService } from "../services/token.service";
 
 // Route definitions
+// todo change this
 const AppRoutes: React.FC = () => {
   const [lastVisitedPage, setLastVisitedPage] = useState<string>("/chat");
 

@@ -1,6 +1,6 @@
 import axios from "axios";
 import type { AxiosInstance, AxiosRequestConfig } from "axios";
-import { TokenService } from "./token_service";
+import { TokenService } from "./token.service";
 
 // Base URLs
 const BASE_URLS = {
