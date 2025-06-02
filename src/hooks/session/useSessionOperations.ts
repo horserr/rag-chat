@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { SessionService } from "../../services/session.service";
-import { TokenService } from "../../services/token.service";
+import { SessionService } from "../../services/chat/session.service";
+import { TokenService } from "../../services/auth/token.service";
 import type { SessionDto } from "../../models/session";
 
 /**

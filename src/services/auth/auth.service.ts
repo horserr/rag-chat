@@ -1,6 +1,6 @@
-import { auth_http } from "./api";
-import type { LoginDto } from "../models/auth";
-import type { Result } from "../models/result";
+import { auth_http } from "../api";
+import type { LoginDto } from "../../models/auth";
+import type { Result } from "../../models/result";
 
 export class AuthService {
   async login(loginDto: LoginDto): Promise<Result<string>> {

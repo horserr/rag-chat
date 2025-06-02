@@ -1,6 +1,6 @@
 import axios from "axios";
 import type { AxiosInstance, AxiosRequestConfig } from "axios";
-import { TokenService } from "./token.service";
+import { TokenService } from "./auth/token.service";
 
 // Base URLs
 const BASE_URLS = {
@@ -74,6 +74,7 @@ export const eval_prompt_http = axios.create({
   ...commonConfig,
 });
 
+// Evaluation HTTP clients
 export const eval_rag_http = axios.create({
   baseURL: BASE_URLS.EVAL_RAG,
   ...commonConfig,

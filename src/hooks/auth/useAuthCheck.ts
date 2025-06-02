@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { TokenService } from "../../services/token.service";
+import { TokenService } from "../../services/auth/token.service";
 
 // todo add userid representing for different user
 

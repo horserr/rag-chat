@@ -1,0 +1,39 @@
+# Prompt评估 API测试
+@promptUrl = {{baseUrl}}/api/prompt
+
+@taskId = 5
+@evalId = 1
+
+### Get All Tasks
+GET {{promptUrl}}/task
+
+### Create Task
+POST {{promptUrl}}/task
+Content-Type: application/json
+
+{
+  "taskName": "测试任务"
+}
+
+### Update Task Name
+PUT {{promptUrl}}/task/{{taskId}}?task_name=更新后的任务名
+
+### Delete Task
+DELETE {{promptUrl}}/task/{{taskId}}
+
+### Get Task by ID
+GET {{promptUrl}}/task/{{taskId}}
+
+### Get Task Evals
+GET {{promptUrl}}/task/{{taskId}}/eval
+
+### Create Eval
+POST {{promptUrl}}/task/{{taskId}}/eval
+Content-Type: application/json
+
+{
+  "prompt": "这是一个测试提示词"
+}
+
+### Get Eval by ID
+GET {{promptUrl}}/task/{{taskId}}/eval/{{evalId}}

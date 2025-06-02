@@ -1,0 +1,20 @@
+### get verification
+
+POST {{baseUrl}}/auth/verify_code HTTP/1.1
+Content-Type: application/json
+
+{
+    "email": "suhorse@outlook.com"
+}
+
+### create a new user
+
+POST {{baseUrl}}/auth/user HTTP/1.1
+Content-Type: application/json
+
+{
+    "name": "suhorse",
+    "email": "suhorse@outlook.com",
+    "password": "12345678",
+    "verification_code": "TQ0ukih"
+}

@@ -5,7 +5,7 @@ import EvaluationPage from "../pages/EvaluationPage";
 import HomePage from "../pages/HomePage";
 import LoginPage from "../pages/LoginPage";
 import ProtectedRoute from "../components/common/ProtectedRoute";
-import { TokenService } from "../services/token.service";
+import { TokenService } from "../services/auth/token.service";
 
 // Route definitions
 // todo change this
