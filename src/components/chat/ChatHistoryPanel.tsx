@@ -3,8 +3,8 @@ import ChatHistorySidebar from "./ChatHistorySidebar";
 
 interface ChatHistoryPanelProps {
   isOpen: boolean;
-  sessionId?: number;
-  setSessionId: (id: number) => void;
+  sessionId: number | null; // Allow null for no session selected
+  setSessionId: (id: number | null) => void;
 }
 
 /**
@@ -14,7 +14,7 @@ interface ChatHistoryPanelProps {
 const ChatHistoryPanel = ({
   isOpen,
   sessionId,
-  setSessionId: onSelectSession,
+  setSessionId,
 }: ChatHistoryPanelProps) => {
   return (
     <Collapse
@@ -37,7 +37,7 @@ const ChatHistoryPanel = ({
       <ChatHistorySidebar
         isOpen={isOpen}
         sessionId={sessionId}
-        setSessionId={onSelectSession}
+        setSessionId={setSessionId}
       />
     </Collapse>
   );

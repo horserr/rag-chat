@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { ChatMessage } from "../types";
 import { MessageService } from "../services/chat/message.service";
 import { TokenService } from "../services/auth/token.service";
@@ -11,29 +11,36 @@ const convertMessageDtoToChatMessage = (msg: MessageDto): ChatMessage => {
     id: msg.id.toString(),
     text: msg.content,
     sender: msg.role === "User" ? "user" : "bot",
-    timestamp: new Date(msg.created_at.endsWith('Z') ? msg.created_at : msg.created_at + 'Z'),
+    timestamp: new Date(
+      msg.created_at.endsWith("Z") ? msg.created_at : msg.created_at + "Z"
+    ),
   };
 };
 
-export const useChatQuery = (initialSessionId?: number) => {
-  const queryClient = useQueryClient();
-  const [currentSessionId, setCurrentSessionId] = useState<number | undefined>(initialSessionId);
+export const useChatQuery = (sessionId: number | null) => {
   const [isLoading, setIsLoading] = useState(false);
+  const queryClient = useQueryClient();
 
-  // Get current token
   const token = TokenService.getToken();
 
   // Query for messages
-  const { data: messages = [], isLoading: loadingMessages } = useQuery({
-    queryKey: ['messages', currentSessionId, token],
+  const { data: messages = [], isLoading: isLoadingMessages } = useQuery({
+    queryKey: ["messages", sessionId, token],
     queryFn: async () => {
-      if (!token || !currentSessionId) return [];
+      if (!token || !sessionId) return [];
 
-      const messageService = new MessageService(token, currentSessionId);
+      const messageService = new MessageService(token, sessionId);
       const response = await messageService.get_messages(0, 100);
+      if (response.status_code !== 200 || !response.data) {
+        throw new Error(
+          `Failed to fetch messages: ${response.status_code} - ${
+            response.message || "Unknown error"
+          }`
+        );
+      }
       return response.data.map(convertMessageDtoToChatMessage);
     },
-    enabled: !!token && !!currentSessionId,
+    enabled: !!token && !!sessionId,
     staleTime: 30 * 1000, // Consider data stale after 30 seconds
     refetchInterval: false, // Disable automatic refetching
     refetchOnWindowFocus: false, // Don't refetch when window regains focus
@@ -42,39 +49,10 @@ export const useChatQuery = (initialSessionId?: number) => {
 
   // Mutation for sending messages
   const sendMessageMutation = useMutation({
-    mutationFn: async (text: string) => {
-      if (!token || !currentSessionId) throw new Error('No token or session');
-
+    // optimistic update
+    onMutate: (text: string) => {
       setIsLoading(true);
-      const messageService = new MessageService(token, currentSessionId);
 
-      // Define streaming update callback
-      const handleStreamUpdate = (content: string) => {
-        // Update the query cache with streaming content
-        queryClient.setQueryData(['messages', currentSessionId, token], (oldMessages: ChatMessage[] = []) => {
-          const lastMessage = oldMessages[oldMessages.length - 1];
-          if (lastMessage?.sender === "bot" && lastMessage.isStreaming) {
-            // Update the streaming message
-            return oldMessages.map((msg, index) => {
-              if (index === oldMessages.length - 1) {
-                return { ...msg, text: content };
-              }
-              return msg;
-            });
-          } else {
-            // Add a new bot message
-            return [...oldMessages, {
-              id: `stream-${Date.now()}`,
-              text: content,
-              sender: "bot" as const,
-              timestamp: new Date(),
-              isStreaming: true
-            }];
-          }
-        });
-      };
-
-      // Add user message immediately to the cache
       const userMessage: ChatMessage = {
         id: Date.now().toString(),
         text,
@@ -82,16 +60,55 @@ export const useChatQuery = (initialSessionId?: number) => {
         timestamp: new Date(),
       };
 
-      queryClient.setQueryData(['messages', currentSessionId, token], (oldMessages: ChatMessage[] = []) => [
-        ...oldMessages,
-        userMessage
-      ]);
+      // Add user message immediately to the cache
+      queryClient.setQueryData(
+        ["messages", sessionId, token],
+        (oldMessages: ChatMessage[] = []) => [...oldMessages, userMessage]
+      );
+    },
+    mutationFn: async (text: string) => {
+      if (!token || !sessionId) throw new Error("No token or session");
+
+      const messageService = new MessageService(token, sessionId);
+      // Define streaming update callback
+      const handleStreamUpdate = (content: string) => {
+        // Update the query cache with streaming content
+        queryClient.setQueryData(
+          ["messages", sessionId, token],
+          (oldMessages: ChatMessage[] = []) => {
+            const lastMessage = oldMessages[oldMessages.length - 1];
+            if (lastMessage?.sender === "bot" && lastMessage.isStreaming) {
+              // Update the streaming message
+              return oldMessages.map((msg, index) => {
+                if (index === oldMessages.length - 1) {
+                  return { ...msg, text: content };
+                }
+                return msg;
+              });
+            } else {
+              // Add a new bot message
+              return [
+                ...oldMessages,
+                {
+                  id: `stream-${Date.now()}`,
+                  text: content,
+                  sender: "bot" as const,
+                  timestamp: new Date(),
+                  isStreaming: true,
+                },
+              ];
+            }
+          }
+        );
+      };
 
       return await messageService.send_message(text, handleStreamUpdate);
     },
     onSuccess: () => {
-      // Refresh messages after sending to get the final state
-      queryClient.invalidateQueries({ queryKey: ['messages', currentSessionId, token] });
+      // Refresh messages after sending to get the final chat response
+      queryClient.invalidateQueries({
+        queryKey: ["messages", sessionId, token],
+      });
     },
     onError: (error) => {
       console.error("Error sending message:", error);
@@ -101,36 +118,30 @@ export const useChatQuery = (initialSessionId?: number) => {
         text: "Sorry, I couldn't process your message. Please try again or check your connection.",
         sender: "bot",
         timestamp: new Date(),
-        isError: true
+        isError: true,
       };
 
-      queryClient.setQueryData(['messages', currentSessionId, token], (oldMessages: ChatMessage[] = []) => [
-        ...oldMessages,
-        errorResponse
-      ]);
+      queryClient.setQueryData(
+        ["messages", sessionId, token],
+        (oldMessages: ChatMessage[] = []) => [...oldMessages, errorResponse]
+      );
     },
     onSettled: () => {
       setIsLoading(false);
     },
   });
 
-  // Set a new active session
-  const setSession = useCallback((sessionId: number) => {
-    setCurrentSessionId(sessionId);
-    // Clear any loading state when switching sessions
-    setIsLoading(false);
-  }, []);
-
-  const sendMessage = useCallback((text: string) => {
-    sendMessageMutation.mutate(text);
-  }, [sendMessageMutation]);
+  const sendMessage = useCallback(
+    (text: string) => {
+      sendMessageMutation.mutate(text);
+    },
+    [sendMessageMutation]
+  );
 
   return {
     messages,
     sendMessage,
     isLoading: isLoading || sendMessageMutation.isPending,
-    setSession,
-    currentSessionId,
-    loadingMessages,
+    isLoadingMessages,
   };
 };

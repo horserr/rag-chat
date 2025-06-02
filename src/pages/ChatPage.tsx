@@ -9,7 +9,7 @@ import ChatWorkspace from "../components/chat/ChatWorkspace";
  */
 const ChatPage: React.FC = () => {
   const [isHistoryPanelOpen, setIsHistoryPanelOpen] = useState(true);
-  const [sessionId, setSessionId] = useState<number | undefined>(undefined);
+  const [sessionId, setSessionId] = useState<number | null>(null);
 
   const handleToggleHistoryPanel = () =>
     setIsHistoryPanelOpen(!isHistoryPanelOpen);

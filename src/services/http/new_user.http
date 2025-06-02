@@ -15,6 +15,7 @@ Content-Type: application/json
 {
     "name": "suhorse",
     "email": "suhorse@outlook.com",
+    cal
     "password": "12345678",
     "verification_code": "TQ0ukih"
 }

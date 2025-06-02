@@ -8,11 +8,13 @@ import {
 import SidebarHeader from "./sidebar/SidebarHeader";
 import SessionListItem from "./sidebar/SessionListItem";
 import EmptySessionsState from "./sidebar/EmptySessionsState";
+import { useQueryClient } from "@tanstack/react-query";
+import { TokenService } from "../../services/auth/token.service";
 
 interface ChatHistorySidebarProps {
   isOpen: boolean;
-  sessionId?: number;
-  setSessionId: (id: number) => void;
+  sessionId: number | null;
+  setSessionId: (id: number | null) => void;
 }
 
 const ChatHistorySidebar = ({
@@ -26,6 +28,7 @@ const ChatHistorySidebar = ({
   const { data: sessions = [], isLoading: loading } = useSessions();
   const createSessionMutation = useCreateSession();
   const deleteSessionMutation = useDeleteSession();
+  const queryClient = useQueryClient();
 
   const handleNewSession = async () => {
     createSessionMutation.mutate(undefined, {
@@ -43,8 +46,16 @@ const ChatHistorySidebar = ({
     event.stopPropagation(); // Prevent selection when deleting
 
     deleteSessionMutation.mutate(id, {
+      onSuccess: () => {
+        if (sessionId === id) {
+          setSessionId(null);
+        }
+        queryClient.invalidateQueries({
+          queryKey: ["messages", id, TokenService.getToken()],
+        });
+      },
       onError: (error) => {
-        console.error("Error deleting session:", error);
+        throw new Error(`Error deleting session ${id}: ${error.message}`);
       },
     });
   };

@@ -1,12 +1,11 @@
 import { Box } from "@mui/material";
-import React from "react";
 import ChatHeader from "./ChatHeader";
 import ChatInputArea from "./ChatInputArea";
 import ChatMessageList from "./ChatMessageList";
 import { useChatQuery } from "../../hooks/useChatQuery";
 
 interface ChatWorkspaceProps {
-  sessionId?: number;
+  sessionId: number | null; // Allow null for no session selected
   isHistoryPanelOpen: boolean; // Retaining for backwards compatibility
   onToggleHistoryPanel: () => void; // Retaining for backwards compatibility
 }
@@ -25,22 +24,13 @@ const ChatWorkspace = ({
     messages,
     sendMessage,
     isLoading: isThinking,
-    loadingMessages,
-    setSession,
-    currentSessionId,
+    isLoadingMessages,
   } = useChatQuery(sessionId);
 
-  // Update session when sessionId prop changes
-  React.useEffect(() => {
-    if (sessionId && sessionId !== currentSessionId) {
-      setSession(sessionId);
-    }
-  }, [sessionId, currentSessionId, setSession]);
-
   // Determine if we should show loading state
-  const isLoadingMessages = loadingMessages && !!sessionId;
   // Disable input when loading messages or when no session is selected
-  const isInputDisabled = isLoadingMessages || !sessionId;  return (
+  const isInputDisabled = isLoadingMessages || !sessionId;
+  return (
     <Box
       sx={{
         flex: 1,
@@ -61,7 +51,8 @@ const ChatWorkspace = ({
       {/* Messages Area */}
       <ChatMessageList
         messages={messages}
-        isLoading={isLoadingMessages || isThinking}
+        // todo simplify this logic
+        isLoading={(isLoadingMessages && !!sessionId) || isThinking}
       />
 
       {/* Input Area */}

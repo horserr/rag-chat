@@ -45,7 +45,7 @@ export const useCreateSession = () => {
 
       console.log("Create session response:", response);
 
-      if (response.status_code === 200 && response.data) {
+      if (response.status_code === 201 && response.data) {
         return response.data;
       }
 
@@ -55,14 +55,19 @@ export const useCreateSession = () => {
           response.message || "Unknown error"
         }`
       );
-    },
-    onSuccess: (newSession: SessionDto) => {
+    },    onSuccess: (newSession: SessionDto) => {
       // Add the new session to the sessions cache for the current token
-      const token = TokenService.getToken();
+      // Use the token from closure to ensure consistency
       queryClient.setQueryData(
         ["sessions", token],
         (oldSessions: SessionDto[] = []) => [newSession, ...oldSessions]
       );
+
+      // Also invalidate queries to trigger refetch if needed
+      queryClient.invalidateQueries({
+        queryKey: ["sessions", token],
+        exact: true
+      });
     },
   });
 };
@@ -78,17 +83,23 @@ export const useDeleteSession = () => {
 
       const sessionService = new SessionService(token);
       return await sessionService.delete_session(sessionId);
-    },
-    onSuccess: (_, sessionId) => {
+    },    onSuccess: (_, sessionId) => {
       // Remove the session from the cache for the current token
-      const token = TokenService.getToken();
+      // Use the token from closure to ensure consistency
       queryClient.setQueryData(
         ["sessions", token],
         (oldSessions: SessionDto[] = []) =>
           oldSessions.filter((session) => session.id !== sessionId)
       );
+
       // Also clear messages cache for this session
       queryClient.removeQueries({ queryKey: ["messages", sessionId] });
+
+      // Invalidate sessions query to ensure consistency
+      queryClient.invalidateQueries({
+        queryKey: ["sessions", token],
+        exact: true
+      });
     },
   });
 };
