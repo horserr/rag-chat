@@ -1,19 +1,21 @@
 import React, { useState } from "react";
 import { Box } from "@mui/material";
-import EvaluationCard from "../components/evaluation/EvaluationCard";
-import EvaluationFormDialog from "../components/evaluation/EvaluationFormDialog";
+import { motion } from "framer-motion";
 import type {
   EvaluationCardProps,
   FormData,
 } from "../components/evaluation/types";
-import EvaluationNewCard from "../components/evaluation/EvaluationNewCard";
+import EvaluationSection from "../components/evaluation/EvaluationSection";
+import CentralFloatingButton from "../components/evaluation/CentralFloatingButton";
+import TaskList from "../components/evaluation/TaskList";
+import CreationFlow from "../components/evaluation/CreationFlow";
+
+type ViewState = "default" | "rag-creating" | "prompt-creating";
 
 const EvaluationPage: React.FC = () => {
-  const [openDialog, setOpenDialog] = useState(false);
+  const [viewState, setViewState] = useState<ViewState>("default");
+  const [centralExpanded, setCentralExpanded] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
-  const [evaluationType, setEvaluationType] = useState<"rag" | "prompt" | null>(
-    null
-  );
 
   // Form state for the evaluation creation
   const [formData, setFormData] = useState<FormData>({
@@ -25,12 +27,12 @@ const EvaluationPage: React.FC = () => {
     threshold: 0.75,
     enableRealTimeMonitoring: false,
   });
-
-  const handleNewEvaluation = (type: "rag" | "prompt") => {
-    setEvaluationType(type);
-    setOpenDialog(true);
+  const handleCreateEvaluation = (type: "rag" | "prompt") => {
+    setViewState(type === "rag" ? "rag-creating" : "prompt-creating");
     setActiveStep(0);
-    // Reset form data when opening new evaluation dialog
+    setCentralExpanded(false);
+
+    // Reset form data
     setFormData({
       title: "",
       description: "",
@@ -42,13 +44,17 @@ const EvaluationPage: React.FC = () => {
     });
   };
 
-  const handleClose = () => {
-    setOpenDialog(false);
+  const handleToggleCentral = () => {
+    setCentralExpanded(!centralExpanded);
+  };
+
+  const handleCloseCreation = () => {
+    setViewState("default");
+    setActiveStep(0);
   };
 
   const handleNext = () => {
     if (activeStep === 3) {
-      // If this is the last step, complete the form
       setActiveStep(4); // Move to completion step
     } else {
       setActiveStep((prevStep) => prevStep + 1);
@@ -76,53 +82,176 @@ const EvaluationPage: React.FC = () => {
         metrics: [...formData.metrics, formData.customMetric],
         customMetric: "",
       });
-    }
-  };
+    }  };
 
+  const isRagHovered = centralExpanded && viewState === "default";
+  const isPromptHovered = centralExpanded && viewState === "default";
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", height: "100vh" }}>
-      <Box sx={{ p: 3, height: "100%", overflowY: "auto" }}>
-        <Box sx={{ display: "flex", flexWrap: "wrap", margin: "-8px" }}>
-          {/* New Evaluation Card */}
-          <Box
-            sx={{
-              width: { xs: "100%", sm: "50%", md: "33.33%", lg: "20%" },
-              padding: "8px",
+    <Box sx={{ height: "100vh", position: "relative", overflow: "hidden" }}>
+      {/* When creating RAG evaluation */}
+      {viewState === "rag-creating" && (
+        <>
+          {/* Left side - Task summary for RAG creation */}
+          <motion.div
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.4 }}
+            style={{
+              position: "absolute",
+              left: 0,
+              top: 0,
+              height: "100%",
+              width: "50%",
+              zIndex: 5,
             }}
           >
-            {/* New Evaluation Card component to create RAG or Prompt evaluations */}
-            <EvaluationNewCard
-              onCreateRag={() => handleNewEvaluation("rag")}
-              onCreatePrompt={() => handleNewEvaluation("prompt")}
+            <TaskList
+              evaluations={sampleEvaluations}
+              type="rag"
+              isVisible={true}
             />
-          </Box>
-          {/* Sample Evaluation Cards */}
-          {sampleEvaluations.map((evaluation) => (
-            <Box
-              key={evaluation.id}
-              sx={{
-                width: { xs: "100%", sm: "50%", md: "33.33%", lg: "20%" },
-                padding: "8px",
-              }}
-            >
-              <EvaluationCard evaluation={evaluation} />
-            </Box>
-          ))}
-        </Box>
+          </motion.div>
 
-        {/* Evaluation Form Dialog */}
-        <EvaluationFormDialog
-          open={openDialog}
-          onClose={handleClose}
-          evaluationType={evaluationType}
-          activeStep={activeStep}
-          formData={formData}
-          onFormChange={handleFormChange}
-          onAddMetric={handleAddMetric}
-          onNext={handleNext}
-          onBack={handleBack}
+          {/* Right side - Creation Flow for RAG */}
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.4 }}
+            style={{
+              position: "absolute",
+              right: 0,
+              top: 0,
+              height: "100%",
+              width: "50%",
+              zIndex: 10,
+              backgroundColor: "white",
+            }}
+          >
+            <CreationFlow
+              evaluationType="rag"
+              activeStep={activeStep}
+              formData={formData}
+              onFormChange={handleFormChange}
+              onAddMetric={handleAddMetric}
+              onNext={handleNext}
+              onBack={handleBack}
+              onClose={handleCloseCreation}
+            />
+          </motion.div>
+        </>
+      )}
+
+      {/* When creating Prompt evaluation */}
+      {viewState === "prompt-creating" && (
+        <>
+          {/* Left side - Task summary for Prompt creation */}
+          <motion.div
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.4 }}
+            style={{
+              position: "absolute",
+              left: 0,
+              top: 0,
+              height: "100%",
+              width: "50%",
+              zIndex: 5,
+            }}
+          >
+            <TaskList
+              evaluations={sampleEvaluations}
+              type="prompt"
+              isVisible={true}
+            />
+          </motion.div>
+
+          {/* Right side - Creation Flow for Prompt */}
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.4 }}
+            style={{
+              position: "absolute",
+              right: 0,
+              top: 0,
+              height: "100%",
+              width: "50%",
+              zIndex: 10,
+              backgroundColor: "white",
+            }}
+          >
+            <CreationFlow
+              evaluationType="prompt"
+              activeStep={activeStep}
+              formData={formData}
+              onFormChange={handleFormChange}
+              onAddMetric={handleAddMetric}
+              onNext={handleNext}
+              onBack={handleBack}
+              onClose={handleCloseCreation}
+            />
+          </motion.div>
+        </>
+      )}
+
+      {/* Default state - Split view */}
+      {viewState === "default" && (
+        <>
+          {/* Left Section - RAG */}
+          <motion.div
+            initial={{ width: "50%" }}
+            animate={{ width: "50%" }}
+            transition={{ duration: 0.6, ease: "easeInOut" }}
+            style={{
+              position: "absolute",
+              left: 0,
+              top: 0,
+              height: "100%",
+              zIndex: 1,
+            }}
+          >
+            <EvaluationSection
+              type="rag"
+              evaluations={sampleEvaluations}
+              isHovered={isRagHovered}
+              isCreating={false}
+              onCreateClick={() => handleCreateEvaluation("rag")}
+            />
+          </motion.div>
+
+          {/* Right Section - Prompt */}
+          <motion.div
+            initial={{ width: "50%" }}
+            animate={{ width: "50%" }}
+            transition={{ duration: 0.6, ease: "easeInOut" }}
+            style={{
+              position: "absolute",
+              right: 0,
+              top: 0,
+              height: "100%",
+              zIndex: 1,
+            }}
+          >
+            <EvaluationSection
+              type="prompt"
+              evaluations={sampleEvaluations}
+              isHovered={isPromptHovered}
+              isCreating={false}
+              onCreateClick={() => handleCreateEvaluation("prompt")}
+            />
+          </motion.div>
+        </>
+      )}
+
+      {/* Central Floating Button */}
+      {viewState === "default" && (
+        <CentralFloatingButton
+          isExpanded={centralExpanded}
+          onToggle={handleToggleCentral}
+          onCreateRAG={() => handleCreateEvaluation("rag")}
+          onCreatePrompt={() => handleCreateEvaluation("prompt")}
         />
-      </Box>
+      )}
     </Box>
   );
 };
