@@ -1,14 +1,14 @@
-import React, { useState } from "react";
 import { Box } from "@mui/material";
 import { motion } from "framer-motion";
+import React, { useState } from "react";
+import CentralFloatingButton from "../components/evaluation/components/CentralFloatingButton";
+import CreationFlow from "../components/evaluation/CreationFlow";
+import EvaluationSection from "../components/evaluation/EvaluationSection";
+import TaskList from "../components/evaluation/TaskList";
 import type {
   EvaluationCardProps,
   FormData,
 } from "../components/evaluation/types";
-import EvaluationSection from "../components/evaluation/EvaluationSection";
-import CentralFloatingButton from "../components/evaluation/CentralFloatingButton";
-import TaskList from "../components/evaluation/TaskList";
-import CreationFlow from "../components/evaluation/CreationFlow";
 
 type ViewState = "default" | "rag-creating" | "prompt-creating";
 
@@ -27,6 +27,7 @@ const EvaluationPage: React.FC = () => {
     threshold: 0.75,
     enableRealTimeMonitoring: false,
   });
+
   const handleCreateEvaluation = (type: "rag" | "prompt") => {
     setViewState(type === "rag" ? "rag-creating" : "prompt-creating");
     setActiveStep(0);
@@ -82,7 +83,8 @@ const EvaluationPage: React.FC = () => {
         metrics: [...formData.metrics, formData.customMetric],
         customMetric: "",
       });
-    }  };
+    }
+  };
 
   const isRagHovered = centralExpanded && viewState === "default";
   const isPromptHovered = centralExpanded && viewState === "default";

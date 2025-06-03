@@ -1,27 +1,27 @@
-import React from "react";
+import BarChartIcon from "@mui/icons-material/BarChart";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import CloseIcon from "@mui/icons-material/Close";
+import CreateIcon from "@mui/icons-material/Create";
+import DatasetIcon from "@mui/icons-material/Dataset";
+import type { StepIconProps } from "@mui/material";
 import {
   Box,
-  Typography,
+  Button,
   IconButton,
-  Stepper,
+  Paper,
   Step,
   StepLabel,
-  Button,
-  Paper,
+  Stepper,
+  Typography,
   useTheme,
 } from "@mui/material";
-import type { StepIconProps } from "@mui/material";
 import { motion } from "framer-motion";
-import CloseIcon from "@mui/icons-material/Close";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
-import CreateIcon from "@mui/icons-material/Create";
-import BarChartIcon from "@mui/icons-material/BarChart";
-import DatasetIcon from "@mui/icons-material/Dataset";
-import type { FormData } from "./types";
+import React from "react";
 import ConfigurationStep from "./form-steps/ConfigurationStep";
 import MetricsStep from "./form-steps/MetricsStep";
-import TestDataStep from "./form-steps/TestDataStep";
 import ReviewStep from "./form-steps/ReviewStep";
+import TestDataStep from "./form-steps/TestDataStep";
+import type { FormData } from "./types";
 
 interface CreationFlowProps {
   evaluationType: "rag" | "prompt";
@@ -70,12 +70,7 @@ const CustomStepIcon = (props: StepIconProps) => {
 };
 
 // Steps for the form
-const steps = [
-  "Configuration",
-  "Metrics Selection",
-  "Test Data",
-  "Review",
-];
+const steps = ["Configuration", "Metrics Selection", "Test Data", "Review"];
 
 const CreationFlow: React.FC<CreationFlowProps> = ({
   evaluationType,
@@ -92,7 +87,9 @@ const CreationFlow: React.FC<CreationFlowProps> = ({
   const isLastStep = activeStep === 3;
 
   const getTypeColor = () => {
-    return evaluationType === "rag" ? theme.palette.primary.main : theme.palette.secondary.main;
+    return evaluationType === "rag"
+      ? theme.palette.primary.main
+      : theme.palette.secondary.main;
   };
 
   return (
@@ -123,7 +120,10 @@ const CreationFlow: React.FC<CreationFlowProps> = ({
                   evaluationType === "rag" ? "RAG" : "Prompt"
                 } Evaluation`}
           </Typography>
-          <IconButton onClick={onClose} sx={{ color: isCompletionStep ? 'white' : 'inherit' }}>
+          <IconButton
+            onClick={onClose}
+            sx={{ color: isCompletionStep ? "white" : "inherit" }}
+          >
             <CloseIcon />
           </IconButton>
         </Box>
@@ -144,7 +144,9 @@ const CreationFlow: React.FC<CreationFlowProps> = ({
           >
             {steps.map((label) => (
               <Step key={label}>
-                <StepLabel StepIconComponent={CustomStepIcon}>{label}</StepLabel>
+                <StepLabel StepIconComponent={CustomStepIcon}>
+                  {label}
+                </StepLabel>
               </Step>
             ))}
           </Stepper>
@@ -180,10 +182,7 @@ const CreationFlow: React.FC<CreationFlowProps> = ({
             />
           )}
           {activeStep === 3 && (
-            <ReviewStep
-              formData={formData}
-              evaluationType={evaluationType}
-            />
+            <ReviewStep formData={formData} evaluationType={evaluationType} />
           )}
           {activeStep === 4 && (
             <Box
@@ -196,12 +195,24 @@ const CreationFlow: React.FC<CreationFlowProps> = ({
                 py: 4,
               }}
             >
-              <CheckCircleOutlineIcon sx={{ fontSize: 80, color: getTypeColor(), mb: 3 }} />
-              <Typography variant="h6" gutterBottom sx={{ color: getTypeColor() }}>
-                Your {evaluationType === "rag" ? "RAG" : "Prompt"} evaluation has been created
+              <CheckCircleOutlineIcon
+                sx={{ fontSize: 80, color: getTypeColor(), mb: 3 }}
+              />
+              <Typography
+                variant="h6"
+                gutterBottom
+                sx={{ color: getTypeColor() }}
+              >
+                Your {evaluationType === "rag" ? "RAG" : "Prompt"} evaluation
+                has been created
               </Typography>
-              <Typography variant="body1" sx={{ color: "text.secondary" }} textAlign="center">
-                {formData.title} is now ready. You can view it in your evaluation dashboard.
+              <Typography
+                variant="body1"
+                sx={{ color: "text.secondary" }}
+                textAlign="center"
+              >
+                {formData.title} is now ready. You can view it in your
+                evaluation dashboard.
               </Typography>
             </Box>
           )}
@@ -219,7 +230,11 @@ const CreationFlow: React.FC<CreationFlowProps> = ({
             borderColor: "divider",
           }}
         >
-          <Button onClick={onBack} disabled={activeStep === 0} variant="outlined">
+          <Button
+            onClick={onBack}
+            disabled={activeStep === 0}
+            variant="outlined"
+          >
             Back
           </Button>
           <Button
