@@ -17,6 +17,21 @@ export class TaskService {
 
   /**
    * Get all evaluation tasks
+   * @returns List of tasks
+   * @example Response:
+   * {
+   *   "tasks": [
+   *     {
+   *       "id": "task1_id",
+   *       "name": "task1_name"
+   *     },
+   *     {
+   *       "id": "task2_id",
+   *       "name": "task2_name"
+   *     }
+   *   ]
+   * }
+   * @note TODO: Need to add description and create time in response
    */
   async getTasks(): Promise<TaskListResponse> {
     try {
@@ -30,6 +45,22 @@ export class TaskService {
 
   /**
    * Create a new evaluation task
+   * @param taskData The task data with name and optional description
+   * @returns The created task object
+   * @example Request body:
+   * {
+   *   "name": "task_name",
+   *   "description": "optional_description"
+   * }
+   * @example Response:
+   * {
+   *   "status": "success",
+   *   "task": {
+   *     "id": "new_task_id",
+   *     "name": "task_name"
+   *   }
+   * }
+   * @note TODO: Need to add description in response
    */
   async createTask(taskData: CreateTaskDto): Promise<TaskResponse> {
     try {
@@ -43,6 +74,23 @@ export class TaskService {
 
   /**
    * Update an existing evaluation task
+   * @param taskId The ID of the task to update
+   * @param taskData The updated task data
+   * @returns The updated task object
+   * @example Request body:
+   * {
+   *   "name": "updated_task_name",
+   *   "description": "updated_description"
+   * }
+   * @example Response:
+   * {
+   *   "status": "success",
+   *   "task": {
+   *     "id": "task_id",
+   *     "name": "updated_task_name"
+   *   }
+   * }
+   * @note TODO: Remove name from response or make consistent
    */
   async updateTask(
     taskId: string,
@@ -59,6 +107,13 @@ export class TaskService {
 
   /**
    * Delete an evaluation task
+   * @param taskId The ID of the task to delete
+   * @returns The delete operation response
+   * @example Response:
+   * {
+   *   "status": "success",
+   *   "message": "task deleted"
+   * }
    */
   async deleteTask(taskId: string): Promise<DeleteTaskResponse> {
     try {
@@ -72,6 +127,18 @@ export class TaskService {
 
   /**
    * Get task details by ID
+   * @param taskId The ID of the task to retrieve
+   * @returns The task details object
+   * @example Response:
+   * {
+   *   "status": "success",
+   *   "task": {
+   *     "id": "task_id",
+   *     "name": "task_name",
+   *     "date": "task_date"
+   *   }
+   * }
+   * @note TODO: Add description and create time in response
    */
   async getTaskById(taskId: string): Promise<TaskResponse> {
     try {

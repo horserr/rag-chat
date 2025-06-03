@@ -18,6 +18,12 @@ export class TaskService {
 
   /**
    * Get all prompt evaluation tasks
+   * @returns An array of task objects
+   * @example Response:
+   * [{
+   *   "taskName": "更新后的任务名",
+   *   "taskId": 5
+   * }]
    */
   async getAllTasks(): Promise<PromptTask[]> {
     try {
@@ -31,6 +37,12 @@ export class TaskService {
 
   /**
    * Create a new prompt evaluation task
+   * @param taskData The task data object with task name
+   * @example Request body:
+   * {
+   *   "taskName": "测试任务"
+   * }
+   * @example Response: No response body
    */
   async createTask(taskData: CreatePromptTaskDto): Promise<void> {
     try {
@@ -43,6 +55,10 @@ export class TaskService {
 
   /**
    * Update task name
+   * @param taskId The ID of the task to update
+   * @param taskName The new name for the task
+   * @example API call format: PUT /task/{taskId}?task_name={taskName}
+   * @example Response: No response body
    */
   async updateTaskName(taskId: number, taskName: string): Promise<void> {
     try {
@@ -57,6 +73,12 @@ export class TaskService {
 
   /**
    * Delete a task
+   * @param taskId The ID of the task to delete
+   * @returns The delete response message
+   * @example Response:
+   * {
+   *   "message": "Task deleted successfully"
+   * }
    */
   async deleteTask(taskId: number): Promise<DeletePromptTaskResponse> {
     try {
@@ -70,6 +92,13 @@ export class TaskService {
 
   /**
    * Get task by ID
+   * @param taskId The ID of the task to retrieve
+   * @returns The task object
+   * @example Response:
+   * {
+   *   "taskName": "测试任务",
+   *   "taskId": 6
+   * }
    */
   async getTaskById(taskId: number): Promise<PromptTaskResponse> {
     try {
@@ -83,6 +112,30 @@ export class TaskService {
 
   /**
    * Get all evaluations for a specific task
+   * @param taskId The ID of the task to get evaluations for
+   * @returns A list of evaluations or an error response
+   * @example Success Response (array of evaluation objects):
+   * [
+   *   {
+   *     "prompt": "这是一个测试提示词",
+   *     "promptScore": "2",
+   *     "modificationReason": "Prompt 过于模糊且缺乏具体内容...",
+   *     "bleu4Score": 0.0702665,
+   *     "editDistance": 0.975,
+   *     "lexicalDiversity": 0.8,
+   *     "taskId": 6,
+   *     "evalId": 3,
+   *     "modifiedPrompt": "优化后的Prompt：生成5个软件功能测试用例...",
+   *     "semanticSimilarity": 0.194418,
+   *     "rougeLScore": 0.143416,
+   *     "entityF1": 0.143691,
+   *     "filledPrompt": "\"这是一个测试提示词\""
+   *   }
+   * ]
+   * @example Error Response:
+   * {
+   *   "detail": "Evals not found"
+   * }
    */
   async getTaskEvaluations(taskId: number): Promise<PromptEvaluationListResponse | PromptEvaluationErrorResponse> {
     try {
