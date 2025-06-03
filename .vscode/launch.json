@@ -1,0 +1,196 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "msedge",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}",
+      "smartStep": true,
+      "sourceMaps": true,
+      "skipFiles": [
+        "<node_internals>/**",
+        "**/node_modules/**"
+      ],
+      "request": "launch",
+      "name": "🚀 Launch with Dev Server",
+      "userDataDir": "${workspaceFolder}/.vscode/msedge",
+      "timeout": 30000,
+      "preLaunchTask": "start-dev-server",
+      "runtimeArgs": [
+        "--disable-web-security",
+        "--disable-features=VizDisplayCompositor",
+        "--allow-running-insecure-content",
+        "--inprivate"
+      ]
+    },
+    {
+      "type": "msedge",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}",
+      "smartStep": true,
+      "sourceMaps": true,
+      "skipFiles": [
+        "<node_internals>/**",
+        "**/node_modules/**"
+      ],
+      "request": "attach",
+      "name": "🔗 Attach to Running Server"
+    },
+    {
+      "type": "msedge",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}",
+      "smartStep": true,
+      "sourceMaps": true,
+      "skipFiles": [
+        "<node_internals>/**",
+        "**/node_modules/**"
+      ],
+      "request": "launch",
+      "name": "🌐 Launch (Server Required)",
+      "userDataDir": "${workspaceFolder}/.vscode/msedge",
+      "timeout": 30000,
+      "runtimeArgs": [
+        "--disable-web-security",
+        "--disable-features=VizDisplayCompositor"
+      ]
+    },
+    {
+      "type": "msedge",
+      "url": "http://localhost:4173",
+      "webRoot": "${workspaceFolder}",
+      "smartStep": true,
+      "sourceMaps": true,
+      "skipFiles": [
+        "<node_internals>/**",
+        "**/node_modules/**"
+      ],
+      "request": "launch",
+      "name": "🏗️ Launch Build Preview",
+      "userDataDir": "${workspaceFolder}/.vscode/msedge-preview",
+      "timeout": 30000,
+      "preLaunchTask": "build-and-preview",
+      "runtimeArgs": [
+        "--disable-web-security",
+        "--disable-features=VizDisplayCompositor"
+      ]
+    },
+    {
+      "type": "node",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "request": "launch",
+      "name": "🧪 Debug Jest Tests",
+      "program": "${workspaceFolder}/node_modules/.bin/jest",
+      "args": [
+        "--runInBand",
+        "--no-cache",
+        "--watchAll=false"
+      ],
+      "env": {
+        "NODE_ENV": "test"
+      }
+    },
+    {
+      "type": "node",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "request": "launch",
+      "name": "🧪 Debug Current Jest Test",
+      "program": "${workspaceFolder}/node_modules/.bin/jest",
+      "args": [
+        "--runInBand",
+        "--no-cache",
+        "${relativeFile}"
+      ],
+      "env": {
+        "NODE_ENV": "test"
+      }
+    },
+    {
+      "type": "node",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "request": "launch",
+      "name": "🔌 Debug API Test Script",
+      "program": "${workspaceFolder}/src/test_api.js",
+      "args": [
+        "YOUR_TOKEN_HERE"
+      ],
+      "env": {
+        "NODE_ENV": "development"
+      }
+    },
+    {
+      "type": "node",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "request": "launch",
+      "name": "📦 Debug Package Scripts",
+      "program": "${workspaceFolder}/node_modules/.bin/npm",
+      "args": [
+        "run",
+        "${input:npmScript}"
+      ]
+    },
+    {
+      "type": "node",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "request": "launch",
+      "name": "🔧 Debug TypeScript Compilation",
+      "program": "${workspaceFolder}/node_modules/.bin/tsc",
+      "args": [
+        "--noEmit",
+        "--incremental"
+      ],
+      "env": {
+        "NODE_ENV": "development"
+      }
+    },
+    {
+      "type": "node",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "request": "launch",
+      "name": "⚙️ Debug Launch Config Generator",
+      "program": "${workspaceFolder}/.vscode/launch-config.js"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "npmScript",
+      "description": "选择要调试的 npm 脚本",
+      "type": "pickString",
+      "options": [
+        "dev",
+        "build",
+        "lint",
+        "preview",
+        "test",
+        "test:api",
+        "test:unit",
+        "test:integration",
+        "generate:launch"
+      ]
+    }
+  ]
+}

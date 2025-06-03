@@ -1,75 +1,47 @@
-import React, { useState } from "react";
-import { Box, Collapse } from "@mui/material";
-import ChatHistorySidebar from "../components/chat/ChatHistorySidebar";
-import ChatHeader from "../components/chat/ChatHeader";
-import ChatMessageList from "../components/chat/ChatMessageList";
-import ChatInputArea from "../components/chat/ChatInputArea";
-import { useChat } from "../hooks/useChat";
+import { Box } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import ChatHistoryPanel from "../components/chat/ChatHistoryPanel";
+import ChatWorkspace from "../components/chat/ChatWorkspace";
 
 /**
  * ChatPage component represents the main chat interface
  * It includes the chat history sidebar, message list, and input area
  */
 const ChatPage: React.FC = () => {
-  const { messages, sendMessage, isLoading } = useChat();
   const [isHistoryPanelOpen, setIsHistoryPanelOpen] = useState(true);
+  const [sessionId, setSessionId] = useState<number | null>(null);
 
-  const handleToggleHistoryPanel = () => {
+  const handleToggleHistoryPanel = () =>
     setIsHistoryPanelOpen(!isHistoryPanelOpen);
-  };
+  // Keyboard shortcut for toggling history panel (Ctrl+Shift+H)
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.ctrlKey && event.shiftKey && event.key === "H") {
+        event.preventDefault();
+        setIsHistoryPanelOpen((prev) => !prev);
+      }
+    };
 
-  const handleSendMessage = (text: string) => {
-    sendMessage(text);
-  };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
 
   return (
     <Box sx={{ display: "flex", height: "100%", width: "100%" }}>
       {/* History Panel with animation */}
-      <Collapse
-        in={isHistoryPanelOpen}
-        orientation="horizontal"
-        timeout={300}
-        sx={{
-          height: "100%",
-          overflow: "hidden",
-          transitionProperty: "width, min-width, max-width",
-          transitionTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)",
-          transitionDuration: "300ms",
-          width: isHistoryPanelOpen ? "280px" : "0px",
-          minWidth: isHistoryPanelOpen ? "280px" : "0px",
-          maxWidth: isHistoryPanelOpen ? "280px" : "0px",
-          position: "relative",
-        }}
-      >
-        <ChatHistorySidebar isOpen={isHistoryPanelOpen} />
-      </Collapse>
-
+      <ChatHistoryPanel
+        isOpen={isHistoryPanelOpen}
+        sessionId={sessionId}
+        setSessionId={setSessionId}
+      />{" "}
       {/* Main Chat Content Area */}
-      <Box
-        sx={{
-          flexGrow: 1,
-          display: "flex",
-          flexDirection: "column",
-          height: "100%",
-          backgroundColor: "background.default",
-          overflow: "hidden", // Prevents shadow issues with inner scrolling content
-        }}
-      >
-        {/* Header with toggle button for history panel */}
-        <ChatHeader
-          isHistoryPanelOpen={isHistoryPanelOpen}
-          onToggleHistoryPanel={handleToggleHistoryPanel}
-        />
-
-        {/* Messages Area */}
-        <ChatMessageList messages={messages} isLoading={isLoading} />
-
-        {/* Input Area */}
-        <ChatInputArea
-          onSendMessage={handleSendMessage}
-          isLoading={isLoading}
-        />
-      </Box>
+      <ChatWorkspace
+        sessionId={sessionId}
+        isHistoryPanelOpen={isHistoryPanelOpen}
+        onToggleHistoryPanel={handleToggleHistoryPanel}
+      />
     </Box>
   );
 };

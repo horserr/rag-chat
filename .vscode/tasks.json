@@ -1,0 +1,169 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      // 启动开发服务器任务
+      // 用于 VS Code 调试配置的预启动任务，启动 Vite 开发服务器
+      "label": "start-dev-server",
+      "type": "npm",
+      "script": "dev",
+      "group": "build",
+      "isBackground": true, // 后台运行，不阻塞其他任务
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": {
+        // Vite 专用的问题匹配器，用于解析编译错误
+        "owner": "vite",
+        "pattern": [
+          {
+            "regexp": ".",
+            "file": 1,
+            "location": 2,
+            "message": 3
+          }
+        ],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^.*VITE.*", // Vite 启动模式
+          "endsPattern": ".*Local:.*http://localhost:5173.*" // 服务器就绪模式
+        }
+      },
+      "presentation": {
+        "echo": true, // 显示执行的命令
+        "reveal": "always", // 总是显示终端
+        "focus": false, // 不自动聚焦到终端
+        "panel": "shared", // 使用共享终端面板
+        "showReuseMessage": true, // 显示重用消息
+        "clear": false // 不清除之前的输出
+      }
+    },
+    {
+      // 构建并预览任务
+      // 先构建项目，然后启动预览服务器
+      "label": "build-and-preview",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "build", "&&", "npm", "run", "preview"],
+      "group": "build",
+      "isBackground": true,
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": {
+        "owner": "typescript",
+        "pattern": [
+          {
+            "regexp": "^(.+)\\((\\d+),(\\d+)\\):\\s+(error|warning)\\s+(.+)$",
+            "file": 1,
+            "line": 2,
+            "column": 3,
+            "severity": 4,
+            "message": 5
+          }
+        ],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^.*preview.*",
+          "endsPattern": ".*Local:.*http://localhost:4173.*"
+        }
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      // 生成启动配置任务
+      // 运行 launch-config.js 脚本来重新生成 launch.json
+      "label": "generate-launch-config",
+      "type": "shell",
+      "command": "node",
+      "args": [".vscode/launch-config.js"],
+      "group": "build",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true, // 聚焦到终端查看结果
+        "panel": "new", // 使用新的终端面板
+        "clear": true // 清除之前的输出
+      }
+    },
+    {
+      // 运行所有测试
+      // 使用 Jest 运行所有测试用例
+      "label": "test-all",
+      "type": "npm",
+      "script": "test",
+      "group": "test",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": {
+        "owner": "jest",
+        "fileLocation": ["relative", "${workspaceFolder}"],
+        "pattern": [
+          {
+            "regexp": "^\\s+at\\s+(?:.*\\()?(.+?):([0-9]+):([0-9]+)\\)?$",
+            "file": 1,
+            "line": 2,
+            "column": 3
+          },
+          {
+            "regexp": "^Error:\\s+(.*)$",
+            "message": 1
+          }
+        ]
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared"
+      }
+    },
+    {
+      // 类型检查任务
+      // 运行 TypeScript 编译器进行类型检查，不生成文件
+      "label": "type-check",
+      "type": "shell",
+      "command": "npx",
+      "args": ["tsc", "--noEmit"],
+      "group": "build",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": ["$tsc"], // 使用内置的 TypeScript 问题匹配器
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared"
+      }
+    },
+    {
+      // 代码格式检查任务
+      // 运行 ESLint 进行代码质量检查
+      "label": "lint-check",
+      "type": "npm",
+      "script": "lint",
+      "group": "test",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": ["$eslint-stylish"], // 使用内置的 ESLint 问题匹配器
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared"
+      }
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "rest-client.environmentVariables": {
+    "$shared": {
+      "baseUrl": "https://home.si-qi.wang",
+
+    }
+  }
+}

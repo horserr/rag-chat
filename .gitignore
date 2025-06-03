@@ -13,9 +13,9 @@ dist-ssr
 *.local
 
 # Editor directories and files
-.vscode/*
+# browser profile
+.vscode/msedge*
 *.code-workspace
-!.vscode/extensions.json
 .idea
 .DS_Store
 *.suo

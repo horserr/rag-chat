@@ -1,4 +1,5 @@
-import React, { useState, type ReactNode } from "react";
+import React, { useState } from "react";
+import type { ReactNode } from "react";
 import { Card, useMediaQuery, useTheme } from "@mui/material";
 import { animations } from "../types";
 
