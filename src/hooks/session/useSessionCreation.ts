@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { SessionService } from "../../services/chat/session.service";
-import { TokenService } from "../../services/auth/token.service";
-import type { SessionDto } from "../../models/session";
+import { SessionService, TokenService } from "../../services";
+import type { SessionDto } from "../../models";
 
 /**
  * Hook for creating new sessions

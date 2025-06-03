@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { SessionService } from "../../services/chat/session.service";
-import { TokenService } from "../../services/auth/token.service";
+import { SessionService, TokenService } from "../../services";
 
 /**
  * Hook for fetching and managing session list

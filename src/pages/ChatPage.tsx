@@ -1,7 +1,6 @@
 import { Box } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import ChatHistoryPanel from "../components/chat/ChatHistoryPanel";
-import ChatWorkspace from "../components/chat/ChatWorkspace";
+import { ChatHistoryPanel, ChatWorkspace } from "../components/chat";
 
 /**
  * ChatPage component represents the main chat interface
