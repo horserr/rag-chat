@@ -1,4 +1,4 @@
-import { MetricId } from "../../models/evaluation";
+import { MetricId } from "../../models/rag-evaluation";
 
 /**
  * Utility functions for evaluation operations

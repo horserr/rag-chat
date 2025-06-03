@@ -5,7 +5,7 @@ import type {
   TaskListResponse,
   TaskResponse,
   DeleteTaskResponse,
-} from "../../../models/evaluation";
+} from "../../../models/rag-evaluation";
 import { eval_rag_http } from "../../api";
 
 export class TaskService {

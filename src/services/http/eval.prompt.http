@@ -1,11 +1,17 @@
 # Prompt评估 API测试
 @promptUrl = {{baseUrl}}/api/prompt
 
-@taskId = 5
-@evalId = 1
+@taskId = 6
+@evalId = 3
 
 ### Get All Tasks
 GET {{promptUrl}}/task
+
+## response:
+# [{
+#   "taskName": "更新后的任务名",
+#   "taskId": 5
+# }]
 
 ### Create Task
 POST {{promptUrl}}/task
@@ -15,19 +21,58 @@ Content-Type: application/json
   "taskName": "测试任务"
 }
 
+### no response
+
 ### Update Task Name
-PUT {{promptUrl}}/task/{{taskId}}?task_name=更新后的任务名
+PUT {{promptUrl}}/task/{{taskId}}?task_name=更新后的任务
+
+### no response
 
 ### Delete Task
 DELETE {{promptUrl}}/task/{{taskId}}
 
+### response:
+# {
+#   "message": "Task deleted successfully"
+# }
+
 ### Get Task by ID
 GET {{promptUrl}}/task/{{taskId}}
+
+## response:
+# {
+#   "taskName": "测试任务",
+#   "taskId": 6
+# }
 
 ### Get Task Evals
 GET {{promptUrl}}/task/{{taskId}}/eval
 
+## response:
+# {
+#   "detail": "Evals not found"
+# }
+# OR
+# [
+#   {
+#     "prompt": "这是一个测试提示词",
+#     "promptScore": "2",
+#     "modificationReason": "Prompt 过于模糊且缺乏具体内容，未提供明确的任务目标、背景信息或约束条件，无法有效指导生成结果的方向。",
+#     "bleu4Score": 0.0702665,
+#     "editDistance": 0.975,
+#     "lexicalDiversity": 0.8,
+#     "taskId": 6,
+#     "evalId": 3,
+#     "modifiedPrompt": "优化后的Prompt：生成5个软件功能测试用例，涵盖登录模块的正常和异常场景，包含测试步骤、预期结果及优先级分类，以表格形式呈现适用于Web应用程序测试。\"",
+#     "semanticSimilarity": 0.194418,
+#     "rougeLScore": 0.143416,
+#     "entityF1": 0.143691,
+#     "filledPrompt": "\"这是一个测试提示词\""
+#   }
+# ]
+
 ### Create Eval
+# note: this will cause a long waiting time
 POST {{promptUrl}}/task/{{taskId}}/eval
 Content-Type: application/json
 
@@ -35,5 +80,40 @@ Content-Type: application/json
   "prompt": "这是一个测试提示词"
 }
 
+## response:
+# {
+#   "prompt": "这是一个测试提示词",
+#   "promptScore": "2",
+#   "modificationReason": "Prompt 过于模糊且缺乏具体内容，未提供明确的任务目标、背景信息或约束条件，无法有效指导生成结果的方向。",
+#   "bleu4Score": 0.0702665,
+#   "editDistance": 0.975,
+#   "lexicalDiversity": 0.8,
+#   "taskId": 6,
+#   "evalId": 3,
+#   "modifiedPrompt": "优化后的Prompt：生成5个软件功能测试用例，涵盖登录模块的正常和异常场景，包含测试步骤、预期结果及优先级分类，以表格形式呈现适用于Web应用程序测试。\"",
+#   "semanticSimilarity": 0.194418,
+#   "rougeLScore": 0.143416,
+#   "entityF1": 0.143691,
+#   "filledPrompt": "\"这是一个测试提示词\""
+# }
+
 ### Get Eval by ID
-GET {{promptUrl}}/task/{{taskId}}/eval/{{evalId}}
+# note: this url is different from others
+GET {{promptUrl}}/prompt/{{taskId}}/eval/{{evalId}}
+
+## response:
+# {
+#   "prompt": "这是一个测试提示词",
+#   "promptScore": "2",
+#   "modificationReason": "Prompt 过于模糊且缺乏具体内容，未提供明确的任务目标、背景信息或约束条件，无法有效指导生成结果的方向。",
+#   "bleu4Score": 0.0702665,
+#   "editDistance": 0.975,
+#   "lexicalDiversity": 0.8,
+#   "taskId": 6,
+#   "evalId": 3,
+#   "modifiedPrompt": "优化后的Prompt：生成5个软件功能测试用例，涵盖登录模块的正常和异常场景，包含测试步骤、预期结果及优先级分类，以表格形式呈现适用于Web应用程序测试。\"",
+#   "semanticSimilarity": 0.194418,
+#   "rougeLScore": 0.143416,
+#   "entityF1": 0.143691,
+#   "filledPrompt": "\"这是一个测试提示词\""
+# }

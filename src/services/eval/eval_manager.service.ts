@@ -10,7 +10,7 @@ import {
   type SingleTurnSample,
   type CustomSample,
   type MultiTurnSample,
-} from "../../models/evaluation";
+} from "../../models/rag-evaluation";
 
 /**
  * Evaluation Manager Service - High-level service for managing evaluations
