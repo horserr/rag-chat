@@ -46,9 +46,76 @@ const AppRoutes: React.FC = () => {
             <ChatPage />
           </ProtectedRoute>
         }
+      />      <Route
+        path="/evaluation"
+        element={
+          <ProtectedRoute>
+            <EvaluationPage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* RAG Evaluation Routes */}
+      <Route
+        path="/evaluation/rag"
+        element={
+          <ProtectedRoute>
+            <EvaluationPage />
+          </ProtectedRoute>
+        }
       />
       <Route
-        path="/evaluation"
+        path="/evaluation/rag/:taskId"
+        element={
+          <ProtectedRoute>
+            <EvaluationPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/evaluation/rag/:taskId/details"
+        element={
+          <ProtectedRoute>
+            <EvaluationPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/evaluation/rag/:taskId/eval/:evaluationId"
+        element={
+          <ProtectedRoute>
+            <EvaluationPage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Prompt Evaluation Routes */}
+      <Route
+        path="/evaluation/prompt"
+        element={
+          <ProtectedRoute>
+            <EvaluationPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/evaluation/prompt/:taskId"
+        element={
+          <ProtectedRoute>
+            <EvaluationPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/evaluation/prompt/:taskId/details"
+        element={
+          <ProtectedRoute>
+            <EvaluationPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/evaluation/prompt/:taskId/eval/:evaluationId"
         element={
           <ProtectedRoute>
             <EvaluationPage />

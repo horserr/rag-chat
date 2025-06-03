@@ -14,9 +14,9 @@ export class EvaluationService {
 
   /**
    * Create a new prompt evaluation
-   * Note: This will cause a long waiting time as mentioned in the HTTP file
    * @param taskId The ID of the task to create an evaluation for
    * @param evaluationData The evaluation data object with prompt
+   * @note This will cause a long waiting time as mentioned in the HTTP file
    * @returns The evaluation response object
    * @example Request body:
    * {

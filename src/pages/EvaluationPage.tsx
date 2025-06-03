@@ -1,13 +1,17 @@
 import { Box } from "@mui/material";
 import { motion } from "framer-motion";
 import React, { useState } from "react";
+import { useLocation } from "react-router-dom";
 import CentralFloatingButton from "../components/evaluation/components/CentralFloatingButton";
 import CreationFlow from "../components/evaluation/CreationFlow";
 import EvaluationSection from "../components/evaluation/EvaluationSection";
 import TaskList from "../components/evaluation/TaskList";
+import RagEvaluationOverviewPage from "./RagEvaluationOverviewPage";
+import RagEvaluationDetailPage from "./RagEvaluationDetailPage";
+import PromptEvaluationOverviewPage from "./PromptEvaluationOverviewPage";
+import PromptEvaluationDetailPage from "./PromptEvaluationDetailPage";
 import type {
   EvaluationCardProps,
-  FormData,
 } from "../components/evaluation/types";
 
 type ViewState = "default" | "rag-creating" | "prompt-creating";
@@ -15,34 +19,39 @@ type ViewState = "default" | "rag-creating" | "prompt-creating";
 const EvaluationPage: React.FC = () => {
   const [viewState, setViewState] = useState<ViewState>("default");
   const [centralExpanded, setCentralExpanded] = useState(false);
-  const [activeStep, setActiveStep] = useState(0);
+  const location = useLocation();
 
-  // Form state for the evaluation creation
-  const [formData, setFormData] = useState<FormData>({
-    title: "",
-    description: "",
-    dataset: "",
-    metrics: [],
-    customMetric: "",
-    threshold: 0.75,
-    enableRealTimeMonitoring: false,
-  });
+  // Determine which page to render based on the current path
+  const renderPageByRoute = () => {
+    const path = location.pathname;
 
+    if (path.includes('/rag/') && path.includes('/details')) {
+      return <RagEvaluationDetailPage />;
+    } else if (path.includes('/rag/') && path.includes('/eval/')) {
+      return <RagEvaluationDetailPage />;
+    } else if (path.includes('/rag')) {
+      return <RagEvaluationOverviewPage />;
+    } else if (path.includes('/prompt/') && path.includes('/details')) {
+      return <PromptEvaluationDetailPage />;
+    } else if (path.includes('/prompt/') && path.includes('/eval/')) {
+      return <PromptEvaluationDetailPage />;
+    } else if (path.includes('/prompt')) {
+      return <PromptEvaluationOverviewPage />;
+    }
+
+    // Default evaluation page (original implementation)
+    return null;
+  };
+
+  const routedPage = renderPageByRoute();
+
+  // If we have a routed page, render it directly
+  if (routedPage) {
+    return routedPage;
+  }
   const handleCreateEvaluation = (type: "rag" | "prompt") => {
     setViewState(type === "rag" ? "rag-creating" : "prompt-creating");
-    setActiveStep(0);
     setCentralExpanded(false);
-
-    // Reset form data
-    setFormData({
-      title: "",
-      description: "",
-      dataset: "",
-      metrics: [],
-      customMetric: "",
-      threshold: 0.75,
-      enableRealTimeMonitoring: false,
-    });
   };
 
   const handleToggleCentral = () => {
@@ -51,43 +60,12 @@ const EvaluationPage: React.FC = () => {
 
   const handleCloseCreation = () => {
     setViewState("default");
-    setActiveStep(0);
-  };
-
-  const handleNext = () => {
-    if (activeStep === 3) {
-      setActiveStep(4); // Move to completion step
-    } else {
-      setActiveStep((prevStep) => prevStep + 1);
-    }
-  };
-
-  const handleBack = () => {
-    setActiveStep((prevStep) => prevStep - 1);
-  };
-
-  const handleFormChange = (field: string, value: unknown) => {
-    setFormData({
-      ...formData,
-      [field]: value,
-    });
-  };
-
-  const handleAddMetric = () => {
-    if (
-      formData.customMetric &&
-      !formData.metrics.includes(formData.customMetric)
-    ) {
-      setFormData({
-        ...formData,
-        metrics: [...formData.metrics, formData.customMetric],
-        customMetric: "",
-      });
-    }
   };
 
   const isRagHovered = centralExpanded && viewState === "default";
   const isPromptHovered = centralExpanded && viewState === "default";
+
+  // Render the default evaluation page (original implementation)
   return (
     <Box sx={{ height: "100vh", position: "relative", overflow: "hidden" }}>
       {/* When creating RAG evaluation */}
@@ -128,15 +106,8 @@ const EvaluationPage: React.FC = () => {
               zIndex: 10,
               backgroundColor: "white",
             }}
-          >
-            <CreationFlow
+          >            <CreationFlow
               evaluationType="rag"
-              activeStep={activeStep}
-              formData={formData}
-              onFormChange={handleFormChange}
-              onAddMetric={handleAddMetric}
-              onNext={handleNext}
-              onBack={handleBack}
               onClose={handleCloseCreation}
             />
           </motion.div>
@@ -181,15 +152,8 @@ const EvaluationPage: React.FC = () => {
               zIndex: 10,
               backgroundColor: "white",
             }}
-          >
-            <CreationFlow
+          >            <CreationFlow
               evaluationType="prompt"
-              activeStep={activeStep}
-              formData={formData}
-              onFormChange={handleFormChange}
-              onAddMetric={handleAddMetric}
-              onNext={handleNext}
-              onBack={handleBack}
               onClose={handleCloseCreation}
             />
           </motion.div>

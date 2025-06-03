@@ -55,6 +55,7 @@ export class EvaluationService {
    * @param taskId The ID of the task to create an evaluation for
    * @param evaluationData The evaluation data with type, metric and samples
    * @returns The created evaluation response
+   * @note The single_turn evaluation type requires a metric ID, while custom and multi_turn evaluations use eval_metric and custom_prompt.
    * @example Request body (single_turn):
    * {
    *   "eval_type": "single_turn",
@@ -88,7 +89,6 @@ export class EvaluationService {
    *   "eval_id": "eval_123",
    *   "polling_url": "/api/rag/task/1/eval/eval_123/status"
    * }
-   * @note TODO: Remove metric_id, add eval_metric for single_turn; Remove custom_prompt, only use eval_metric
    */
   async createEvaluation(
     taskId: string,
@@ -199,7 +199,6 @@ export class EvaluationService {
    *   "message": "evaluation deleted",
    *   "deleted_eval_type": "single_turn|custom|multi_turn"
    * }
-   * @note TODO: Delete evaluation API might be removed in the future
    */
   async deleteEvaluation(
     taskId: string,
@@ -238,7 +237,6 @@ export class EvaluationService {
    *   "result": 0.85,
    *   "created_at": "2023-10-05T08:30:00Z"
    * }
-   * @note TODO: Merge this API with status API using GET /task/{task_id}/eval/{eval_id}
    */
   async getEvaluationDetails(
     taskId: string,

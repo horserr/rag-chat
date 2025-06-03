@@ -1,9 +1,8 @@
-import React from "react";
 import { Box, Typography, useTheme } from "@mui/material";
 
 interface MessageHeaderProps {
-  sender: "user" | "assistant";
-  timestamp: string;
+  sender: "user" | "bot";
+  timestamp: Date;
 }
 
 const MessageHeader = ({ sender, timestamp }: MessageHeaderProps) => {
@@ -38,7 +37,7 @@ const MessageHeader = ({ sender, timestamp }: MessageHeaderProps) => {
           mr: sender === "user" ? 1 : 0,
         }}
       >
-        {new Date(timestamp).toLocaleTimeString([], {
+        {timestamp.toLocaleTimeString([], {
           hour: "2-digit",
           minute: "2-digit",
         })}

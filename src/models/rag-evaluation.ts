@@ -4,6 +4,7 @@ export interface TaskDto {
   name: string;
   description?: string;
   date?: string;
+  created_at?: string;
 }
 
 export interface CreateTaskDto {
@@ -14,6 +15,15 @@ export interface CreateTaskDto {
 export interface UpdateTaskDto {
   name: string;
   description?: string;
+}
+
+// Task Response Types
+export interface TaskResponse {
+  task: TaskDto;
+}
+
+export interface TaskListResponse {
+  tasks: TaskDto[];
 }
 
 // Evaluation types
@@ -92,12 +102,27 @@ export interface EvaluationListItem {
   eval_type: EvaluationType;
   status: EvaluationStatus;
   metric: string;
+  result?: number;
+  created_at: string;
 }
 
 export interface CreateEvaluationResponse {
   status: "pending";
   eval_id: string;
   polling_url: string;
+}
+
+export interface EvaluationListResponse {
+  evaluations: EvaluationListItem[];
+}
+
+export interface EvaluationSampleResult {
+  user_input: string;
+  response: string;
+  retrieved_contexts?: string[];
+  reference?: string;
+  score?: number;
+  explanation?: string;
 }
 
 // Status query response types
@@ -211,20 +236,51 @@ export interface DeleteEvaluationResponse {
   deleted_eval_type: EvaluationType;
 }
 
-export interface TaskResponse {
-  status: "success";
-  task: TaskDto;
-}
-
-export interface TaskListResponse {
-  tasks: TaskDto[];
-}
-
-export interface EvaluationListResponse {
-  evaluations: EvaluationListItem[];
-}
-
 export interface DeleteTaskResponse {
   status: "success";
   message: "task deleted";
 }
+// Add this to rag-evaluation.ts
+export interface EvaluationSampleResult {
+  user_input: string;
+  response: string;
+  retrieved_contexts?: string[];
+  reference?: string;
+  score?: number;
+  explanation?: string;
+}
+
+// Unified evaluation details for single-turn, custom, and multi-turn
+export interface EvaluationDetailBase {
+  id: string;
+  task_id: string;
+  status: EvaluationStatus;
+  created_at: string;
+  name?: string;
+}
+
+export interface SingleTurnEvaluationDetail extends EvaluationDetailBase {
+  eval_type: "single_turn";
+  metric: string;
+  result: number;
+  samples: EvaluationSampleResult;
+}
+
+export interface CustomEvaluationDetail extends EvaluationDetailBase {
+  eval_type: "custom";
+  metric: string;
+  result: number;
+  samples: EvaluationSampleResult;
+}
+
+export interface MultiTurnEvaluationDetail extends EvaluationDetailBase {
+  eval_type: "multi_turn";
+  metric: string;
+  result: number;
+  samples: EvaluationSampleResult;
+}
+
+export type EvaluationDetail =
+  | SingleTurnEvaluationDetail
+  | CustomEvaluationDetail
+  | MultiTurnEvaluationDetail;

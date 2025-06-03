@@ -31,7 +31,6 @@ export class TaskService {
    *     }
    *   ]
    * }
-   * @note TODO: Need to add description and create time in response
    */
   async getTasks(): Promise<TaskListResponse> {
     try {
@@ -60,7 +59,6 @@ export class TaskService {
    *     "name": "task_name"
    *   }
    * }
-   * @note TODO: Need to add description in response
    */
   async createTask(taskData: CreateTaskDto): Promise<TaskResponse> {
     try {
@@ -90,7 +88,6 @@ export class TaskService {
    *     "name": "updated_task_name"
    *   }
    * }
-   * @note TODO: Remove name from response or make consistent
    */
   async updateTask(
     taskId: string,
@@ -138,7 +135,6 @@ export class TaskService {
    *     "date": "task_date"
    *   }
    * }
-   * @note TODO: Add description and create time in response
    */
   async getTaskById(taskId: string): Promise<TaskResponse> {
     try {

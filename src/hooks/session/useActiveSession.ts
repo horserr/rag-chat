@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { useSessionCreation } from "./useSessionCreation";
-import { useAuthStatus } from "../auth/useAuthStatus";
+import { useAuthCheck } from "../auth/useAuthCheck";
 import { useErrorHandling } from "../common/useErrorHandling";
 import { useRetry } from "../common/useRetry";
 import type { SessionDto } from "../../models/session";
@@ -13,7 +13,7 @@ export const useActiveSession = () => {
   const [sessionId, setSessionId] = useState<number | undefined>(undefined);
   const [isCreatingSession, setIsCreatingSession] = useState(false);
 
-  const { data: authData, isLoading: authLoading } = useAuthStatus();
+  const { data: authData, isLoading: authLoading } = useAuthCheck();
   const createSessionMutation = useSessionCreation();
   const { handleAuthenticationError } = useErrorHandling();  const { shouldRetry, hasMaxRetriesReached, incrementRetry, resetRetry } = useRetry({
     maxRetries: 3,
@@ -61,17 +61,16 @@ export const useActiveSession = () => {
     handleSessionSuccess,
     handleSessionError,
   ]);
-
   // Auto-create session when conditions are met
   useEffect(() => {
     const shouldCreateSession = Boolean(
-      authData?.isLoggedIn && !sessionId && shouldRetry
+      authData && !sessionId && shouldRetry
     );
 
     if (shouldCreateSession) {
       createSession();
     }
-  }, [authData?.isLoggedIn, sessionId, shouldRetry, createSession]);
+  }, [authData, sessionId, shouldRetry, createSession]);
 
   // Manual retry function
   const retryCreateSession = useCallback(() => {
@@ -85,7 +84,7 @@ export const useActiveSession = () => {
     sessionId,
     setSessionId,
     isLoading,
-    isAuthenticated: authData?.isLoggedIn,
+    isAuthenticated: authData,
     retryCreateSession,
     hasFailedToCreateSession: hasMaxRetriesReached,
     createSession,
