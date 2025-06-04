@@ -50,11 +50,28 @@ const RagDatasetStep: React.FC<RagDatasetStepProps> = ({
 
       // Parse and validate content
       const content = await file.text();
-      let samples: Record<string, unknown>[] = [];
-
-      if (fileExtension === '.json') {
-        const data = JSON.parse(content);
-        samples = Array.isArray(data) ? data : [data];
+      let samples: Record<string, unknown>[] = [];      if (fileExtension === '.json') {
+        try {
+          const data = JSON.parse(content);
+          samples = Array.isArray(data) ? data : [data];        } catch {
+          // Try to handle comma-separated JSON objects (invalid JSON but common mistake)
+          try {
+            const wrappedContent = `[${content}]`;
+            const data = JSON.parse(wrappedContent);
+            samples = Array.isArray(data) ? data : [data];
+          } catch {
+            // If still fails, try parsing as JSONL-like format (objects separated by commas)
+            const objectStrings = content.split(/},\s*{/).map((str, index, arr) => {
+              if (index === 0 && !str.startsWith('{')) str = '{' + str;
+              if (index === arr.length - 1 && !str.endsWith('}')) str = str + '}';
+              if (index > 0 && index < arr.length - 1) str = '{' + str + '}';
+              return str;
+            });
+            samples = objectStrings
+              .filter(str => str.trim())
+              .map(str => JSON.parse(str));
+          }
+        }
       } else if (fileExtension === '.jsonl') {
         samples = content
           .split('\n')

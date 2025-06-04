@@ -16,7 +16,7 @@ import { RAG_METRICS } from '../../types/evaluation-form';
 
 interface RagConfigurationStepProps {
   formData: RagFormData;
-  onFormChange: (field: keyof RagFormData, value: any) => void;
+  onFormChange: (field: keyof RagFormData, value: unknown) => void;
 }
 
 const RagConfigurationStep: React.FC<RagConfigurationStepProps> = ({

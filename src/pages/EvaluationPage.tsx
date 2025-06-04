@@ -6,13 +6,13 @@ import CentralFloatingButton from "../components/evaluation/components/CentralFl
 import CreationFlow from "../components/evaluation/CreationFlow";
 import EvaluationSection from "../components/evaluation/EvaluationSection";
 import TaskList from "../components/evaluation/TaskList";
-import RagEvaluationOverviewPage from "./RagEvaluationOverviewPage";
-import RagEvaluationDetailPage from "./RagEvaluationDetailPage";
-import PromptEvaluationOverviewPage from "./PromptEvaluationOverviewPage";
-import PromptEvaluationDetailPage from "./PromptEvaluationDetailPage";
-import type {
-  EvaluationCardProps,
-} from "../components/evaluation/types";
+import {
+  RagEvaluationOverviewPage,
+  RagEvaluationDetailPage,
+  PromptEvaluationOverviewPage,
+  PromptEvaluationDetailPage,
+} from "./evalPages";
+import type { EvaluationCardProps } from "../components/evaluation/types";
 
 type ViewState = "default" | "rag-creating" | "prompt-creating";
 
@@ -25,17 +25,17 @@ const EvaluationPage: React.FC = () => {
   const renderPageByRoute = () => {
     const path = location.pathname;
 
-    if (path.includes('/rag/') && path.includes('/details')) {
+    if (path.includes("/rag/") && path.includes("/details")) {
       return <RagEvaluationDetailPage />;
-    } else if (path.includes('/rag/') && path.includes('/eval/')) {
+    } else if (path.includes("/rag/") && path.includes("/eval/")) {
       return <RagEvaluationDetailPage />;
-    } else if (path.includes('/rag')) {
+    } else if (path.includes("/rag")) {
       return <RagEvaluationOverviewPage />;
-    } else if (path.includes('/prompt/') && path.includes('/details')) {
+    } else if (path.includes("/prompt/") && path.includes("/details")) {
       return <PromptEvaluationDetailPage />;
-    } else if (path.includes('/prompt/') && path.includes('/eval/')) {
+    } else if (path.includes("/prompt/") && path.includes("/eval/")) {
       return <PromptEvaluationDetailPage />;
-    } else if (path.includes('/prompt')) {
+    } else if (path.includes("/prompt")) {
       return <PromptEvaluationOverviewPage />;
     }
 
@@ -106,10 +106,9 @@ const EvaluationPage: React.FC = () => {
               zIndex: 10,
               backgroundColor: "white",
             }}
-          >            <CreationFlow
-              evaluationType="rag"
-              onClose={handleCloseCreation}
-            />
+          >
+            {" "}
+            <CreationFlow evaluationType="rag" onClose={handleCloseCreation} />
           </motion.div>
         </>
       )}
@@ -152,7 +151,9 @@ const EvaluationPage: React.FC = () => {
               zIndex: 10,
               backgroundColor: "white",
             }}
-          >            <CreationFlow
+          >
+            {" "}
+            <CreationFlow
               evaluationType="prompt"
               onClose={handleCloseCreation}
             />

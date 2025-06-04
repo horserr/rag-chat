@@ -36,13 +36,13 @@ import {
   Legend,
 } from 'chart.js';
 import { useNavigate, useParams } from 'react-router-dom';
-import { TaskService as RagTaskService } from '../services/eval/rag/task.service';
-import { EvaluationService as RagEvaluationService } from '../services/eval/rag/evaluation.service';
+import { TaskService as RagTaskService } from '../../../services/eval/rag/task.service';
+import { EvaluationService as RagEvaluationService } from '../../../services/eval/rag/evaluation.service';
 import type {
   TaskResponse,
   EvaluationListResponse,
-} from '../models/rag-evaluation';
-import type { EvaluationDetail } from '../models/rag-evaluation-interface-fixes';
+} from '../../../models/rag-evaluation';
+import type { EvaluationDetail } from '../../../models/rag-evaluation-interface-fixes';
 
 // Register Chart.js components
 ChartJS.register(

@@ -24,13 +24,13 @@ import {
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import { useNavigate, useParams } from 'react-router-dom';
-import { TaskService as PromptTaskService } from '../services/eval/prompt/task.service';
-import { EvaluationService as PromptEvaluationService } from '../services/eval/prompt/evaluation.service';
+import { TaskService as PromptTaskService } from '../../../services/eval/prompt/task.service';
+import { EvaluationService as PromptEvaluationService } from '../../../services/eval/prompt/evaluation.service';
 import type {
   PromptTask,
   PromptEvaluationResponse,
-} from '../models/prompt-evaluation';
-import { useEvaluationManager } from '../hooks/evaluation/useEvaluationManager';
+} from '../../../models/prompt-evaluation';
+import { useEvaluationManager } from '../../../hooks/evaluation/useEvaluationManager';
 
 const PromptEvaluationOverviewPage: React.FC = () => {
   const navigate = useNavigate();

@@ -27,14 +27,16 @@ import {
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import { useNavigate, useParams } from 'react-router-dom';
-import { TaskService as RagTaskService } from '../services/eval/rag/task.service';
-import { EvaluationService as RagEvaluationService } from '../services/eval/rag/evaluation.service';
+import { TaskService as RagTaskService } from '../../../services/eval/rag/task.service';
+import { EvaluationService as RagEvaluationService } from '../../../services/eval/rag/evaluation.service';
 import type {
   TaskListResponse,
   EvaluationListResponse,
-  EvaluationStatusResponse
-} from '../models/rag-evaluation';
-import { useEvaluationManager } from '../hooks/evaluation/useEvaluationManager';
+  EvaluationStatusResponse,
+  TaskDto,
+  EvaluationListItem
+} from '../../../models/rag-evaluation';
+import { useEvaluationManager } from '../../../hooks/evaluation/useEvaluationManager';
 
 const RagEvaluationOverviewPage: React.FC = () => {
   const navigate = useNavigate();
@@ -68,14 +70,13 @@ const RagEvaluationOverviewPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [selectedTask, ragTaskService]);
-  // Poll evaluation status
+  }, [selectedTask, ragTaskService]);  // Poll evaluation status
   const pollEvaluationStatus = useCallback(async (taskId: string, evaluationId: string) => {
     try {
       const status = await evaluationManager.pollRagEvaluationStatus(
         taskId,
         evaluationId,
-        (status) => {
+        (status: EvaluationStatusResponse) => {
           setPollingStatuses(prev => ({
             ...prev,
             [evaluationId]: status
@@ -102,12 +103,10 @@ const RagEvaluationOverviewPage: React.FC = () => {
 
     try {
       const response = await ragEvaluationService.getEvaluations(selectedTask);
-      setEvaluations(response.evaluations);
-
-      // Start polling for pending/running evaluations
+      setEvaluations(response.evaluations);      // Start polling for pending/running evaluations
       response.evaluations
-        .filter(item => item.status === 'pending' || item.status === 'running')
-        .forEach(item => {
+        .filter((item: EvaluationListItem) => item.status === 'pending' || item.status === 'running')
+        .forEach((item: EvaluationListItem) => {
           pollEvaluationStatus(selectedTask, item.id);
         });
     } catch (err) {
@@ -201,11 +200,9 @@ const RagEvaluationOverviewPage: React.FC = () => {
               <Alert severity="error" sx={{ mb: 2 }}>
                 {error}
               </Alert>
-            )}
-
-            {!loading && !error && (
+            )}            {!loading && !error && (
               <Grid container spacing={2}>
-                {tasks.map((task) => (
+                {tasks.map((task: TaskDto) => (
                   <Grid size={{ xs: 12 }} key={task.id}>
                     <Card
                       sx={{
@@ -272,10 +269,8 @@ const RagEvaluationOverviewPage: React.FC = () => {
                 >
                   查看详情
                 </Button>
-              </Box>
-
-              <Grid container spacing={2}>
-                {evaluations.map((evaluation) => {
+              </Box>              <Grid container spacing={2}>
+                {evaluations.map((evaluation: EvaluationListItem) => {
                   const currentStatus = pollingStatuses[evaluation.id] || { status: evaluation.status };
 
                   return (

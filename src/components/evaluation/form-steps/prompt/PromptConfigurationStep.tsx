@@ -11,7 +11,7 @@ import type { PromptFormData } from '../../types/evaluation-form';
 
 interface PromptConfigurationStepProps {
   formData: PromptFormData;
-  onFormChange: (field: keyof PromptFormData, value: any) => void;
+  onFormChange: (field: keyof PromptFormData, value: unknown) => void;
 }
 
 const PromptConfigurationStep: React.FC<PromptConfigurationStepProps> = ({
