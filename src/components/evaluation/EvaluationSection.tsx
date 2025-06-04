@@ -9,7 +9,6 @@ import {
   EvaluationStatsCard,
   TypeIcon,
 } from "./components";
-import type { EvaluationCardProps } from "./types";
 import {
   containerVariants,
   contentVariants,
@@ -20,7 +19,7 @@ import {
 
 interface EvaluationSectionProps {
   type: "rag" | "prompt";
-  evaluations: EvaluationCardProps[];
+  count: number;
   isHovered: boolean;
   isCreating: boolean;
   onCreateClick: () => void;
@@ -29,16 +28,13 @@ interface EvaluationSectionProps {
 
 const EvaluationSection: React.FC<EvaluationSectionProps> = ({
   type,
-  evaluations,
+  count,
   isHovered,
   isCreating,
   onCreateClick,
   children,
 }) => {
   const theme = useTheme();
-  const filteredEvaluations = evaluations.filter(
-    (evaluation) => evaluation.type === type
-  );
 
   const color = getTypeColor(type, theme);
   const background = getTypeBackground(color);
@@ -83,12 +79,10 @@ const EvaluationSection: React.FC<EvaluationSectionProps> = ({
           <TypeIcon type={type} color={color} isHovered={isHovered} />
 
           {/* Title and Description */}
-          <EvaluationHeader type={type} color={color} />
-
-          {/* Stats Card */}
+          <EvaluationHeader type={type} color={color} />          {/* Stats Card */}
           <EvaluationStatsCard
             type={type}
-            count={filteredEvaluations.length}
+            count={count}
             color={color}
           />
 

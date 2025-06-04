@@ -2,7 +2,7 @@ import { Box } from "@mui/material";
 import ChatHeader from "./ChatHeader";
 import ChatInputArea from "./ChatInputArea";
 import ChatMessageList from "./ChatMessageList";
-import { useChatQuery } from "../../hooks/useChatQuery";
+import { useChatQuery } from "../../hooks/chat/useChatQuery";
 
 interface ChatWorkspaceProps {
   sessionId: number | null; // Allow null for no session selected

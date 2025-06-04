@@ -1,5 +1,6 @@
 import React from "react";
 import { Card, Typography } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 interface EvaluationStatsCardProps {
   type: "rag" | "prompt";
@@ -12,6 +13,17 @@ const EvaluationStatsCard: React.FC<EvaluationStatsCardProps> = ({
   count,
   color
 }) => {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    // Navigate to the appropriate overview page
+    if (type === "rag") {
+      navigate("/evaluation/rag");
+    } else {
+      navigate("/evaluation/prompt");
+    }
+  };
+
   return (
     <Card
       sx={{
@@ -27,11 +39,7 @@ const EvaluationStatsCard: React.FC<EvaluationStatsCardProps> = ({
           boxShadow: `0 8px 24px ${color}30`,
           borderColor: `${color}40`,
         },
-      }}
-      onClick={() => {
-        // Navigate to the evaluation page with a query parameter to show the TaskList
-        window.location.href = `/evaluation?type=${type}&view=list`;
-      }}
+      }}      onClick={handleClick}
     >
       <Typography variant="h4" fontWeight="bold" color={color}>
         {count}

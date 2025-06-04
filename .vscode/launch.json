@@ -20,7 +20,7 @@
         "--disable-web-security",
         "--disable-features=VizDisplayCompositor",
         "--allow-running-insecure-content",
-        "--inprivate"
+        // "--inprivate"
       ]
     },
     {

@@ -14,6 +14,25 @@ const TaskList: React.FC<TaskListProps> = ({ evaluations, type, isVisible }) => 
   const theme = useTheme();
   const filteredEvaluations = evaluations.filter((evaluation) => evaluation.type === type);
 
+  // Show a message when there are no evaluations
+  if (filteredEvaluations.length === 0) {
+    return (
+      <Box
+        sx={{
+          height: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          p: 4,
+        }}
+      >
+        <Typography variant="h6" color="text.secondary">
+          No {type.toUpperCase()} evaluations available
+        </Typography>
+      </Box>
+    );
+  }
+
   const containerVariants = {
     hidden: { opacity: 0, x: type === "rag" ? -50 : 50 },
     visible: {

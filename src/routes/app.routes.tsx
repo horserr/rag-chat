@@ -6,9 +6,14 @@ import HomePage from "../pages/HomePage";
 import LoginPage from "../pages/LoginPage";
 import ProtectedRoute from "../components/common/ProtectedRoute";
 import { TokenService } from "../services/auth/token.service";
+import {
+  RagEvaluationOverviewPage,
+  RagEvaluationDetailPage,
+  PromptEvaluationOverviewPage,
+  PromptEvaluationDetailPage,
+} from "../pages/evalPages";
 
 // Route definitions
-// todo change this
 const AppRoutes: React.FC = () => {
   const [lastVisitedPage, setLastVisitedPage] = useState<string>("/chat");
 
@@ -60,7 +65,7 @@ const AppRoutes: React.FC = () => {
         path="/evaluation/rag"
         element={
           <ProtectedRoute>
-            <EvaluationPage />
+            <RagEvaluationOverviewPage />
           </ProtectedRoute>
         }
       />
@@ -68,7 +73,7 @@ const AppRoutes: React.FC = () => {
         path="/evaluation/rag/:taskId"
         element={
           <ProtectedRoute>
-            <EvaluationPage />
+            <RagEvaluationDetailPage />
           </ProtectedRoute>
         }
       />
@@ -76,7 +81,7 @@ const AppRoutes: React.FC = () => {
         path="/evaluation/rag/:taskId/details"
         element={
           <ProtectedRoute>
-            <EvaluationPage />
+            <RagEvaluationDetailPage />
           </ProtectedRoute>
         }
       />
@@ -84,7 +89,7 @@ const AppRoutes: React.FC = () => {
         path="/evaluation/rag/:taskId/eval/:evaluationId"
         element={
           <ProtectedRoute>
-            <EvaluationPage />
+            <RagEvaluationDetailPage />
           </ProtectedRoute>
         }
       />
@@ -94,7 +99,7 @@ const AppRoutes: React.FC = () => {
         path="/evaluation/prompt"
         element={
           <ProtectedRoute>
-            <EvaluationPage />
+            <PromptEvaluationOverviewPage />
           </ProtectedRoute>
         }
       />
@@ -102,7 +107,7 @@ const AppRoutes: React.FC = () => {
         path="/evaluation/prompt/:taskId"
         element={
           <ProtectedRoute>
-            <EvaluationPage />
+            <PromptEvaluationDetailPage />
           </ProtectedRoute>
         }
       />
@@ -110,7 +115,7 @@ const AppRoutes: React.FC = () => {
         path="/evaluation/prompt/:taskId/details"
         element={
           <ProtectedRoute>
-            <EvaluationPage />
+            <PromptEvaluationDetailPage />
           </ProtectedRoute>
         }
       />
@@ -118,7 +123,7 @@ const AppRoutes: React.FC = () => {
         path="/evaluation/prompt/:taskId/eval/:evaluationId"
         element={
           <ProtectedRoute>
-            <EvaluationPage />
+            <PromptEvaluationDetailPage />
           </ProtectedRoute>
         }
       />
