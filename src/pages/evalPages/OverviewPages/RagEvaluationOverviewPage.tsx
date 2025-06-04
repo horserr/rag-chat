@@ -42,10 +42,9 @@ const RagEvaluationOverviewPage: React.FC = () => {
   const navigate = useNavigate();
   const { taskId } = useParams<{ taskId?: string }>();
   const evaluationManager = useEvaluationManager();
-
   const [tasks, setTasks] = useState<TaskListResponse["tasks"]>([]);
   const [selectedTask, setSelectedTask] = useState<string | null>(
-    taskId || null
+    taskId || null // 只有当URL中有taskId时才设置，否则为null
   );
   const [evaluations, setEvaluations] = useState<
     EvaluationListResponse["evaluations"]
@@ -58,7 +57,6 @@ const RagEvaluationOverviewPage: React.FC = () => {
   const [showDetailDialog, setShowDetailDialog] = useState(false);
   const ragTaskService = useMemo(() => new RagTaskService(), []);
   const ragEvaluationService = useMemo(() => new RagEvaluationService(), []);
-
   // Load tasks
   const loadTasks = useCallback(async () => {
     try {
@@ -66,17 +64,19 @@ const RagEvaluationOverviewPage: React.FC = () => {
       const response = await ragTaskService.getTasks();
       setTasks(response.tasks);
 
-      // If no specific task selected, select the first one
-      if (!selectedTask && response.tasks.length > 0) {
-        setSelectedTask(response.tasks[0].id);
-      }
+      // 移除自动选择第一个任务的逻辑，让用户手动选择
+      // if (!selectedTask && response.tasks.length > 0) {
+      //   setSelectedTask(response.tasks[0].id);
+      // }
     } catch (err) {
       setError("Failed to load tasks");
       console.error("Error loading tasks:", err);
     } finally {
       setLoading(false);
     }
-  }, [selectedTask, ragTaskService]); // Poll evaluation status
+  }, [ragTaskService]); // 移除 selectedTask 依赖，避免不必要的重新执行
+
+  // Poll evaluation status
   const pollEvaluationStatus = useCallback(
     async (taskId: string, evaluationId: string) => {
       try {
@@ -94,18 +94,14 @@ const RagEvaluationOverviewPage: React.FC = () => {
         // When completed, refresh evaluations
         if (status.status === "completed" || status.status === "failed") {
           // Reload evaluations when completed
-          if (selectedTask) {
-            const response = await ragEvaluationService.getEvaluations(
-              selectedTask
-            );
-            setEvaluations(response.evaluations);
-          }
+          const response = await ragEvaluationService.getEvaluations(taskId);
+          setEvaluations(response.evaluations);
         }
       } catch (err) {
         console.error("Error polling evaluation status:", err);
       }
     },
-    [evaluationManager, selectedTask, ragEvaluationService]
+    [evaluationManager, ragEvaluationService] // 移除 selectedTask 依赖，通过参数传递
   );
 
   // Load evaluations for selected task
@@ -196,13 +192,12 @@ const RagEvaluationOverviewPage: React.FC = () => {
       </Box>
 
       {/* Main Content */}
-      <Box sx={{ flex: 1, display: "flex", overflow: "hidden" }}>
-        {/* Task List Panel */}
+      <Box sx={{ flex: 1, display: "flex", overflow: "hidden" }}>        {/* Task List Panel */}
         <motion.div
           initial={false}
-          animate={{ width: isDetailView ? "50%" : "100%" }}
+          animate={{ width: selectedTask ? "50%" : "100%" }}
           transition={{ duration: 0.3 }}
-          style={{ borderRight: isDetailView ? "1px solid #e0e0e0" : "none" }}
+          style={{ borderRight: selectedTask ? "1px solid #e0e0e0" : "none" }}
         >
           <Box sx={{ p: 3, height: "100%", overflow: "auto" }}>
             <Box
@@ -287,10 +282,8 @@ const RagEvaluationOverviewPage: React.FC = () => {
               </Box>
             )}
           </Box>
-        </motion.div>
-
-        {/* Evaluation Details Panel */}
-        {isDetailView && (
+        </motion.div>        {/* Evaluation Details Panel */}
+        {isDetailView ? (
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -400,7 +393,26 @@ const RagEvaluationOverviewPage: React.FC = () => {
                 </Box>
               )}
             </Box>
-          </motion.div>
+          </motion.div>        ) : (
+          // 当没有选择任务时显示的占位符
+          <Box
+            sx={{
+              width: "50%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              bgcolor: "grey.50"
+            }}
+          >
+            <Box sx={{ textAlign: "center", p: 4 }}>
+              <Typography variant="h5" color="text.secondary" gutterBottom>
+                请选择一个评估任务
+              </Typography>
+              <Typography variant="body1" color="text.secondary">
+                从左侧列表中选择一个任务来查看其评估记录
+              </Typography>
+            </Box>
+          </Box>
         )}
       </Box>
 
