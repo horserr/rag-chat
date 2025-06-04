@@ -1,10 +1,11 @@
 import { Box } from "@mui/material";
 import { motion } from "framer-motion";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import CentralFloatingButton from "../components/evaluation/components/CentralFloatingButton";
 import CreationFlow from "../components/evaluation/CreationFlow";
 import EvaluationSection from "../components/evaluation/EvaluationSection";
-import { useEvaluationStats } from "../hooks/evaluation/useEvaluationStats";
+import { useEvaluationStats } from "../hooks/evaluation";
+import { useEvaluationManager } from "../hooks/evaluation";
 
 type ViewState = "default" | "rag-creating" | "prompt-creating";
 
@@ -27,6 +28,13 @@ const EvaluationPage: React.FC = () => {
   const [viewState, setViewState] = useState<ViewState>("default");
   const [centralExpanded, setCentralExpanded] = useState(false);
   const { ragCount, promptCount } = useEvaluationStats();
+  const { initializeActiveTasks } = useEvaluationManager();
+
+  // Initialize active tasks when component mounts
+  useEffect(() => {
+    console.log("EvaluationPage mounted, initializing active tasks...");
+    initializeActiveTasks();
+  }, [initializeActiveTasks]);
 
   const handleCreateEvaluation = (type: "rag" | "prompt") => {
     setViewState(type === "rag" ? "rag-creating" : "prompt-creating");

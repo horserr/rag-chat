@@ -1,7 +1,7 @@
 # Prompt评估 API测试
 @promptUrl = {{baseUrl}}/api/prompt
 
-@taskId = 6
+@taskId = 7
 @evalId = 3
 
 ### Get All Tasks

@@ -19,19 +19,34 @@ const AppRoutes: React.FC = () => {
       setLastVisitedPage(savedPage);
     }
   }, []);
-
   // Save the last visited protected page
   useEffect(() => {
-    const handleBeforeUnload = () => {
+    const handlePageHide = () => {
       const pathname = window.location.pathname;
       if (pathname === "/chat" || pathname === "/evaluation") {
         localStorage.setItem("lastVisitedPage", pathname);
       }
     };
 
-    window.addEventListener("beforeunload", handleBeforeUnload);
+    // Use pagehide instead of beforeunload to avoid conflicts
+    // and to properly save on actual page navigation
+    window.addEventListener("pagehide", handlePageHide);
+
+    // Also save on visibility change (when tab becomes hidden)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        const pathname = window.location.pathname;
+        if (pathname === "/chat" || pathname === "/evaluation") {
+          localStorage.setItem("lastVisitedPage", pathname);
+        }
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
     return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener("pagehide", handlePageHide);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, []);
   return (

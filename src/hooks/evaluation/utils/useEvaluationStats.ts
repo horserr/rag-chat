@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
-import { TaskService as RagTaskService } from '../../services/eval/rag/task.service';
-import { TaskService as PromptTaskService } from '../../services/eval/prompt/task.service';
+import { TaskService as RagTaskService } from '../../../services/eval/rag/task.service';
+import { TaskService as PromptTaskService } from '../../../services/eval/prompt/task.service';
 
 interface EvaluationStats {
   ragCount: number;

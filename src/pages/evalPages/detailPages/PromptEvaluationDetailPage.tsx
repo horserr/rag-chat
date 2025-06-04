@@ -35,16 +35,16 @@ import {
 } from "chart.js";
 import React from "react";
 import { Line } from "react-chartjs-2";
-import { usePromptDetailLogic } from "../../../hooks/evaluation";
 import {
-  MetricChips,
   EvaluationHistoryList,
+  generatePromptChartData,
+  getScoreColor,
+  MetricChips,
+  promptChartOptions,
   PromptDisplay,
   ResponseDisplay,
-  generatePromptChartData,
-  promptChartOptions,
-  getScoreColor
 } from "../../../components/evaluation/shared";
+import { usePromptDetailLogic } from "../../../hooks/evaluation";
 
 // Register Chart.js components
 ChartJS.register(
@@ -75,7 +75,9 @@ const PromptEvaluationDetailPage: React.FC = () => {
     handleBack,
     handleEvaluationClick,
     isCreatingEvaluation,
-  } = usePromptDetailLogic();  // Chart data preparation
+  } = usePromptDetailLogic();
+
+  // Chart data preparation
   const chartData = generatePromptChartData(evaluationHistory);
 
   if (isLoading) {
@@ -156,16 +158,18 @@ const PromptEvaluationDetailPage: React.FC = () => {
                       }
                       size="medium"
                     />
-                  </Box>                  <PromptDisplay prompt={evaluation.prompt} /><Typography variant="h6" gutterBottom>
+                  </Box>{" "}
+                  <PromptDisplay prompt={evaluation.prompt} />
+                  <Typography variant="h6" gutterBottom>
                     评估指标:
                   </Typography>
-                  <MetricChips evaluation={evaluation} />                  {evaluation.groundTruthResponse && (
+                  <MetricChips evaluation={evaluation} />{" "}
+                  {evaluation.groundTruthResponse && (
                     <ResponseDisplay
                       title="标准答案:"
                       response={evaluation.groundTruthResponse}
                     />
                   )}
-
                   {evaluation.response && (
                     <ResponseDisplay
                       title="模型回答:"
@@ -223,7 +227,8 @@ const PromptEvaluationDetailPage: React.FC = () => {
               <CardContent>
                 <Typography variant="h6" gutterBottom>
                   评估历史
-                </Typography>                <EvaluationHistoryList
+                </Typography>{" "}
+                <EvaluationHistoryList
                   evaluationHistory={evaluationHistory}
                   isLoading={evaluationsLoading}
                   currentEvaluationId={evaluation?.evalId}
@@ -239,7 +244,8 @@ const PromptEvaluationDetailPage: React.FC = () => {
                 <CardContent>
                   <Typography variant="h6" gutterBottom>
                     性能趋势
-                  </Typography>                  <Box sx={{ height: 300 }}>
+                  </Typography>{" "}
+                  <Box sx={{ height: 300 }}>
                     <Line data={chartData} options={promptChartOptions} />
                   </Box>
                 </CardContent>
@@ -285,17 +291,15 @@ const PromptEvaluationDetailPage: React.FC = () => {
           </Button>
           <Button
             onClick={handleCreateEvaluation}
-            variant="contained"            disabled={!newPrompt.trim() || isCreatingEvaluation}
+            variant="contained"
+            disabled={!newPrompt.trim() || isCreatingEvaluation}
           >
-            {isCreatingEvaluation ? (
-              <CircularProgress size={20} />
-            ) : (
-              "开始评估"
-            )}
+            {isCreatingEvaluation ? <CircularProgress size={20} /> : "开始评估"}
           </Button>
         </DialogActions>
       </Dialog>
-    </Box>  );
+    </Box>
+  );
 };
 
 export default PromptEvaluationDetailPage;

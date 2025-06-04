@@ -1,11 +1,11 @@
 import { Analytics as DetailsIcon } from "@mui/icons-material";
 import { Alert, Box, Button, Stack, Typography } from "@mui/material";
 import React from "react";
-import { useRagOverviewLogic } from "../../../hooks/evaluation";
+import { DetailDialog } from "../../../components/evaluation/shared/Dialogs";
 import {
-  TaskCard,
-  EvaluationCard,
   EmptyState,
+  EvaluationCard,
+  TaskCard,
 } from "../../../components/evaluation/shared/EvaluationComponents";
 import {
   EvaluationPageHeader,
@@ -16,9 +16,12 @@ import {
   DetailPanel,
   PlaceholderPanel,
 } from "../../../components/evaluation/shared/Panels";
-import { DetailDialog } from "../../../components/evaluation/shared/Dialogs";
 import { EVALUATION_CONSTANTS } from "../../../components/evaluation/shared/constants";
-import type { TaskDto, EvaluationListItem } from "../../../models/rag-evaluation";
+import { useRagOverviewLogic } from "../../../hooks/evaluation";
+import type {
+  EvaluationListItem,
+  TaskDto,
+} from "../../../models/rag-evaluation";
 
 // 页面配置常量
 const PAGE_CONFIG = {
@@ -50,7 +53,8 @@ const RagEvaluationOverviewPage: React.FC = () => {
     handleTaskHover,
     handleViewDetails,
     handleNavigateToEvaluation,
-    handleRefresh,  } = useRagOverviewLogic({
+    handleRefresh,
+  } = useRagOverviewLogic({
     detailRoute: PAGE_CONFIG.routes.detail,
   });
 
@@ -78,7 +82,7 @@ const RagEvaluationOverviewPage: React.FC = () => {
                 {EVALUATION_CONSTANTS.MOCK_LOADING_ITEMS.map((i) => (
                   <TaskCard
                     key={i}
-                    task={{ id: '', name: '' }}
+                    task={{ id: "", name: "" }}
                     onClick={() => {}}
                     loading={true}
                   />
@@ -100,15 +104,17 @@ const RagEvaluationOverviewPage: React.FC = () => {
               />
             )}
 
-            {!tasksLoading && !tasksError && tasks.map((task: TaskDto) => (
-              <TaskCard
-                key={task.id}
-                task={task}
-                isSelected={selectedTask === task.id}
-                onClick={() => handleTaskSelect(task.id)}
-                onHover={() => handleTaskHover(task.id)}
-              />
-            ))}
+            {!tasksLoading &&
+              !tasksError &&
+              tasks.map((task: TaskDto) => (
+                <TaskCard
+                  key={task.id}
+                  task={task}
+                  isSelected={selectedTask === task.id}
+                  onClick={() => handleTaskSelect(task.id)}
+                  onHover={() => handleTaskHover(task.id)}
+                />
+              ))}
           </Stack>
         </AnimatedPanel>
 
@@ -135,7 +141,7 @@ const RagEvaluationOverviewPage: React.FC = () => {
                   {[1, 2].map((i) => (
                     <EvaluationCard
                       key={i}
-                      evaluation={{ id: '', status: '' }}
+                      evaluation={{ id: "", status: "" }}
                       onViewDetails={() => {}}
                       loading={true}
                     />
@@ -145,21 +151,24 @@ const RagEvaluationOverviewPage: React.FC = () => {
 
               {evaluationsError && (
                 <Alert severity="error">
-                  Failed to load evaluations: {(evaluationsError as Error).message}
+                  Failed to load evaluations:{" "}
+                  {(evaluationsError as Error).message}
                 </Alert>
               )}
 
-              {!evaluationsLoading && !evaluationsError && evaluations.length === 0 && (
-                <EmptyState type="evaluations" />
-              )}
+              {!evaluationsLoading &&
+                !evaluationsError &&
+                evaluations.length === 0 && <EmptyState type="evaluations" />}
 
-              {!evaluationsLoading && !evaluationsError && evaluations.map((evaluation: EvaluationListItem) => (
-                <EvaluationCard
-                  key={evaluation.id}
-                  evaluation={evaluation}
-                  onViewDetails={() => handleViewDetails(evaluation.id)}
-                />
-              ))}
+              {!evaluationsLoading &&
+                !evaluationsError &&
+                evaluations.map((evaluation: EvaluationListItem) => (
+                  <EvaluationCard
+                    key={evaluation.id}
+                    evaluation={evaluation}
+                    onViewDetails={() => handleViewDetails(evaluation.id)}
+                  />
+                ))}
             </Stack>
           </DetailPanel>
         ) : (

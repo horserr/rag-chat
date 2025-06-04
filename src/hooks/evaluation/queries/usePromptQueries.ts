@@ -6,9 +6,9 @@ import type {
   PromptEvaluation,
   PromptTaskListResponse as TaskListResponse,
   PromptTaskResponse as TaskResponse,
-} from "../../models/prompt-evaluation";
-import { EvaluationService as PromptEvaluationService } from "../../services/eval/prompt/evaluation.service";
-import { TaskService as PromptTaskService } from "../../services/eval/prompt/task.service";
+} from "../../../models/prompt-evaluation";
+import { EvaluationService as PromptEvaluationService } from "../../../services/eval/prompt/evaluation.service";
+import { TaskService as PromptTaskService } from "../../../services/eval/prompt/task.service";
 
 // Query keys
 export const promptQueryKeys = {

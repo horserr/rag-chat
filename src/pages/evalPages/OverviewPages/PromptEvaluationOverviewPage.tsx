@@ -9,7 +9,7 @@ import {
   Add as AddIcon,
   Analytics as DetailsIcon,
 } from '@mui/icons-material';
-import { usePromptOverviewLogic } from '../../../hooks/evaluation/usePromptOverviewLogic';
+import { usePromptOverviewLogic } from '../../../hooks/evaluation';
 import {
   TaskCard,
   EvaluationCard,

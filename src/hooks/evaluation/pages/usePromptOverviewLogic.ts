@@ -5,7 +5,7 @@ import {
   usePromptPrefetch,
   usePromptCacheManager,
   useCreatePromptEvaluation,
-} from "./usePromptQueries";
+} from "../queries/usePromptQueries";
 import { useOverviewPage } from "./useOverviewPage";
 
 /**

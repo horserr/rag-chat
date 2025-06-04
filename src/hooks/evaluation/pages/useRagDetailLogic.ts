@@ -4,13 +4,13 @@ import {
   useRagTask,
   useRagEvaluation,
   useRagEvaluations,
-} from './useRagQueries';
+} from '../queries/useRagQueries';
 import type {
   EvaluationDetails,
   SingleTurnEvaluationDetails,
   CustomEvaluationDetails,
   MultiTurnEvaluationDetails,
-} from '../../models/rag-evaluation';
+} from '../../../models/rag-evaluation';
 
 /**
  * Custom hook for managing RAG evaluation detail page logic

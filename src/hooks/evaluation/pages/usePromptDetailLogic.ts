@@ -1,11 +1,11 @@
-import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   usePromptTask,
   usePromptEvaluation,
   usePromptEvaluations,
   useCreatePromptEvaluation,
-} from './usePromptQueries';
+} from "../queries/usePromptQueries";
 
 /**
  * Custom hook for managing prompt evaluation detail page logic

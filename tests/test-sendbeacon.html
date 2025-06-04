@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SendBeacon Cleanup Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .test-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            color: #555;
+            margin-top: 0;
+        }
+
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        button.warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        button.warning:hover {
+            background: #e0a800;
+        }
+
+        button.danger {
+            background: #dc3545;
+        }
+
+        button.danger:hover {
+            background: #c82333;
+        }
+
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .status.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .status.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .status.info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+
+        .task-list {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .task-item {
+            background: #e7f3ff;
+            padding: 5px 10px;
+            border-radius: 3px;
+            border: 1px solid #b8daff;
+            font-size: 14px;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🚀 SendBeacon Cleanup Test Environment</h1>
+
+        <div class="warning-box">
+            <strong>⚠️ Test Scenario:</strong> This simulates the EvaluationPage cleanup using sendBeacon API
+            when the page unloads. The beacon approach is more reliable than async API calls in unload events.
+        </div>
+
+        <div class="test-section">
+            <h2>1. Mock Active Tasks State</h2>
+            <p>Simulate having active tasks that need cleanup:</p>
+            <button onclick="addMockTasks()">Add Mock Tasks</button>
+            <button onclick="clearTasks()">Clear Tasks</button>
+
+            <div id="activeTasksDisplay" class="task-list"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>2. SendBeacon Cleanup Test</h2>
+            <p>Test the beacon-based cleanup functionality:</p>
+            <button onclick="testBeaconCleanup()">Test Beacon Cleanup</button>
+            <button onclick="testFallbackCleanup()" class="warning">Test Fallback (No Beacon)</button>
+
+            <div id="beaconStatus"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>3. Page Unload Simulation</h2>
+            <p>Simulate actual page unload scenarios:</p>
+            <button onclick="simulatePageUnload()" class="danger">Simulate Page Unload</button>
+            <button onclick="simulateBeforeUnload()" class="warning">Test BeforeUnload Warning</button>
+
+            <div id="unloadStatus"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>4. Network Monitor</h2>
+            <p>Monitor beacon requests (check browser dev tools Network tab):</p>
+            <button onclick="clearLogs()">Clear Logs</button>
+
+            <div id="networkLog" class="log"></div>
+        </div>
+    </div>
+
+    <script>
+        // Mock state to simulate activeTasks
+        let mockActiveTasks = {
+            rag: [],
+            prompt: []
+        };
+
+        // Mock auth token
+        const mockAuthToken = "Bearer test-token-12345";
+
+        // Logging function
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logElement = document.getElementById('networkLog');
+            const statusClass = type === 'error' ? 'error' : type === 'success' ? 'success' : 'info';
+
+            logElement.innerHTML += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+
+            console.log(`[SendBeacon Test] ${message}`);
+        }
+
+        // Add mock tasks
+        function addMockTasks() {
+            mockActiveTasks = {
+                rag: ['rag-task-1', 'rag-task-2', 'rag-task-3'],
+                prompt: [101, 102, 103]
+            };
+            updateTasksDisplay();
+            log("✅ Added mock tasks: 3 RAG tasks, 3 Prompt tasks", 'success');
+        }
+
+        // Clear tasks
+        function clearTasks() {
+            mockActiveTasks = {
+                rag: [],
+                prompt: []
+            };
+            updateTasksDisplay();
+            log("🗑️ Cleared all tasks", 'info');
+        }
+
+        // Update tasks display
+        function updateTasksDisplay() {
+            const display = document.getElementById('activeTasksDisplay');
+            const ragTasks = mockActiveTasks.rag.map(id => `<div class="task-item">RAG: ${id}</div>`).join('');
+            const promptTasks = mockActiveTasks.prompt.map(id => `<div class="task-item">Prompt: ${id}</div>`).join('');
+
+            if (ragTasks || promptTasks) {
+                display.innerHTML = ragTasks + promptTasks;
+            } else {
+                display.innerHTML = '<div class="task-item" style="background: #f8d7da; border-color: #f5c6cb;">No active tasks</div>';
+            }
+        }
+
+        // Test beacon cleanup (simulates cleanupActiveTasksWithBeacon)
+        function testBeaconCleanup() {
+            log("🧪 Testing beacon cleanup functionality...", 'info');
+
+            // Check if navigator.sendBeacon is available
+            if (!navigator.sendBeacon) {
+                log("❌ navigator.sendBeacon not available", 'error');
+                document.getElementById('beaconStatus').innerHTML =
+                    '<div class="status error">SendBeacon not supported in this browser</div>';
+                return;
+            }
+
+            const cleanupData = {
+                ragTasks: mockActiveTasks.rag,
+                promptTasks: mockActiveTasks.prompt,
+                timestamp: Date.now()
+            };
+
+            log("📦 Cleanup data prepared: " + JSON.stringify(cleanupData), 'info');
+
+            try {
+                // Test batch cleanup endpoint
+                const payload = JSON.stringify({
+                    type: 'task_cleanup',
+                    data: cleanupData,
+                    auth: mockAuthToken
+                });
+
+                log("📡 Attempting batch cleanup via beacon...", 'info');
+                const beaconSent = navigator.sendBeacon('/api/cleanup/tasks', payload);
+
+                if (beaconSent) {
+                    log("✅ Batch cleanup beacon sent successfully", 'success');
+                    document.getElementById('beaconStatus').innerHTML =
+                        '<div class="status success">Batch cleanup beacon sent successfully!</div>';
+                } else {
+                    log("⚠️ Batch beacon failed, trying individual deletions...", 'info');
+
+                    // Fallback: individual beacons
+                    let successCount = 0;
+                    let failCount = 0;
+
+                    // RAG tasks
+                    mockActiveTasks.rag.forEach(taskId => {
+                        try {
+                            const deletePayload = JSON.stringify({
+                                method: 'DELETE',
+                                auth: mockAuthToken,
+                                timestamp: Date.now()
+                            });
+                            const sent = navigator.sendBeacon(`/api/rag/task/${taskId}`, deletePayload);
+                            if (sent) {
+                                successCount++;
+                                log(`✅ RAG task ${taskId} beacon sent`, 'success');
+                            } else {
+                                failCount++;
+                                log(`❌ RAG task ${taskId} beacon failed`, 'error');
+                            }
+                        } catch (error) {
+                            failCount++;
+                            log(`❌ RAG task ${taskId} error: ${error.message}`, 'error');
+                        }
+                    });
+
+                    // Prompt tasks
+                    mockActiveTasks.prompt.forEach(taskId => {
+                        try {
+                            const deletePayload = JSON.stringify({
+                                method: 'DELETE',
+                                auth: mockAuthToken,
+                                timestamp: Date.now()
+                            });
+                            const sent = navigator.sendBeacon(`/api/prompt/task/${taskId}`, deletePayload);
+                            if (sent) {
+                                successCount++;
+                                log(`✅ Prompt task ${taskId} beacon sent`, 'success');
+                            } else {
+                                failCount++;
+                                log(`❌ Prompt task ${taskId} beacon failed`, 'error');
+                            }
+                        } catch (error) {
+                            failCount++;
+                            log(`❌ Prompt task ${taskId} error: ${error.message}`, 'error');
+                        }
+                    });
+
+                    document.getElementById('beaconStatus').innerHTML =
+                        `<div class="status info">Individual beacons: ${successCount} sent, ${failCount} failed</div>`;
+                }
+            } catch (error) {
+                log(`❌ Beacon cleanup error: ${error.message}`, 'error');
+                document.getElementById('beaconStatus').innerHTML =
+                    `<div class="status error">Beacon cleanup failed: ${error.message}</div>`;
+            }
+        }
+
+        // Test fallback cleanup (simulates when beacon is not available)
+        function testFallbackCleanup() {
+            log("🔄 Testing fallback cleanup (simulating no beacon support)...", 'info');
+
+            // Simulate async cleanup (this would normally be cleanupActiveTasks)
+            const cleanupPromises = [];
+
+            // Mock RAG task deletions
+            mockActiveTasks.rag.forEach(taskId => {
+                cleanupPromises.push(
+                    fetch(`/api/rag/task/${taskId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': mockAuthToken,
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(() => log(`✅ RAG task ${taskId} deleted (async)`, 'success'))
+                    .catch(error => log(`❌ RAG task ${taskId} failed (async): ${error.message}`, 'error'))
+                );
+            });
+
+            // Mock Prompt task deletions
+            mockActiveTasks.prompt.forEach(taskId => {
+                cleanupPromises.push(
+                    fetch(`/api/prompt/task/${taskId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': mockAuthToken,
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(() => log(`✅ Prompt task ${taskId} deleted (async)`, 'success'))
+                    .catch(error => log(`❌ Prompt task ${taskId} failed (async): ${error.message}`, 'error'))
+                );
+            });
+
+            Promise.allSettled(cleanupPromises)
+                .then(() => {
+                    log("🏁 Fallback cleanup completed", 'success');
+                    document.getElementById('beaconStatus').innerHTML =
+                        '<div class="status info">Fallback async cleanup completed (may be unreliable in unload)</div>';
+                });
+        }
+
+        // Simulate page unload
+        function simulatePageUnload() {
+            log("🚪 Simulating page unload event...", 'info');
+
+            // This simulates the unload event handler
+            if (mockActiveTasks.rag.length > 0 || mockActiveTasks.prompt.length > 0) {
+                log("⚡ Tasks detected, triggering beacon cleanup...", 'info');
+                testBeaconCleanup();
+
+                setTimeout(() => {
+                    log("📝 In real unload: browser would terminate page now", 'info');
+                    document.getElementById('unloadStatus').innerHTML =
+                        '<div class="status info">Page unload simulated - beacon cleanup triggered</div>';
+                }, 100);
+            } else {
+                log("✅ No tasks to cleanup", 'success');
+                document.getElementById('unloadStatus').innerHTML =
+                    '<div class="status success">No cleanup needed - no active tasks</div>';
+            }
+        }
+
+        // Simulate beforeunload warning
+        function simulateBeforeUnload() {
+            if (mockActiveTasks.rag.length > 0 || mockActiveTasks.prompt.length > 0) {
+                const message = "关闭页面将删除所有创建的评估任务，确定要离开吗？";
+                log("⚠️ BeforeUnload warning would be shown: " + message, 'info');
+                document.getElementById('unloadStatus').innerHTML =
+                    `<div class="status warning">Warning would be shown: "${message}"</div>`;
+
+                // Show a modal to simulate the browser warning
+                if (confirm(message)) {
+                    log("✅ User confirmed - page would unload", 'success');
+                } else {
+                    log("❌ User cancelled - page stays", 'info');
+                }
+            } else {
+                log("✅ No warning needed - no active tasks", 'success');
+                document.getElementById('unloadStatus').innerHTML =
+                    '<div class="status success">No warning needed - no active tasks</div>';
+            }
+        }
+
+        // Clear logs
+        function clearLogs() {
+            document.getElementById('networkLog').innerHTML = '';
+            log("🧹 Logs cleared", 'info');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateTasksDisplay();
+            log("🚀 SendBeacon test environment initialized", 'success');
+            log("💡 Open browser dev tools (Network tab) to see beacon requests", 'info');
+
+            // Check beacon support
+            if (navigator.sendBeacon) {
+                log("✅ navigator.sendBeacon is supported", 'success');
+            } else {
+                log("❌ navigator.sendBeacon is NOT supported", 'error');
+            }
+        });
+
+        // Actual event listener for testing real unload behavior
+        window.addEventListener('beforeunload', function(event) {
+            if (mockActiveTasks.rag.length > 0 || mockActiveTasks.prompt.length > 0) {
+                const message = "关闭页面将删除所有创建的评估任务，确定要离开吗？";
+                event.preventDefault();
+                event.returnValue = message;
+                return message;
+            }
+        });
+
+        window.addEventListener('unload', function() {
+            if (mockActiveTasks.rag.length > 0 || mockActiveTasks.prompt.length > 0) {
+                // Real beacon cleanup would happen here
+                const cleanupData = {
+                    ragTasks: mockActiveTasks.rag,
+                    promptTasks: mockActiveTasks.prompt,
+                    timestamp: Date.now()
+                };
+
+                if (navigator.sendBeacon) {
+                    navigator.sendBeacon('/api/cleanup/tasks', JSON.stringify({
+                        type: 'task_cleanup',
+                        data: cleanupData,
+                        auth: mockAuthToken
+                    }));
+                }
+            }
+        });
+    </script>
+</body>
+</html>

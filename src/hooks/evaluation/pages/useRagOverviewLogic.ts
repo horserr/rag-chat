@@ -5,7 +5,7 @@ import {
   useRagEvaluations,
   useRagPrefetch,
   useRagCacheManager,
-} from "./useRagQueries";
+} from "../queries/useRagQueries";
 
 interface UseRagOverviewLogicOptions {
   detailRoute: string;

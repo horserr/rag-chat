@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { motion } from "framer-motion";
-import { useEvaluationManager } from "../../hooks/evaluation/useEvaluationManager";
+import { useEvaluationManager } from "../../hooks/evaluation";
 import type { PromptFormData, RagFormData } from "../../models/evaluation-form";
 import PromptPreviewPanel from "./components/PromptPreviewPanel";
 import RagPreviewPanel from "./components/RagPreviewPanel";

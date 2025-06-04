@@ -8,9 +8,9 @@ import type {
   EvaluationStatusResponse,
   TaskListResponse,
   TaskResponse,
-} from "../../models/rag-evaluation";
-import { EvaluationService as RagEvaluationService } from "../../services/eval/rag/evaluation.service";
-import { TaskService as RagTaskService } from "../../services/eval/rag/task.service";
+} from "../../../models/rag-evaluation";
+import { EvaluationService as RagEvaluationService } from "../../../services/eval/rag/evaluation.service";
+import { TaskService as RagTaskService } from "../../../services/eval/rag/task.service";
 
 // Query keys
 export const ragQueryKeys = {
