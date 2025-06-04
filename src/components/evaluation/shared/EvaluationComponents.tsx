@@ -1,21 +1,21 @@
-import React from 'react';
-import {
-  Box,
-  Card,
-  CardContent,
-  Chip,
-  IconButton,
-  Typography,
-  Skeleton,
-} from '@mui/material';
 import {
   CheckCircle as CompletedIcon,
   Error as ErrorIcon,
   MoreVert as MoreIcon,
   Schedule as PendingIcon,
   PlayArrow as StartIcon,
-} from '@mui/icons-material';
-import { motion } from 'framer-motion';
+} from "@mui/icons-material";
+import {
+  Box,
+  Card,
+  CardContent,
+  Chip,
+  IconButton,
+  Skeleton,
+  Typography,
+} from "@mui/material";
+import { motion } from "framer-motion";
+import React from "react";
 
 interface TaskCardProps {
   task: {
@@ -31,13 +31,13 @@ interface TaskCardProps {
 
 const getStatusIcon = (status: string) => {
   switch (status) {
-    case 'completed':
+    case "completed":
       return <CompletedIcon color="success" />;
-    case 'failed':
+    case "failed":
       return <ErrorIcon color="error" />;
-    case 'running':
+    case "running":
       return <StartIcon color="primary" />;
-    case 'pending':
+    case "pending":
       return <PendingIcon color="warning" />;
     default:
       return <PendingIcon color="action" />;
@@ -46,18 +46,18 @@ const getStatusIcon = (status: string) => {
 
 const getStatusColor = (
   status: string
-): 'success' | 'error' | 'primary' | 'warning' | 'default' => {
+): "success" | "error" | "primary" | "warning" | "default" => {
   switch (status) {
-    case 'completed':
-      return 'success';
-    case 'failed':
-      return 'error';
-    case 'running':
-      return 'primary';
-    case 'pending':
-      return 'warning';
+    case "completed":
+      return "success";
+    case "failed":
+      return "error";
+    case "running":
+      return "primary";
+    case "pending":
+      return "warning";
     default:
-      return 'default';
+      return "default";
   }
 };
 
@@ -87,10 +87,10 @@ export const TaskCard: React.FC<TaskCardProps> = ({
     >
       <Card
         sx={{
-          cursor: 'pointer',
+          cursor: "pointer",
           border: isSelected ? 2 : 1,
-          borderColor: isSelected ? 'primary.main' : 'divider',
-          '&:hover': {
+          borderColor: isSelected ? "primary.main" : "divider",
+          "&:hover": {
             boxShadow: 2,
           },
         }}
@@ -100,9 +100,9 @@ export const TaskCard: React.FC<TaskCardProps> = ({
         <CardContent>
           <Box
             sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'start',
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "start",
             }}
           >
             <Box sx={{ flex: 1 }}>
@@ -118,10 +118,10 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                   color="text.secondary"
                   sx={{
                     mt: 1,
-                    display: '-webkit-box',
-                    '-webkit-line-clamp': 2,
-                    '-webkit-box-orient': 'vertical',
-                    overflow: 'hidden',
+                    display: "-webkit-box",
+                    "-webkit-line-clamp": 2,
+                    "-webkit-box-orient": "vertical",
+                    overflow: "hidden",
                   }}
                 >
                   {task.description}
@@ -163,7 +163,7 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({
     return (
       <Card>
         <CardContent>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+          <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
             <Skeleton variant="circular" width={24} height={24} />
             <Skeleton variant="rectangular" width={80} height={24} />
           </Box>
@@ -184,16 +184,16 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({
         <CardContent>
           <Box
             sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'start',
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "start",
               mb: 2,
             }}
           >
             <Box
               sx={{
-                display: 'flex',
-                alignItems: 'center',
+                display: "flex",
+                alignItems: "center",
                 gap: 1,
               }}
             >
@@ -212,69 +212,77 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({
           {(evaluation.eval_type || evaluation.metric) && (
             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
               {evaluation.eval_type && `类型: ${evaluation.eval_type}`}
-              {evaluation.eval_type && evaluation.metric && ' | '}
+              {evaluation.eval_type && evaluation.metric && " | "}
               {evaluation.metric && `指标: ${evaluation.metric}`}
             </Typography>
           )}
 
-          {evaluation.status === 'running' && progress !== undefined && (
+          {evaluation.status === "running" && progress !== undefined && (
             <Box sx={{ mb: 2 }}>
               <Box
                 sx={{
-                  width: '100%',
+                  width: "100%",
                   height: 4,
-                  backgroundColor: 'grey.300',
+                  backgroundColor: "grey.300",
                   borderRadius: 2,
-                  overflow: 'hidden',
+                  overflow: "hidden",
                 }}
               >
                 <Box
                   sx={{
                     width: `${progress}%`,
-                    height: '100%',
-                    backgroundColor: 'primary.main',
-                    transition: 'width 0.3s ease',
+                    height: "100%",
+                    backgroundColor: "primary.main",
+                    transition: "width 0.3s ease",
                   }}
                 />
               </Box>
-              <Typography variant="caption" sx={{ mt: 0.5, display: 'block' }}>
+              <Typography variant="caption" sx={{ mt: 0.5, display: "block" }}>
                 进度: {progress}%
               </Typography>
             </Box>
           )}
 
-          {evaluation.result !== undefined && evaluation.status === 'completed' && (
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-              结果: {evaluation.result.toFixed(3)}
-            </Typography>
-          )}
+          {evaluation.result !== undefined &&
+            evaluation.status === "completed" && (
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                结果: {evaluation.result.toFixed(3)}
+              </Typography>
+            )}
 
           {evaluation.created_at && (
-            <Typography variant="caption" color="text.secondary" sx={{ mb: 2, display: 'block' }}>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ mb: 2, display: "block" }}
+            >
               创建时间: {new Date(evaluation.created_at).toLocaleString()}
             </Typography>
           )}
 
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               style={{
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
+                background: "none",
+                border: "none",
+                cursor: "pointer",
                 padding: 0,
               }}
               onClick={onViewDetails}
-              disabled={evaluation.status === 'pending'}
+              disabled={evaluation.status === "pending"}
             >
               <Typography
                 variant="button"
-                color={evaluation.status === 'pending' ? 'text.disabled' : 'primary'}
+                color={
+                  evaluation.status === "pending" ? "text.disabled" : "primary"
+                }
                 sx={{
-                  textDecoration: 'none',
-                  '&:hover': {
-                    textDecoration: evaluation.status !== 'pending' ? 'underline' : 'none',
+                  textDecoration: "none",
+                  "&:hover": {
+                    textDecoration:
+                      evaluation.status !== "pending" ? "underline" : "none",
                   },
                 }}
               >
@@ -289,24 +297,27 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({
 };
 
 interface LoadingStateProps {
-  type: 'tasks' | 'evaluations';
+  type: "tasks" | "evaluations";
   count?: number;
 }
 
-export const LoadingState: React.FC<LoadingStateProps> = ({ type, count = 3 }) => {
+export const LoadingState: React.FC<LoadingStateProps> = ({
+  type,
+  count = 3,
+}) => {
   return (
     <>
       {Array.from({ length: count }, (_, i) => (
         <div key={i}>
-          {type === 'tasks' ? (
+          {type === "tasks" ? (
             <TaskCard
-              task={{ id: '', name: '' }}
+              task={{ id: "", name: "" }}
               onClick={() => {}}
               loading={true}
             />
           ) : (
             <EvaluationCard
-              evaluation={{ id: '', status: '' }}
+              evaluation={{ id: "", status: "" }}
               onViewDetails={() => {}}
               loading={true}
             />
@@ -318,7 +329,7 @@ export const LoadingState: React.FC<LoadingStateProps> = ({ type, count = 3 }) =
 };
 
 interface EmptyStateProps {
-  type: 'tasks' | 'evaluations';
+  type: "tasks" | "evaluations";
   onAction?: () => void;
   actionLabel?: string;
 }
@@ -328,25 +339,25 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   onAction,
   actionLabel,
 }) => {
-  const isTasksEmpty = type === 'tasks';
+  const isTasksEmpty = type === "tasks";
 
   return (
-    <Box sx={{ textAlign: 'center', py: 4 }}>
+    <Box sx={{ textAlign: "center", py: 4 }}>
       <Typography variant="body1" color="text.secondary" gutterBottom>
-        {isTasksEmpty ? '暂无评估任务' : '该任务暂无评估记录'}
+        {isTasksEmpty ? "暂无评估任务" : "该任务暂无评估记录"}
       </Typography>
       {onAction && actionLabel && (
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           style={{
-            background: '#1976d2',
-            color: 'white',
-            border: 'none',
-            padding: '8px 16px',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            marginTop: '16px',
+            background: "#1976d2",
+            color: "white",
+            border: "none",
+            padding: "8px 16px",
+            borderRadius: "4px",
+            cursor: "pointer",
+            marginTop: "16px",
           }}
           onClick={onAction}
         >

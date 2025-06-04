@@ -77,15 +77,9 @@ const EvaluationSection: React.FC<EvaluationSectionProps> = ({
         >
           {/* Icon */}
           <TypeIcon type={type} color={color} isHovered={isHovered} />
-
           {/* Title and Description */}
-          <EvaluationHeader type={type} color={color} />          {/* Stats Card */}
-          <EvaluationStatsCard
-            type={type}
-            count={count}
-            color={color}
-          />
-
+          <EvaluationHeader type={type} color={color} /> {/* Stats Card */}
+          <EvaluationStatsCard type={type} count={count} color={color} />
           {/* Create button - appears on hover */}
           <AnimatePresence>
             {isHovered && (

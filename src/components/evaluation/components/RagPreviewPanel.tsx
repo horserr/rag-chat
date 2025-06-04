@@ -15,8 +15,8 @@ import {
   Analytics as MetricIcon,
   Dataset as DataIcon,
 } from '@mui/icons-material';
-import type { RagFormData } from '../types/evaluation-form';
-import { RAG_METRICS } from '../types/evaluation-form';
+import type { RagFormData } from '../../../models/evaluation-form';
+import { RAG_METRICS } from '../../../models/evaluation-form';
 
 interface RagPreviewPanelProps {
   formData: RagFormData;

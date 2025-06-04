@@ -13,7 +13,7 @@ import {
   Description as PromptIcon,
   Analytics as StatsIcon,
 } from '@mui/icons-material';
-import type { PromptFormData } from '../types/evaluation-form';
+import type { PromptFormData } from '../../../models/evaluation-form';
 
 interface PromptPreviewPanelProps {
   formData: PromptFormData;

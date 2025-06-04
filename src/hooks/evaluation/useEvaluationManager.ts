@@ -1,9 +1,6 @@
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import type {
-  RagFormData,
-  PromptFormData,
-} from "../../components/evaluation/types/evaluation-form";
+import type { RagFormData, PromptFormData } from "../../models/evaluation-form";
 import type {
   EvaluationStatusResponse,
   CreateEvaluationDto,
@@ -327,7 +324,9 @@ export const useEvaluationManager = () => {
     } catch (error) {
       console.error("Failed to cleanup tasks:", error);
     }
-  }, [activeTasks, services.rag.task, services.prompt.task]); // Setup cleanup on page unload
+  }, [activeTasks, services.rag.task, services.prompt.task]);
+
+  // Setup cleanup on page unload
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
       if (activeTasks.rag.length > 0 || activeTasks.prompt.length > 0) {
@@ -348,10 +347,10 @@ export const useEvaluationManager = () => {
       window.removeEventListener("unload", handleUnload);
     };
   }, [activeTasks, cleanupActiveTasks]);
+
   // ===========================================
   // PUBLIC API
   // ===========================================
-
   return {
     // RAG operations
     createRagTask,

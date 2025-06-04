@@ -1,35 +1,28 @@
-import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
-import { useCallback } from 'react';
-import { EvaluationService as RagEvaluationService } from '../../services/eval/rag/evaluation.service';
-import { TaskService as RagTaskService } from '../../services/eval/rag/task.service';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCallback } from "react";
 import type {
+  CreateEvaluationDto,
+  EvaluationDetails,
+  EvaluationListItem,
+  EvaluationListResponse,
+  EvaluationStatusResponse,
   TaskListResponse,
   TaskResponse,
-  EvaluationListResponse,
-  EvaluationListItem,
-  EvaluationDetails,
-  EvaluationStatusResponse,
-  CreateEvaluationDto,
-} from '../../models/rag-evaluation';
+} from "../../models/rag-evaluation";
+import { EvaluationService as RagEvaluationService } from "../../services/eval/rag/evaluation.service";
+import { TaskService as RagTaskService } from "../../services/eval/rag/task.service";
 
 // Query keys
 export const ragQueryKeys = {
-  all: ['rag'] as const,
-  tasks: () => [...ragQueryKeys.all, 'tasks'] as const,
-  task: (taskId: string) => [...ragQueryKeys.all, 'task', taskId] as const,
-  evaluations: (taskId: string) => [...ragQueryKeys.all, 'evaluations', taskId] as const,
-  evaluation: (taskId: string, evaluationId: string) => [
-    ...ragQueryKeys.all,
-    'evaluation',
-    taskId,
-    evaluationId,
-  ] as const,
-  evaluationStatus: (taskId: string, evaluationId: string) => [
-    ...ragQueryKeys.all,
-    'evaluation-status',
-    taskId,
-    evaluationId,
-  ] as const,
+  all: ["rag"] as const,
+  tasks: () => [...ragQueryKeys.all, "tasks"] as const,
+  task: (taskId: string) => [...ragQueryKeys.all, "task", taskId] as const,
+  evaluations: (taskId: string) =>
+    [...ragQueryKeys.all, "evaluations", taskId] as const,
+  evaluation: (taskId: string, evaluationId: string) =>
+    [...ragQueryKeys.all, "evaluation", taskId, evaluationId] as const,
+  evaluationStatus: (taskId: string, evaluationId: string) =>
+    [...ragQueryKeys.all, "evaluation-status", taskId, evaluationId] as const,
 } as const;
 
 // Services instances (singleton pattern)
@@ -70,12 +63,14 @@ export const useRagEvaluations = (taskId: string, enabled = true) => {
     },
     enabled: enabled && !!taskId,
     staleTime: 2 * 60 * 1000, // 2 minutes (shorter for evaluations as they change more frequently)
-    gcTime: 5 * 60 * 1000,    refetchInterval: (query) => {
+    gcTime: 5 * 60 * 1000,
+    refetchInterval: (query) => {
       // Auto-refetch if there are pending or running evaluations
       const data = query.state.data;
       if (!data?.evaluations) return false;
       const hasPendingEvals = data.evaluations.some(
-        (evaluation: EvaluationListItem) => evaluation.status === 'pending' || evaluation.status === 'running'
+        (evaluation: EvaluationListItem) =>
+          evaluation.status === "pending" || evaluation.status === "running"
       );
       return hasPendingEvals ? 5000 : false; // 5 seconds
     },
@@ -91,7 +86,10 @@ export const useRagEvaluation = (
   return useQuery({
     queryKey: ragQueryKeys.evaluation(taskId, evaluationId),
     queryFn: async (): Promise<EvaluationDetails> => {
-      return await ragEvaluationService.getEvaluationDetails(taskId, evaluationId);
+      return await ragEvaluationService.getEvaluationDetails(
+        taskId,
+        evaluationId
+      );
     },
     enabled: enabled && !!taskId && !!evaluationId,
     staleTime: 1 * 60 * 1000, // 1 minute
@@ -108,15 +106,21 @@ export const useRagEvaluationStatus = (
   return useQuery({
     queryKey: ragQueryKeys.evaluationStatus(taskId, evaluationId),
     queryFn: async (): Promise<EvaluationStatusResponse> => {
-      return await ragEvaluationService.getEvaluationStatus(taskId, evaluationId);
+      return await ragEvaluationService.getEvaluationStatus(
+        taskId,
+        evaluationId
+      );
     },
     enabled: enabled && !!taskId && !!evaluationId,
     staleTime: 0, // Always fetch fresh for status
-    gcTime: 1 * 60 * 1000,    refetchInterval: (query) => {
+    gcTime: 1 * 60 * 1000,
+    refetchInterval: (query) => {
       // Auto-refetch if evaluation is still pending or running
       const data = query.state.data;
       if (!data) return false;
-      return data.status === 'pending' || data.status === 'running' ? 3000 : false;
+      return data.status === "pending" || data.status === "running"
+        ? 3000
+        : false;
     },
   });
 };
@@ -151,7 +155,8 @@ export const useRagPrefetch = () => {
     (taskId: string, evaluationId: string) => {
       queryClient.prefetchQuery({
         queryKey: ragQueryKeys.evaluation(taskId, evaluationId),
-        queryFn: () => ragEvaluationService.getEvaluationDetails(taskId, evaluationId),
+        queryFn: () =>
+          ragEvaluationService.getEvaluationDetails(taskId, evaluationId),
         staleTime: 1 * 60 * 1000,
       });
     },
@@ -177,7 +182,10 @@ export const useCreateRagEvaluation = () => {
       taskId: string;
       evaluationData: CreateEvaluationDto;
     }) => {
-      return await ragEvaluationService.createEvaluation(taskId, evaluationData);
+      return await ragEvaluationService.createEvaluation(
+        taskId,
+        evaluationData
+      );
     },
     onSuccess: (data, variables) => {
       // Invalidate evaluations list to refresh it
@@ -201,30 +209,41 @@ export const useRagCacheManager = () => {
     queryClient.invalidateQueries({ queryKey: ragQueryKeys.all });
   }, [queryClient]);
 
-  const invalidateTaskData = useCallback((taskId: string) => {
-    queryClient.invalidateQueries({ queryKey: ragQueryKeys.task(taskId) });
-    queryClient.invalidateQueries({ queryKey: ragQueryKeys.evaluations(taskId) });
-  }, [queryClient]);
+  const invalidateTaskData = useCallback(
+    (taskId: string) => {
+      queryClient.invalidateQueries({ queryKey: ragQueryKeys.task(taskId) });
+      queryClient.invalidateQueries({
+        queryKey: ragQueryKeys.evaluations(taskId),
+      });
+    },
+    [queryClient]
+  );
 
-  const invalidateEvaluationData = useCallback((taskId: string, evaluationId: string) => {
-    queryClient.invalidateQueries({
-      queryKey: ragQueryKeys.evaluation(taskId, evaluationId)
-    });
-    queryClient.invalidateQueries({
-      queryKey: ragQueryKeys.evaluationStatus(taskId, evaluationId)
-    });
-  }, [queryClient]);
+  const invalidateEvaluationData = useCallback(
+    (taskId: string, evaluationId: string) => {
+      queryClient.invalidateQueries({
+        queryKey: ragQueryKeys.evaluation(taskId, evaluationId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: ragQueryKeys.evaluationStatus(taskId, evaluationId),
+      });
+    },
+    [queryClient]
+  );
 
-  const updateEvaluationCache = useCallback((
-    taskId: string,
-    evaluationId: string,
-    updateFn: (oldData: EvaluationDetails | undefined) => EvaluationDetails
-  ) => {
-    queryClient.setQueryData(
-      ragQueryKeys.evaluation(taskId, evaluationId),
-      updateFn
-    );
-  }, [queryClient]);
+  const updateEvaluationCache = useCallback(
+    (
+      taskId: string,
+      evaluationId: string,
+      updateFn: (oldData: EvaluationDetails | undefined) => EvaluationDetails
+    ) => {
+      queryClient.setQueryData(
+        ragQueryKeys.evaluation(taskId, evaluationId),
+        updateFn
+      );
+    },
+    [queryClient]
+  );
 
   return {
     invalidateAllRagData,

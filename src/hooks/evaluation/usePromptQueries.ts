@@ -1,27 +1,24 @@
-import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
-import { useCallback } from 'react';
-import { EvaluationService as PromptEvaluationService } from '../../services/eval/prompt/evaluation.service';
-import { TaskService as PromptTaskService } from '../../services/eval/prompt/task.service';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCallback } from "react";
 import type {
+  CreatePromptEvaluationDto as CreateEvaluationDto,
+  PromptEvaluationListResponse as EvaluationListResponse,
+  PromptEvaluation,
   PromptTaskListResponse as TaskListResponse,
   PromptTaskResponse as TaskResponse,
-  PromptEvaluation,
-  PromptEvaluationListResponse as EvaluationListResponse,
-  CreatePromptEvaluationDto as CreateEvaluationDto,
-} from '../../models/prompt-evaluation';
+} from "../../models/prompt-evaluation";
+import { EvaluationService as PromptEvaluationService } from "../../services/eval/prompt/evaluation.service";
+import { TaskService as PromptTaskService } from "../../services/eval/prompt/task.service";
 
 // Query keys
 export const promptQueryKeys = {
-  all: ['prompt'] as const,
-  tasks: () => [...promptQueryKeys.all, 'tasks'] as const,
-  task: (taskId: number) => [...promptQueryKeys.all, 'task', taskId] as const,
-  evaluations: (taskId: number) => [...promptQueryKeys.all, 'evaluations', taskId] as const,
-  evaluation: (taskId: number, evaluationId: number) => [
-    ...promptQueryKeys.all,
-    'evaluation',
-    taskId,
-    evaluationId,
-  ] as const,
+  all: ["prompt"] as const,
+  tasks: () => [...promptQueryKeys.all, "tasks"] as const,
+  task: (taskId: number) => [...promptQueryKeys.all, "task", taskId] as const,
+  evaluations: (taskId: number) =>
+    [...promptQueryKeys.all, "evaluations", taskId] as const,
+  evaluation: (taskId: number, evaluationId: number) =>
+    [...promptQueryKeys.all, "evaluation", taskId, evaluationId] as const,
 } as const;
 
 // Services instances (singleton pattern)
@@ -61,7 +58,7 @@ export const usePromptEvaluations = (taskId: number, enabled = true) => {
     queryFn: async (): Promise<EvaluationListResponse> => {
       const result = await promptTaskService.getTaskEvaluations(taskId);
       // Check if result is an error response or an array
-      if ('detail' in result) {
+      if ("detail" in result) {
         return { evaluations: [] }; // Return empty evaluations if error
       } else if (Array.isArray(result)) {
         return { evaluations: result };
@@ -84,7 +81,10 @@ export const usePromptEvaluation = (
   return useQuery({
     queryKey: promptQueryKeys.evaluation(taskId, evaluationId),
     queryFn: async (): Promise<PromptEvaluation> => {
-      return await promptEvaluationService.getEvaluationById(taskId, evaluationId);
+      return await promptEvaluationService.getEvaluationById(
+        taskId,
+        evaluationId
+      );
     },
     enabled: enabled && !!taskId && !!evaluationId,
     staleTime: 1 * 60 * 1000, // 1 minute
@@ -113,7 +113,7 @@ export const usePromptPrefetch = () => {
         queryKey: promptQueryKeys.evaluations(taskId),
         queryFn: async () => {
           const result = await promptTaskService.getTaskEvaluations(taskId);
-          if ('detail' in result) {
+          if ("detail" in result) {
             return { evaluations: [] };
           } else if (Array.isArray(result)) {
             return { evaluations: result };
@@ -131,7 +131,8 @@ export const usePromptPrefetch = () => {
     (taskId: number, evaluationId: number) => {
       queryClient.prefetchQuery({
         queryKey: promptQueryKeys.evaluation(taskId, evaluationId),
-        queryFn: () => promptEvaluationService.getEvaluationById(taskId, evaluationId),
+        queryFn: () =>
+          promptEvaluationService.getEvaluationById(taskId, evaluationId),
         staleTime: 1 * 60 * 1000,
       });
     },
@@ -157,7 +158,10 @@ export const useCreatePromptEvaluation = () => {
       taskId: number;
       evaluationData: CreateEvaluationDto;
     }) => {
-      return await promptEvaluationService.createEvaluation(taskId, evaluationData);
+      return await promptEvaluationService.createEvaluation(
+        taskId,
+        evaluationData
+      );
     },
     onSuccess: (_data, variables) => {
       // Invalidate evaluations list to refresh it
@@ -176,16 +180,24 @@ export const usePromptCacheManager = () => {
     queryClient.invalidateQueries({ queryKey: promptQueryKeys.all });
   }, [queryClient]);
 
-  const invalidateTaskData = useCallback((taskId: number) => {
-    queryClient.invalidateQueries({ queryKey: promptQueryKeys.task(taskId) });
-    queryClient.invalidateQueries({ queryKey: promptQueryKeys.evaluations(taskId) });
-  }, [queryClient]);
+  const invalidateTaskData = useCallback(
+    (taskId: number) => {
+      queryClient.invalidateQueries({ queryKey: promptQueryKeys.task(taskId) });
+      queryClient.invalidateQueries({
+        queryKey: promptQueryKeys.evaluations(taskId),
+      });
+    },
+    [queryClient]
+  );
 
-  const invalidateEvaluationData = useCallback((taskId: number, evaluationId: number) => {
-    queryClient.invalidateQueries({
-      queryKey: promptQueryKeys.evaluation(taskId, evaluationId)
-    });
-  }, [queryClient]);
+  const invalidateEvaluationData = useCallback(
+    (taskId: number, evaluationId: number) => {
+      queryClient.invalidateQueries({
+        queryKey: promptQueryKeys.evaluation(taskId, evaluationId),
+      });
+    },
+    [queryClient]
+  );
 
   return {
     invalidateAllPromptData,

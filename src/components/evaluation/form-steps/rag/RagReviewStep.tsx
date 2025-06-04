@@ -17,14 +17,20 @@ import {
   Dataset as DataIcon,
   CheckCircle as CheckIcon,
 } from '@mui/icons-material';
-import type { RagFormData } from '../../types/evaluation-form';
-import { RAG_METRICS } from '../../types/evaluation-form';
+import type { RagFormData } from '../../../../models/evaluation-form';
+import { RAG_METRICS } from '../../../../models/evaluation-form';
 
 interface RagReviewStepProps {
   formData: RagFormData;
+  onFormChange: (field: keyof RagFormData, value: unknown) => void;
 }
 
-const RagReviewStep: React.FC<RagReviewStepProps> = ({ formData }) => {
+const RagReviewStep: React.FC<RagReviewStepProps> = ({
+  formData,
+  ...props
+}) => {
+  // Explicitly acknowledge unused props
+  void props;
   const getMetricName = () => {
     if (formData.evaluationType === 'single_turn' && formData.metricId !== undefined) {
       return RAG_METRICS[formData.metricId]?.name || '未知指标';

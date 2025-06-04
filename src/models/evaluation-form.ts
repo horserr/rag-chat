@@ -4,7 +4,7 @@ import type {
   SingleTurnSample,
   CustomSample,
   MultiTurnSample
-} from "../../../models/rag-evaluation";
+} from "./rag-evaluation";
 
 // RAG Evaluation Form Data
 export interface RagFormData {

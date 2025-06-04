@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React from "react";
 import {
   Box,
   Typography,
@@ -9,24 +8,32 @@ import {
   ListItemIcon,
   ListItemText,
   Divider,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Task as TaskIcon,
   Description as PromptIcon,
   CheckCircle as CheckIcon,
   Analytics as StatsIcon,
-} from '@mui/icons-material';
-import type { PromptFormData } from '../../types/evaluation-form';
+} from "@mui/icons-material";
+import type { PromptFormData } from "../../../../models/evaluation-form";
 
 interface PromptReviewStepProps {
   formData: PromptFormData;
+  onFormChange: (field: keyof PromptFormData, value: unknown) => void;
 }
 
-const PromptReviewStep: React.FC<PromptReviewStepProps> = ({ formData }) => {
+const PromptReviewStep: React.FC<PromptReviewStepProps> = ({
+  formData,
+  ...props
+}) => {
+  // Explicitly acknowledge unused props
+  void props;
   const promptStats = {
     characters: formData.prompt?.length || 0,
-    words: formData.prompt?.split(/\s+/).filter(word => word.length > 0).length || 0,
-    lines: formData.prompt?.split('\n').length || 0,
+    words:
+      formData.prompt?.split(/\s+/).filter((word) => word.length > 0).length ||
+      0,
+    lines: formData.prompt?.split("\n").length || 0,
   };
 
   return (
@@ -35,7 +42,9 @@ const PromptReviewStep: React.FC<PromptReviewStepProps> = ({ formData }) => {
         确认 Prompt 评估配置
       </Typography>
 
-      <Paper sx={{ p: 3, mb: 3, bgcolor: 'background.default', borderRadius: 2 }}>
+      <Paper
+        sx={{ p: 3, mb: 3, bgcolor: "background.default", borderRadius: 2 }}
+      >
         <List>
           <ListItem>
             <ListItemIcon>
@@ -43,7 +52,7 @@ const PromptReviewStep: React.FC<PromptReviewStepProps> = ({ formData }) => {
             </ListItemIcon>
             <ListItemText
               primary="任务名称"
-              secondary={formData.taskName || '未设置'}
+              secondary={formData.taskName || "未设置"}
             />
           </ListItem>
 
@@ -61,18 +70,18 @@ const PromptReviewStep: React.FC<PromptReviewStepProps> = ({ formData }) => {
                   sx={{
                     mt: 1,
                     p: 2,
-                    bgcolor: 'action.hover',
+                    bgcolor: "action.hover",
                     borderRadius: 1,
-                    fontFamily: 'monospace',
-                    fontSize: '0.875rem',
+                    fontFamily: "monospace",
+                    fontSize: "0.875rem",
                     maxHeight: 200,
-                    overflow: 'auto',
-                    whiteSpace: 'pre-wrap',
+                    overflow: "auto",
+                    whiteSpace: "pre-wrap",
                     border: 1,
-                    borderColor: 'divider',
+                    borderColor: "divider",
                   }}
                 >
-                  {formData.prompt || '未设置'}
+                  {formData.prompt || "未设置"}
                 </Typography>
               }
             />
@@ -87,7 +96,7 @@ const PromptReviewStep: React.FC<PromptReviewStepProps> = ({ formData }) => {
             <ListItemText
               primary="统计信息"
               secondary={
-                <Box sx={{ mt: 1, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                <Box sx={{ mt: 1, display: "flex", gap: 2, flexWrap: "wrap" }}>
                   <Typography variant="body2" color="text.secondary">
                     字符数: {promptStats.characters}
                   </Typography>
@@ -104,14 +113,14 @@ const PromptReviewStep: React.FC<PromptReviewStepProps> = ({ formData }) => {
         </List>
       </Paper>
 
-      <Paper sx={{ p: 2, bgcolor: 'success.light', borderRadius: 2 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <CheckIcon sx={{ color: 'success.dark', mr: 2 }} />
+      <Paper sx={{ p: 2, bgcolor: "success.light", borderRadius: 2 }}>
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          <CheckIcon sx={{ color: "success.dark", mr: 2 }} />
           <Box>
-            <Typography variant="subtitle2" sx={{ color: 'success.dark' }}>
+            <Typography variant="subtitle2" sx={{ color: "success.dark" }}>
               准备就绪
             </Typography>
-            <Typography variant="body2" sx={{ color: 'success.dark' }}>
+            <Typography variant="body2" sx={{ color: "success.dark" }}>
               点击"创建评估"开始 Prompt 评估，评估可能需要较长时间完成
             </Typography>
           </Box>

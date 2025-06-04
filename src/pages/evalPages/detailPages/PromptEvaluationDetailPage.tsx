@@ -1,9 +1,7 @@
 import {
   Add as AddIcon,
-  Analytics as AnalyticsIcon,
   ArrowBack as BackIcon,
   TextFields as PromptIcon,
-  TrendingUp as TrendIcon,
 } from "@mui/icons-material";
 import {
   Alert,
@@ -21,7 +19,6 @@ import {
   List,
   ListItem,
   ListItemText,
-  Paper,
   Skeleton,
   TextField,
   Typography,
@@ -36,16 +33,18 @@ import {
   Title,
   Tooltip,
 } from "chart.js";
-import React, { useState } from "react";
+import React from "react";
 import { Line } from "react-chartjs-2";
-import { useNavigate, useParams } from "react-router-dom";
+import { usePromptDetailLogic } from "../../../hooks/evaluation";
 import {
-  usePromptTask,
-  usePromptEvaluation,
-  usePromptEvaluations,
-  useCreatePromptEvaluation,
-} from "../../../hooks/evaluation/usePromptQueries";
-import type { PromptEvaluation } from "../../../models/prompt-evaluation";
+  MetricChips,
+  EvaluationHistoryList,
+  PromptDisplay,
+  ResponseDisplay,
+  generatePromptChartData,
+  promptChartOptions,
+  getScoreColor
+} from "../../../components/evaluation/shared";
 
 // Register Chart.js components
 ChartJS.register(
@@ -59,127 +58,25 @@ ChartJS.register(
 );
 
 const PromptEvaluationDetailPage: React.FC = () => {
-  const navigate = useNavigate();
-  const { taskId, evaluationId } = useParams<{
-    taskId: string;
-    evaluationId?: string;
-  }>();
-
-  const [showNewEvaluationDialog, setShowNewEvaluationDialog] = useState(false);
-  const [newPrompt, setNewPrompt] = useState("");
-
-  const taskIdNum = taskId ? parseInt(taskId) : 0;
-  const evaluationIdNum = evaluationId ? parseInt(evaluationId) : 0;
-
-  // Query hooks
   const {
-    data: task,
-    isLoading: taskLoading,
-    error: taskError,
-  } = usePromptTask(taskIdNum, !!taskId);
-
-  const {
-    data: evaluation,
-    isLoading: evaluationLoading,
-    error: evaluationError,
-  } = usePromptEvaluation(
-    taskIdNum,
-    evaluationIdNum,
-    !!taskId && !!evaluationId
-  );
-
-  const {
-    data: evaluationsData,
-    isLoading: evaluationsLoading,
-    error: evaluationsError,
-  } = usePromptEvaluations(taskIdNum, !!taskId);
-
-  // Mutation hooks
-  const createEvaluationMutation = useCreatePromptEvaluation();
-
-  const evaluationHistory = evaluationsData?.evaluations || [];
-
-  const handleCreateEvaluation = async () => {
-    if (!taskId || !newPrompt.trim()) return;
-
-    try {
-      await createEvaluationMutation.mutateAsync({
-        taskId: taskIdNum,
-        evaluationData: { prompt: newPrompt.trim() },
-      });
-      setNewPrompt("");
-      setShowNewEvaluationDialog(false);
-      navigate(`/evaluation/prompt/${taskId}`);
-    } catch (error) {
-      console.error("Failed to create evaluation:", error);
-    }
-  };
-
-  const handleBack = () => {
-    navigate(`/evaluation/prompt/${taskId}`);
-  };
-  const getScoreColor = (score: string | number) => {
-    const numScore = typeof score === "string" ? parseFloat(score) : score;
-    if (numScore >= 4) return "success";
-    if (numScore >= 3) return "warning";
-    return "error";
-  }; // Chart data preparation
-  const chartData = {
-    labels: evaluationHistory.map(
-      (_: PromptEvaluation, index: number) => `评估 ${index + 1}`
-    ),
-    datasets: [
-      {
-        label: "Prompt 评分",
-        data: evaluationHistory.map((evalItem: PromptEvaluation) =>
-          parseInt(evalItem.promptScore)
-        ),
-        borderColor: "rgb(75, 192, 192)",
-        backgroundColor: "rgba(75, 192, 192, 0.2)",
-        tension: 0.1,
-      },
-      {
-        label: "BLEU4 分数",
-        data: evaluationHistory.map(
-          (evalItem: PromptEvaluation) => evalItem.bleu4Score * 10
-        ), // Scale for visibility
-        borderColor: "rgb(255, 99, 132)",
-        backgroundColor: "rgba(255, 99, 132, 0.2)",
-        tension: 0.1,
-      },
-      {
-        label: "语义相似度",
-        data: evaluationHistory.map(
-          (evalItem: PromptEvaluation) => evalItem.semanticSimilarity * 10
-        ),
-        borderColor: "rgb(54, 162, 235)",
-        backgroundColor: "rgba(54, 162, 235, 0.2)",
-        tension: 0.1,
-      },
-    ],
-  };
-
-  const chartOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: "top" as const,
-      },
-      title: {
-        display: true,
-        text: "评估指标趋势",
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        max: 10,
-      },
-    },
-  };
-
-  const isLoading = taskLoading || (evaluationId && evaluationLoading);
-  const hasError = taskError || evaluationError || evaluationsError;
+    task,
+    evaluation,
+    evaluationHistory,
+    taskId,
+    evaluationId,
+    isLoading,
+    evaluationsLoading,
+    hasError,
+    showNewEvaluationDialog,
+    setShowNewEvaluationDialog,
+    newPrompt,
+    setNewPrompt,
+    handleCreateEvaluation,
+    handleBack,
+    handleEvaluationClick,
+    isCreatingEvaluation,
+  } = usePromptDetailLogic();  // Chart data preparation
+  const chartData = generatePromptChartData(evaluationHistory);
 
   if (isLoading) {
     return (
@@ -259,74 +156,21 @@ const PromptEvaluationDetailPage: React.FC = () => {
                       }
                       size="medium"
                     />
-                  </Box>
-
-                  <Typography variant="h6" gutterBottom>
-                    Prompt 内容:
-                  </Typography>
-                  <Paper sx={{ p: 2, mb: 3, bgcolor: "grey.50" }}>
-                    <Typography variant="body1" sx={{ whiteSpace: "pre-wrap" }}>
-                      {evaluation.prompt}
-                    </Typography>
-                  </Paper>
-
-                  <Typography variant="h6" gutterBottom>
+                  </Box>                  <PromptDisplay prompt={evaluation.prompt} /><Typography variant="h6" gutterBottom>
                     评估指标:
                   </Typography>
-                  <Box
-                    sx={{ display: "flex", gap: 2, flexWrap: "wrap", mb: 3 }}
-                  >
-                    <Chip
-                      icon={<AnalyticsIcon />}
-                      label={`BLEU4: ${evaluation.bleu4Score.toFixed(4)}`}
-                      variant="outlined"
+                  <MetricChips evaluation={evaluation} />                  {evaluation.groundTruthResponse && (
+                    <ResponseDisplay
+                      title="标准答案:"
+                      response={evaluation.groundTruthResponse}
                     />
-                    <Chip
-                      icon={<TrendIcon />}
-                      label={`语义相似度: ${evaluation.semanticSimilarity.toFixed(
-                        4
-                      )}`}
-                      variant="outlined"
-                    />
-                    <Chip
-                      icon={<AnalyticsIcon />}
-                      label={`词汇多样性: ${evaluation.lexicalDiversity.toFixed(
-                        4
-                      )}`}
-                      variant="outlined"
-                    />
-                  </Box>
-
-                  {evaluation.groundTruthResponse && (
-                    <>
-                      <Typography variant="h6" gutterBottom>
-                        标准答案:
-                      </Typography>
-                      <Paper sx={{ p: 2, mb: 3, bgcolor: "grey.50" }}>
-                        <Typography
-                          variant="body2"
-                          sx={{ whiteSpace: "pre-wrap" }}
-                        >
-                          {evaluation.groundTruthResponse}
-                        </Typography>
-                      </Paper>
-                    </>
                   )}
 
                   {evaluation.response && (
-                    <>
-                      <Typography variant="h6" gutterBottom>
-                        模型回答:
-                      </Typography>
-                      <Paper sx={{ p: 2, bgcolor: "grey.50" }}>
-                        <Typography
-                          variant="body2"
-                          sx={{ whiteSpace: "pre-wrap" }}
-                        >
-                          {evaluation.response}
-                        </Typography>
-                      </Paper>
-                    </>
+                    <ResponseDisplay
+                      title="模型回答:"
+                      response={evaluation.response}
+                    />
                   )}
                 </CardContent>
               </Card>
@@ -379,72 +223,13 @@ const PromptEvaluationDetailPage: React.FC = () => {
               <CardContent>
                 <Typography variant="h6" gutterBottom>
                   评估历史
-                </Typography>
-                {evaluationsLoading ? (
-                  <Box
-                    sx={{ display: "flex", flexDirection: "column", gap: 1 }}
-                  >
-                    {[1, 2, 3].map((i) => (
-                      <Skeleton key={i} variant="rectangular" height={60} />
-                    ))}
-                  </Box>
-                ) : evaluationHistory.length === 0 ? (
-                  <Typography variant="body2" color="text.secondary">
-                    暂无评估记录
-                  </Typography>
-                ) : (
-                  <List>
-                    {evaluationHistory
-                      .slice(0, 5)
-                      .map((evalItem: PromptEvaluation) => (
-                        <ListItem
-                          key={evalItem.evalId}
-                          sx={{
-                            border: 1,
-                            borderColor: "divider",
-                            borderRadius: 1,
-                            mb: 1,
-                            cursor: "pointer",
-                            "&:hover": { bgcolor: "action.hover" },
-                            bgcolor:
-                              evaluation?.evalId === evalItem.evalId
-                                ? "action.selected"
-                                : "inherit",
-                          }}
-                          onClick={() =>
-                            navigate(
-                              `/evaluation/prompt/${taskId}/${evalItem.evalId}`
-                            )
-                          }
-                        >
-                          <ListItemText
-                            primary={`评估 #${evalItem.evalId}`}
-                            secondary={
-                              <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
-                                <Chip
-                                  label={evalItem.promptScore}
-                                  size="small"
-                                  color={
-                                    getScoreColor(evalItem.promptScore) as
-                                      | "success"
-                                      | "warning"
-                                      | "error"
-                                  }
-                                />
-                                <Chip
-                                  label={`BLEU4: ${evalItem.bleu4Score.toFixed(
-                                    3
-                                  )}`}
-                                  size="small"
-                                  variant="outlined"
-                                />
-                              </Box>
-                            }
-                          />
-                        </ListItem>
-                      ))}
-                  </List>
-                )}
+                </Typography>                <EvaluationHistoryList
+                  evaluationHistory={evaluationHistory}
+                  isLoading={evaluationsLoading}
+                  currentEvaluationId={evaluation?.evalId}
+                  onEvaluationClick={handleEvaluationClick}
+                  maxItems={5}
+                />
               </CardContent>
             </Card>
 
@@ -454,9 +239,8 @@ const PromptEvaluationDetailPage: React.FC = () => {
                 <CardContent>
                   <Typography variant="h6" gutterBottom>
                     性能趋势
-                  </Typography>
-                  <Box sx={{ height: 300 }}>
-                    <Line data={chartData} options={chartOptions} />
+                  </Typography>                  <Box sx={{ height: 300 }}>
+                    <Line data={chartData} options={promptChartOptions} />
                   </Box>
                 </CardContent>
               </Card>
@@ -501,10 +285,9 @@ const PromptEvaluationDetailPage: React.FC = () => {
           </Button>
           <Button
             onClick={handleCreateEvaluation}
-            variant="contained"
-            disabled={!newPrompt.trim() || createEvaluationMutation.isPending}
+            variant="contained"            disabled={!newPrompt.trim() || isCreatingEvaluation}
           >
-            {createEvaluationMutation.isPending ? (
+            {isCreatingEvaluation ? (
               <CircularProgress size={20} />
             ) : (
               "开始评估"
@@ -512,8 +295,7 @@ const PromptEvaluationDetailPage: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
-    </Box>
-  );
+    </Box>  );
 };
 
 export default PromptEvaluationDetailPage;

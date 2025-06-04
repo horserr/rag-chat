@@ -6,12 +6,7 @@ import HomePage from "../pages/HomePage";
 import LoginPage from "../pages/LoginPage";
 import ProtectedRoute from "../components/common/ProtectedRoute";
 import { TokenService } from "../services/auth/token.service";
-import {
-  RagEvaluationOverviewPage,
-  RagEvaluationDetailPage,
-  PromptEvaluationOverviewPage,
-  PromptEvaluationDetailPage,
-} from "../pages/evalPages";
+import { createEvaluationRoutes } from "./utils/routeConfig";
 
 // Route definitions
 const AppRoutes: React.FC = () => {
@@ -39,7 +34,6 @@ const AppRoutes: React.FC = () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, []);
-
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
@@ -51,7 +45,8 @@ const AppRoutes: React.FC = () => {
             <ChatPage />
           </ProtectedRoute>
         }
-      />      <Route
+      />
+      <Route
         path="/evaluation"
         element={
           <ProtectedRoute>
@@ -60,73 +55,10 @@ const AppRoutes: React.FC = () => {
         }
       />
 
-      {/* RAG Evaluation Routes */}
-      <Route
-        path="/evaluation/rag"
-        element={
-          <ProtectedRoute>
-            <RagEvaluationOverviewPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/evaluation/rag/:taskId"
-        element={
-          <ProtectedRoute>
-            <RagEvaluationDetailPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/evaluation/rag/:taskId/details"
-        element={
-          <ProtectedRoute>
-            <RagEvaluationDetailPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/evaluation/rag/:taskId/eval/:evaluationId"
-        element={
-          <ProtectedRoute>
-            <RagEvaluationDetailPage />
-          </ProtectedRoute>
-        }
-      />
-
-      {/* Prompt Evaluation Routes */}
-      <Route
-        path="/evaluation/prompt"
-        element={
-          <ProtectedRoute>
-            <PromptEvaluationOverviewPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/evaluation/prompt/:taskId"
-        element={
-          <ProtectedRoute>
-            <PromptEvaluationDetailPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/evaluation/prompt/:taskId/details"
-        element={
-          <ProtectedRoute>
-            <PromptEvaluationDetailPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/evaluation/prompt/:taskId/eval/:evaluationId"
-        element={
-          <ProtectedRoute>
-            <PromptEvaluationDetailPage />
-          </ProtectedRoute>
-        }
-      />
+      {/* Dynamic evaluation routes */}
+      {createEvaluationRoutes().map((route) => (
+        <Route key={route.path} path={route.path} element={route.element} />
+      ))}
 
       {/* Default redirect based on auth status */}
       <Route
