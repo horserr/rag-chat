@@ -1,35 +1,38 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Typography,
-  Card,
-  CardContent,
-  Chip,
-  IconButton,
   Button,
   Alert,
-  Skeleton,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   TextField,
   CircularProgress,
+  IconButton,
+  Stack,
 } from '@mui/material';
 import {
   Refresh as RefreshIcon,
-  MoreVert as MoreIcon,
-  CheckCircle as CompletedIcon,
   Add as AddIcon,
+  Analytics as DetailsIcon,
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import { useNavigate, useParams } from 'react-router-dom';
-import { TaskService as PromptTaskService } from '../../../services/eval/prompt/task.service';
-import { EvaluationService as PromptEvaluationService } from '../../../services/eval/prompt/evaluation.service';
-import type {
-  PromptTask,
-  PromptEvaluationResponse,
-} from '../../../models/prompt-evaluation';
+import {
+  usePromptTasks,
+  usePromptEvaluations,
+  usePromptPrefetch,
+  usePromptCacheManager,
+  useCreatePromptEvaluation,
+} from '../../../hooks/evaluation/usePromptQueries';
+import {
+  TaskCard,
+  EvaluationCard,
+  EmptyState,
+} from '../../../components/evaluation/shared/EvaluationComponents';
+import type { PromptTask, PromptEvaluationResponse } from '../../../models/prompt-evaluation';
 import { useEvaluationManager } from '../../../hooks/evaluation/useEvaluationManager';
 
 const PromptEvaluationOverviewPage: React.FC = () => {
@@ -37,67 +40,44 @@ const PromptEvaluationOverviewPage: React.FC = () => {
   const { taskId } = useParams<{ taskId?: string }>();
   const evaluationManager = useEvaluationManager();
 
-  const [tasks, setTasks] = useState<PromptTask[]>([]);
+  // Selected task state
   const [selectedTask, setSelectedTask] = useState<number | null>(taskId ? parseInt(taskId) : null);
-  const [evaluations, setEvaluations] = useState<PromptEvaluationResponse[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);  const [showNewEvaluationDialog, setShowNewEvaluationDialog] = useState(false);
+  const [showNewEvaluationDialog, setShowNewEvaluationDialog] = useState(false);
+  const [showDetailDialog, setShowDetailDialog] = useState(false);
   const [newPrompt, setNewPrompt] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const promptTaskService = useMemo(() => new PromptTaskService(), []);
-  const promptEvaluationService = useMemo(() => new PromptEvaluationService(), []);
+  // Query hooks
+  const {
+    data: tasksData,
+    isLoading: tasksLoading,
+    error: tasksError,
+    refetch: refetchTasks,
+  } = usePromptTasks();
 
-  // Load tasks
-  const loadTasks = useCallback(async () => {
-    try {
-      setLoading(true);
-      const tasksData = await promptTaskService.getAllTasks();
-      setTasks(tasksData);
+  const {
+    data: evaluationsData,
+    isLoading: evaluationsLoading,
+    error: evaluationsError,
+  } = usePromptEvaluations(selectedTask || 0, !!selectedTask);
 
-      // If no specific task selected, select the first one
-      if (!selectedTask && tasksData.length > 0) {
-        setSelectedTask(tasksData[0].taskId);
-      }
-    } catch (err) {
-      setError('Failed to load tasks');
-      console.error('Error loading tasks:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [selectedTask, promptTaskService]);
+  // Prefetch hooks
+  const { prefetchTask, prefetchEvaluations } = usePromptPrefetch();
+  const { invalidateTaskData } = usePromptCacheManager();
 
-  // Load evaluations for selected task
-  const loadEvaluations = useCallback(async () => {
-    if (!selectedTask) return;
+  // Mutation hooks
+  const createEvaluationMutation = useCreatePromptEvaluation();
 
-    try {
-      const response = await promptTaskService.getTaskEvaluations(selectedTask);      // Check if it's an error response
-      if ('detail' in response) {
-        console.log('No evaluations found for this task');
-        setEvaluations([]);
-      } else {
-        setEvaluations((response as unknown) as PromptEvaluationResponse[]);
-      }
-    } catch (err) {
-      console.error('Error loading evaluations:', err);
-      setEvaluations([]);
-    }
-  }, [selectedTask, promptTaskService]);
-
-  useEffect(() => {
-    loadTasks();
-  }, [loadTasks]);
-
-  useEffect(() => {
-    if (selectedTask) {
-      loadEvaluations();
-    }
-  }, [selectedTask, loadEvaluations]);
+  const tasks = tasksData?.tasks || [];
+  const evaluations = evaluationsData?.evaluations || [];
 
   const handleTaskSelect = (taskId: number) => {
     setSelectedTask(taskId);
     navigate(`/evaluation/prompt/${taskId}`);
+  };
+
+  const handleTaskHover = (taskId: number) => {
+    prefetchTask(taskId);
+    prefetchEvaluations(taskId);
   };
 
   const handleViewDetails = (evaluationId: number) => {
@@ -106,40 +86,34 @@ const PromptEvaluationOverviewPage: React.FC = () => {
     }
   };
 
-  const handleNewEvaluation = async () => {
-    if (!selectedTask || !newPrompt.trim()) return;
-
-    setIsSubmitting(true);
-    try {
-      await promptEvaluationService.createEvaluation(selectedTask, {
-        prompt: newPrompt.trim(),
-      });
-
-      // Close dialog and refresh evaluations
-      setShowNewEvaluationDialog(false);
-      setNewPrompt('');
-      loadEvaluations();
-    } catch (err) {
-      console.error('Error creating evaluation:', err);
-      // TODO: Show error message
-    } finally {
-      setIsSubmitting(false);
+  const handleRefresh = () => {
+    refetchTasks();
+    if (selectedTask) {
+      invalidateTaskData(selectedTask);
     }
   };
 
-  const getScoreColor = (score: string) => {
-    const numScore = parseInt(score);
-    if (numScore >= 4) return 'success';
-    if (numScore >= 3) return 'warning';
-    return 'error';
+  const handleCreateEvaluation = async () => {
+    if (!selectedTask || !newPrompt.trim()) return;
+
+    try {
+      await createEvaluationMutation.mutateAsync({
+        taskId: selectedTask,
+        evaluationData: { prompt: newPrompt.trim() },
+      });
+      setNewPrompt('');
+      setShowNewEvaluationDialog(false);
+    } catch (error) {
+      console.error('Failed to create evaluation:', error);
+    }
   };
 
   const isDetailView = !!selectedTask;
 
   return (
-    <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{ height: "100vh", display: "flex", flexDirection: "column" }}>
       {/* Header */}
-      <Box sx={{ p: 3, borderBottom: 1, borderColor: 'divider' }}>
+      <Box sx={{ p: 3, borderBottom: 1, borderColor: "divider" }}>
         <Typography variant="h4" fontWeight="bold">
           Prompt 评估管理
         </Typography>
@@ -149,170 +123,165 @@ const PromptEvaluationOverviewPage: React.FC = () => {
       </Box>
 
       {/* Main Content */}
-      <Box sx={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+      <Box sx={{ flex: 1, display: "flex", overflow: "hidden" }}>
         {/* Task List Panel */}
         <motion.div
           initial={false}
-          animate={{ width: isDetailView ? '50%' : '100%' }}
+          animate={{ width: selectedTask ? "50%" : "100%" }}
           transition={{ duration: 0.3 }}
-          style={{ borderRight: isDetailView ? '1px solid #e0e0e0' : 'none' }}
+          style={{ borderRight: selectedTask ? "1px solid #e0e0e0" : "none" }}
         >
-          <Box sx={{ p: 3, height: '100%', overflow: 'auto' }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+          <Box sx={{ p: 3, height: "100%", overflow: "auto" }}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: 3,
+              }}
+            >
               <Typography variant="h6">Prompt 任务</Typography>
-              <IconButton onClick={loadTasks} disabled={loading}>
+              <IconButton onClick={handleRefresh} disabled={tasksLoading}>
                 <RefreshIcon />
               </IconButton>
-            </Box>            {loading && (
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                {[1, 2, 3].map((i) => (
-                  <Skeleton key={i} variant="rectangular" height={100} />
-                ))}
-              </Box>
-            )}
+            </Box>
 
-            {error && (
-              <Alert severity="error" sx={{ mb: 2 }}>
-                {error}
-              </Alert>
-            )}            {!loading && !error && (
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                {tasks.map((task) => (
-                  <Card
-                    key={task.taskId}
-                    sx={{
-                      cursor: 'pointer',
-                      border: selectedTask === task.taskId ? 2 : 1,
-                      borderColor: selectedTask === task.taskId ? 'secondary.main' : 'divider',
-                      '&:hover': {
-                        boxShadow: 2,
-                      },
-                    }}
-                    onClick={() => handleTaskSelect(task.taskId)}
-                  >
-                    <CardContent>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
-                        <Box>
-                          <Typography variant="h6">{task.taskName}</Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            ID: {task.taskId}
-                          </Typography>
-                        </Box>
-                        <IconButton size="small">
-                          <MoreIcon />
-                        </IconButton>
-                      </Box>
-                    </CardContent>
-                  </Card>
-                ))}
-              </Box>
-            )}
+            {/* Tasks List */}
+            <Stack spacing={2}>
+              {tasksLoading && (
+                <>
+                  {[1, 2, 3].map((i) => (
+                    <TaskCard
+                      key={i}
+                      task={{ id: '', name: '' }}
+                      onClick={() => {}}
+                      loading={true}
+                    />
+                  ))}
+                </>
+              )}
 
-            {!loading && !error && tasks.length === 0 && (
-              <Box sx={{ textAlign: 'center', py: 4 }}>
-                <Typography variant="body1" color="text.secondary">
-                  暂无 Prompt 任务
-                </Typography>
-                <Button
-                  variant="contained"
-                  sx={{ mt: 2 }}
-                  onClick={() => navigate('/evaluation')}
-                >
-                  创建新任务
-                </Button>
-              </Box>
-            )}
+              {tasksError && (
+                <Alert severity="error">
+                  Failed to load tasks: {(tasksError as Error).message}
+                </Alert>
+              )}
+
+              {!tasksLoading && !tasksError && tasks.length === 0 && (
+                <EmptyState
+                  type="tasks"
+                  onAction={() => navigate("/evaluation")}
+                  actionLabel="创建新任务"
+                />
+              )}
+
+              {!tasksLoading && !tasksError && tasks.map((task: PromptTask) => (
+                <TaskCard
+                  key={task.taskId}
+                  task={{ id: task.taskId, name: task.taskName, description: `Task ID: ${task.taskId}` }}
+                  isSelected={selectedTask === task.taskId}
+                  onClick={() => handleTaskSelect(task.taskId)}
+                  onHover={() => handleTaskHover(task.taskId)}
+                />
+              ))}
+            </Stack>
           </Box>
         </motion.div>
 
         {/* Evaluation Details Panel */}
-        {isDetailView && (
+        {isDetailView ? (
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.3 }}
-            style={{ width: '50%' }}
+            style={{ width: "50%" }}
           >
-            <Box sx={{ p: 3, height: '100%', overflow: 'auto' }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+            <Box sx={{ p: 3, height: "100%", overflow: "auto" }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  mb: 3,
+                }}
+              >
                 <Typography variant="h6">评估记录</Typography>
-                <Button
-                  variant="contained"
-                  startIcon={<AddIcon />}
-                  onClick={() => setShowNewEvaluationDialog(true)}
-                  color="secondary"
-                >
-                  新增评估
-                </Button>
-              </Box>              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                {evaluations.map((evaluation) => (
-                  <Card key={evaluation.evalId}>
-                    <CardContent>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', mb: 2 }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <CompletedIcon color="success" />
-                          <Typography variant="h6">
-                            评估 #{evaluation.evalId}
-                          </Typography>
-                        </Box>
-                        <Chip
-                          label={`评分: ${evaluation.promptScore}`}
-                          color={getScoreColor(evaluation.promptScore) as 'success' | 'warning' | 'error'}
-                          size="small"
-                        />
-                      </Box>
-
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{
-                          mb: 2,
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          display: '-webkit-box',
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: 'vertical',
-                        }}
-                      >
-                        Prompt: {evaluation.prompt}
-                      </Typography>
-
-                      <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap' }}>
-                        <Chip label={`BLEU4: ${evaluation.bleu4Score.toFixed(3)}`} size="small" />
-                        <Chip label={`相似度: ${evaluation.semanticSimilarity.toFixed(3)}`} size="small" />
-                        <Chip label={`多样性: ${evaluation.lexicalDiversity.toFixed(3)}`} size="small" />
-                      </Box>
-
-                      <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                        <Button
-                          size="small"
-                          onClick={() => handleViewDetails(evaluation.evalId)}
-                        >
-                          查看详情
-                        </Button>
-                      </Box>
-                    </CardContent>
-                  </Card>
-                ))}
-              </Box>
-
-              {evaluations.length === 0 && (
-                <Box sx={{ textAlign: 'center', py: 4 }}>
-                  <Typography variant="body1" color="text.secondary">
-                    该任务暂无评估记录
-                  </Typography>
+                <Box sx={{ display: "flex", gap: 1 }}>
+                  <Button
+                    variant="contained"
+                    startIcon={<AddIcon />}
+                    onClick={() => setShowNewEvaluationDialog(true)}
+                    color="secondary"
+                  >
+                    新增评估
+                  </Button>
                   <Button
                     variant="outlined"
-                    startIcon={<AddIcon />}
-                    sx={{ mt: 2 }}
-                    onClick={() => setShowNewEvaluationDialog(true)}
+                    startIcon={<DetailsIcon />}
+                    onClick={() => setShowDetailDialog(true)}
                   >
-                    创建首个评估
+                    查看详情
                   </Button>
                 </Box>
-              )}
+              </Box>
+
+              {/* Evaluations List */}
+              <Stack spacing={2}>
+                {evaluationsLoading && (
+                  <>
+                    {[1, 2].map((i) => (
+                      <EvaluationCard
+                        key={i}
+                        evaluation={{ id: '', status: '' }}
+                        onViewDetails={() => {}}
+                        loading={true}
+                      />
+                    ))}
+                  </>
+                )}
+
+                {evaluationsError && (
+                  <Alert severity="error">
+                    Failed to load evaluations: {(evaluationsError as Error).message}
+                  </Alert>
+                )}
+
+                {!evaluationsLoading && !evaluationsError && evaluations.length === 0 && (
+                  <EmptyState type="evaluations" />
+                )}                {!evaluationsLoading && !evaluationsError && evaluations.map((evaluation: PromptEvaluationResponse) => (
+                  <EvaluationCard
+                    key={evaluation.evalId}
+                    evaluation={{                      id: evaluation.evalId,
+                      status: 'completed',
+                      result: parseFloat(evaluation.promptScore),
+                      name: `评估 #${evaluation.evalId}`,
+                      created_at: new Date().toISOString() // Adding ISO date string since createdAt is missing
+                    }}
+                    onViewDetails={() => handleViewDetails(evaluation.evalId)}
+                  />
+                ))}
+              </Stack>
             </Box>
           </motion.div>
+        ) : (
+          <Box
+            sx={{
+              width: "50%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              bgcolor: "grey.50",
+            }}
+          >
+            <Box sx={{ textAlign: "center", p: 4 }}>
+              <Typography variant="h5" color="text.secondary" gutterBottom>
+                请选择一个 Prompt 任务
+              </Typography>
+              <Typography variant="body1" color="text.secondary">
+                从左侧列表中选择一个任务来查看其评估记录
+              </Typography>
+            </Box>
+          </Box>
         )}
       </Box>
 
@@ -345,13 +314,35 @@ const PromptEvaluationOverviewPage: React.FC = () => {
         <DialogActions>
           <Button onClick={() => setShowNewEvaluationDialog(false)}>
             取消
-          </Button>          <Button
-            onClick={handleNewEvaluation}
-            variant="contained"
-            disabled={!newPrompt.trim() || isSubmitting}
-          >
-            {isSubmitting ? <CircularProgress size={20} /> : '开始评估'}
           </Button>
+          <Button
+            onClick={handleCreateEvaluation}
+            variant="contained"
+            disabled={!newPrompt.trim() || createEvaluationMutation.isPending}
+          >
+            {createEvaluationMutation.isPending ? <CircularProgress size={20} /> : '开始评估'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Detail Dialog */}
+      <Dialog
+        open={showDetailDialog}
+        onClose={() => setShowDetailDialog(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>任务详情</DialogTitle>
+        <DialogContent>
+          {selectedTask && (
+            <Typography>
+              任务ID: {selectedTask}
+              {/* Add more detailed information here */}
+            </Typography>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowDetailDialog(false)}>关闭</Button>
         </DialogActions>
       </Dialog>
     </Box>

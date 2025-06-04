@@ -29,6 +29,8 @@ export interface PromptEvaluation {
   rougeLScore: number;
   entityF1: number;
   filledPrompt: string;
+  groundTruthResponse?: string;
+  response?: string;
 }
 
 export interface CreatePromptEvaluationDto {

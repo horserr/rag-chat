@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useMemo } from "react";
 import {
   Box,
   Typography,
@@ -13,7 +13,7 @@ import {
   ListItem,
   ListItemText,
   Paper,
-} from '@mui/material';
+} from "@mui/material";
 import {
   ArrowBack as BackIcon,
   Analytics as AnalyticsIcon,
@@ -23,8 +23,8 @@ import {
   Error,
   HourglassEmpty,
   Sync,
-} from '@mui/icons-material';
-import { Line } from 'react-chartjs-2';
+} from "@mui/icons-material";
+import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -34,15 +34,22 @@ import {
   Title,
   Tooltip,
   Legend,
-} from 'chart.js';
-import { useNavigate, useParams } from 'react-router-dom';
-import { TaskService as RagTaskService } from '../../../services/eval/rag/task.service';
-import { EvaluationService as RagEvaluationService } from '../../../services/eval/rag/evaluation.service';
+} from "chart.js";
+import { useNavigate, useParams } from "react-router-dom";
+import {
+  useRagTask,
+  useRagEvaluation,
+  useRagEvaluations,
+} from "../../../hooks/evaluation/useRagQueries";
 import type {
-  TaskResponse,
-  EvaluationListResponse,
-  EvaluationDetails as EvaluationDetail,
-} from '../../../models/rag-evaluation';
+  EvaluationDetails,
+  SingleTurnEvaluationDetails,
+  CustomEvaluationDetails,
+  MultiTurnEvaluationDetails,
+  SingleTurnSample,
+  CustomSample,
+  MultiTurnSample
+} from "../../../models/rag-evaluation";
 
 // Register Chart.js components
 ChartJS.register(
@@ -57,118 +64,70 @@ ChartJS.register(
 
 const RagEvaluationDetailPage: React.FC = () => {
   const navigate = useNavigate();
-  const { taskId = '', evaluationId = '' } = useParams<{ taskId: string; evaluationId?: string }>();  const [task, setTask] = useState<TaskResponse['task'] | null>(null);
-  const [currentEval, setCurrentEval] = useState<EvaluationDetail | null>(null);
-  const [evaluationHistory, setEvaluationHistory] = useState<EvaluationListResponse['evaluations']>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { taskId = "", evaluationId = "" } = useParams<{
+    taskId: string;
+    evaluationId?: string;
+  }>();
 
-  // Use useMemo to prevent recreating service instances on every render
-  const ragTaskService = useMemo(() => new RagTaskService(), []);
-  const ragEvaluationService = useMemo(() => new RagEvaluationService(), []);
+  // React Query hooks
+  const {
+    data: taskData,
+    isLoading: taskLoading,
+    error: taskError,
+  } = useRagTask(taskId);
 
-  // Load task details
-  const loadTask = useCallback(async () => {
-    try {
-      const response = await ragTaskService.getTaskById(taskId);
-      setTask(response.task);
-    } catch (err) {
-      console.error('Error loading task:', err);
-      setError('Failed to load task details');
-    }
-  }, [taskId, ragTaskService]);  // Load evaluation details
-  const loadEvaluation = useCallback(async () => {
-    if (!evaluationId) return;
+  const {
+    data: evaluationData,
+    isLoading: evaluationLoading,
+    error: evaluationError,
+  } = useRagEvaluation(taskId, evaluationId, !!evaluationId);
 
-    try {
-      // First, check if this evaluation is still in progress
-      const statusResponse = await ragEvaluationService.getEvaluationStatus(taskId, evaluationId);
+  const {
+    data: evaluationsData,
+    isLoading: evaluationsLoading,
+    error: evaluationsError,
+  } = useRagEvaluations(taskId);
 
-      // Set current evaluation with status info we have now
-      if (!currentEval) {
-        // Set some basic details we know from the status
-        setCurrentEval({
-          id: evaluationId,
-          task_id: taskId,
-          status: statusResponse.status,
-          created_at: new Date().toISOString(),
-          eval_type: "single_turn", // Default assumption until we get full details
-          metric: "evaluation",
-          result: 0,
-          samples: {
-            user_input: "Loading...",
-            response: "Loading...",
-          }
-        } as unknown as EvaluationDetail);
-      }
+  // Extract data from queries
+  const task = taskData?.task || null;
+  const currentEval = evaluationData || null;
 
-      if (statusResponse.status === 'pending' || statusResponse.status === 'running') {
-        console.log(`Evaluation ${evaluationId} still running, setting up polling...`);
+  // Memoize evaluation history to avoid dependency changes on every render
+  const evaluationHistory = useMemo(() =>
+    evaluationsData?.evaluations || [],
+    [evaluationsData]
+  );
 
-        // If already completed, just load the details
-        const response = await ragEvaluationService.getEvaluationDetails(taskId, evaluationId);
-        setCurrentEval(response as unknown as EvaluationDetail);
-
-        // Schedule regular status updates
-        setTimeout(loadEvaluation, 5000);
-      } else {
-        // If already completed, just load the details
-        const response = await ragEvaluationService.getEvaluationDetails(taskId, evaluationId);
-        setCurrentEval(response as unknown as EvaluationDetail);
-      }
-    } catch (err) {
-      console.error('Error loading evaluation:', err);
-      setError('Failed to load evaluation details');
-    }
-  }, [taskId, evaluationId, ragEvaluationService, currentEval]);
-
-  // Load evaluation history
-  const loadEvaluationHistory = useCallback(async () => {
-    try {
-      const response = await ragEvaluationService.getEvaluations(taskId);
-      setEvaluationHistory(response.evaluations);
-    } catch (err) {
-      console.error('Error loading evaluation history:', err);
-    }
-  }, [taskId, ragEvaluationService]);
-
-  useEffect(() => {
-    const loadData = async () => {
-      setLoading(true);
-      await Promise.all([
-        loadTask(),
-        evaluationId ? loadEvaluation() : Promise.resolve(),
-        loadEvaluationHistory(),
-      ]);
-      setLoading(false);
-    };
-
-    loadData();
-  }, [loadTask, loadEvaluation, loadEvaluationHistory, evaluationId]);
+  // Loading state
+  const isLoading = taskLoading || evaluationLoading || evaluationsLoading;
+  const hasError = taskError || evaluationError || evaluationsError;
 
   // Prepare chart data for evaluation history
-  const chartData = {
-    labels: evaluationHistory.map((_, index) => `评估 ${index + 1}`),
-    datasets: [
-      {
-        label: '评估得分',
-        data: evaluationHistory.map(item => item.result || 0),
-        borderColor: 'rgb(75, 192, 192)',
-        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-        tension: 0.1,
-      },
-    ],
-  };
+  const chartData = useMemo(
+    () => ({
+      labels: evaluationHistory.map((_, index) => `评估 ${index + 1}`),
+      datasets: [
+        {
+          label: "评估得分",
+          data: evaluationHistory.map((evalItem) => evalItem.result || 0),
+          borderColor: "rgb(75, 192, 192)",
+          backgroundColor: "rgba(75, 192, 192, 0.2)",
+          tension: 0.1,
+        },
+      ],
+    }),
+    [evaluationHistory]
+  );
 
   const chartOptions = {
     responsive: true,
     plugins: {
       legend: {
-        position: 'top' as const,
+        position: "top" as const,
       },
       title: {
         display: true,
-        text: '评估趋势',
+        text: "评估历史趋势",
       },
     },
     scales: {
@@ -178,19 +137,168 @@ const RagEvaluationDetailPage: React.FC = () => {
       },
     },
   };
-  const handleBack = () => {
-    navigate('/evaluation/rag');
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "completed":
+        return <CheckCircle color="success" />;
+      case "failed":
+        return <Error color="error" />;
+      case "running":
+        return <Sync className="animate-spin" color="primary" />;
+      default:
+        return <HourglassEmpty color="action" />;
+    }
   };
-  if (loading) {
+
+  const getStatusColor = (
+    status: string
+  ): "success" | "error" | "primary" | "default" => {
+    switch (status) {
+      case "completed":
+        return "success";
+      case "failed":
+        return "error";
+      case "running":
+        return "primary";
+      default:
+        return "default";
+    }
+  };
+
+  // Helper function to safely get metric name based on evaluation type
+  const getMetricName = (eval_: EvaluationDetails | null): string => {
+    if (!eval_) return '';
+
+    switch (eval_.eval_type) {
+      case "single_turn":
+        return `Metric ID: ${(eval_ as SingleTurnEvaluationDetails).parameters.metric_id}`;
+      case "custom":
+        return (eval_ as CustomEvaluationDetails).parameters.eval_metric;
+      case "multi_turn":
+        return (eval_ as MultiTurnEvaluationDetails).parameters.eval_metric;
+      default:
+        return '';
+    }
+  };
+
+  // Helper function to safely get evaluation result as a number
+  const getEvaluationResult = (eval_: EvaluationDetails | null): number => {
+    if (!eval_) return 0;
+
+    if (eval_.eval_type === "multi_turn") {
+      // For multi-turn evaluations, calculate average of coherence values
+      const multiTurnEval = eval_ as MultiTurnEvaluationDetails;
+      if (Array.isArray(multiTurnEval.result)) {
+        const sum = multiTurnEval.result.reduce((acc, item) => acc + item.coherence, 0);
+        return multiTurnEval.result.length > 0 ? sum / multiTurnEval.result.length : 0;
+      }
+      return 0;
+    }
+
+    return eval_.result || 0;
+  };
+
+  // Helper function to render sample content based on evaluation type
+  const renderSampleContent = (eval_: EvaluationDetails | null) => {
+    if (!eval_ || !eval_.samples) return null;
+
+    switch (eval_.eval_type) {
+      case "single_turn": {
+        const samples = (eval_ as SingleTurnEvaluationDetails).samples as SingleTurnSample;
+        return (
+          <>
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="body2" color="text.secondary" gutterBottom>
+                用户输入
+              </Typography>
+              <Paper sx={{ p: 2, bgcolor: "grey.50" }}>
+                <Typography variant="body2">{samples.user_input}</Typography>
+              </Paper>
+            </Box>
+            <Divider sx={{ my: 2 }} />
+            <Box>
+              <Typography variant="body2" color="text.secondary" gutterBottom>
+                系统响应
+              </Typography>
+              <Paper sx={{ p: 2, bgcolor: "grey.50" }}>
+                <Typography variant="body2">{samples.response}</Typography>
+              </Paper>
+            </Box>
+          </>
+        );
+      }
+      case "custom": {
+        const samples = (eval_ as CustomEvaluationDetails).samples as CustomSample;
+        return (
+          <>
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="body2" color="text.secondary" gutterBottom>
+                用户输入
+              </Typography>
+              <Paper sx={{ p: 2, bgcolor: "grey.50" }}>
+                <Typography variant="body2">{samples.user_input}</Typography>
+              </Paper>
+            </Box>
+            <Divider sx={{ my: 2 }} />
+            <Box>
+              <Typography variant="body2" color="text.secondary" gutterBottom>
+                系统响应
+              </Typography>
+              <Paper sx={{ p: 2, bgcolor: "grey.50" }}>
+                <Typography variant="body2">{samples.response}</Typography>
+              </Paper>
+            </Box>
+          </>
+        );
+      }
+      case "multi_turn": {
+        const samples = (eval_ as MultiTurnEvaluationDetails).samples as MultiTurnSample;
+        return (
+          <Box>
+            <Typography variant="body2" color="text.secondary" gutterBottom>
+              对话内容
+            </Typography>
+            {Array.isArray(samples.user_input) && samples.user_input.map((item, index) => (
+              <Paper
+                key={index}
+                sx={{
+                  p: 2,
+                  mb: 2,
+                  bgcolor: item.type === "human" ? "grey.50" : "primary.light",
+                  color: item.type === "human" ? "text.primary" : "white"
+                }}
+              >
+                <Typography variant="body2">
+                  {item.type === "human" ? "用户: " : "AI: "}
+                  {item.content}
+                </Typography>
+              </Paper>
+            ))}
+          </Box>
+        );
+      }
+      default:
+        return <Typography>No sample data available</Typography>;
+    }
+  };
+
+  if (isLoading) {
     return (
       <Box sx={{ p: 3 }}>
-        <Skeleton variant="text" width="30%" height={40} sx={{ mb: 2 }} />
-        <Box sx={{ display: 'flex', gap: 3 }}>
+        {/* Header Skeleton */}
+        <Box sx={{ mb: 3 }}>
+          <Skeleton variant="text" width="30%" height={40} />
+          <Skeleton variant="text" width="50%" height={20} />
+        </Box>
+
+        {/* Content Skeleton */}
+        <Box sx={{ display: "flex", gap: 3 }}>
           <Box sx={{ flex: 1 }}>
             <Skeleton variant="rectangular" height={200} sx={{ mb: 2 }} />
             <Skeleton variant="rectangular" height={300} />
           </Box>
-          <Box sx={{ width: '33.33%' }}>
+          <Box sx={{ flex: 1 }}>
             <Skeleton variant="rectangular" height={400} />
           </Box>
         </Box>
@@ -198,247 +306,246 @@ const RagEvaluationDetailPage: React.FC = () => {
     );
   }
 
-  if (error) {
+  if (hasError) {
     return (
       <Box sx={{ p: 3 }}>
-        <Alert severity="error">{error}</Alert>
-        <Button startIcon={<BackIcon />} onClick={handleBack} sx={{ mt: 2 }}>
-          返回
+        <Alert severity="error" sx={{ mb: 2 }}>
+          Failed to load data: {(hasError as Error).message}
+        </Alert>
+        <Button
+          variant="contained"
+          startIcon={<BackIcon />}
+          onClick={() => navigate(`/evaluation/rag/${taskId}`)}
+        >
+          返回任务
         </Button>
       </Box>
     );
   }
 
+  if (!task) {
+    return (
+      <Box sx={{ p: 3 }}>
+        <Alert severity="warning">Task not found</Alert>
+      </Box>
+    );
+  }
+
   return (
-    <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{ p: 3 }}>
       {/* Header */}
-      <Box sx={{ p: 3, borderBottom: 1, borderColor: 'divider' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
-          <Button startIcon={<BackIcon />} onClick={handleBack}>
+      <Box sx={{ mb: 3 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+          <Button
+            variant="outlined"
+            startIcon={<BackIcon />}
+            onClick={() => navigate(`/evaluation/rag/${taskId}`)}
+          >
             返回
           </Button>
           <Typography variant="h4" fontWeight="bold">
-            {task?.name || 'RAG 评估详情'}
+            评估详情
           </Typography>
         </Box>
-        <Typography variant="body2" color="text.secondary">
-          任务 ID: {taskId} {evaluationId && `| 评估 ID: ${evaluationId}`}
+        <Typography variant="body1" color="text.secondary">
+          任务: {task.name} | 评估ID: {evaluationId}
         </Typography>
-      </Box>      {/* Main Content */}
-      <Box sx={{ flex: 1, p: 3, overflow: 'auto' }}>
-        <Box sx={{ display: 'flex', gap: 3 }}>
-          {/* Main Content Area */}
-          <Box sx={{ flex: 1 }}>
-            {/* Current Evaluation Details */}
-            {currentEval && (
-              <Card sx={{ mb: 3 }}>
-                <CardContent>
-                  <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <AnalyticsIcon color="primary" />
+      </Box>
+
+      <Box sx={{ display: "flex", gap: 3 }}>
+        {/* Left Panel - Current Evaluation Details */}
+        <Box sx={{ flex: 1 }}>
+          {currentEval ? (
+            <Card sx={{ mb: 3 }}>
+              <CardContent>
+                <Box
+                  sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}
+                >
+                  <AnalyticsIcon color="primary" />
+                  <Typography variant="h6">评估详情</Typography>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    {getStatusIcon(currentEval.status)}
+                    <Chip
+                      label={currentEval.status}
+                      color={getStatusColor(currentEval.status)}
+                      size="small"
+                    />
+                  </Box>
+                </Box>
+
+                <Box sx={{ mb: 2 }}>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    gutterBottom
+                  >
+                    评估类型
+                  </Typography>
+                  <Typography variant="body1">
+                    {currentEval.eval_type}
+                  </Typography>
+                </Box>
+
+                <Box sx={{ mb: 2 }}>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    gutterBottom
+                  >
+                    评估指标
+                  </Typography>
+                  <Typography variant="body1">{getMetricName(currentEval)}</Typography>
+                </Box>
+
+                <Box sx={{ mb: 2 }}>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    gutterBottom
+                  >
                     评估结果
                   </Typography>
-
-                  <Box sx={{
-                    display: 'grid',
-                    gridTemplateColumns: { xs: '1fr 1fr', sm: '1fr 1fr 1fr 1fr' },
-                    gap: 2,
-                    mb: 3
-                  }}>
-                    <Paper sx={{ p: 2, textAlign: 'center' }}>
-                      <Typography variant="h4" color="primary">
-                        {typeof currentEval.result === 'number' ? currentEval.result.toFixed(3) : 'N/A'}
-                      </Typography>
-                      <Typography variant="caption">总体得分</Typography>
-                    </Paper>
-                    <Paper sx={{ p: 2, textAlign: 'center' }}>
-                      <Typography variant="h6" color="text.secondary">
-                        {currentEval.eval_type}
-                      </Typography>
-                      <Typography variant="caption">评估类型</Typography>
-                    </Paper>
-                    <Paper sx={{ p: 2, textAlign: 'center' }}>
-                      {currentEval.status === 'completed' ? (
-                        <Typography variant="h6" color="success.main" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <CheckCircle sx={{ mr: 0.5 }} fontSize="small" />
-                          已完成
-                        </Typography>
-                      ) : currentEval.status === 'failed' ? (
-                        <Typography variant="h6" color="error.main" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <Error sx={{ mr: 0.5 }} fontSize="small" />
-                          失败
-                        </Typography>
-                      ) : currentEval.status === 'running' ? (
-                        <Typography variant="h6" color="info.main" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <Sync sx={{ mr: 0.5 }} fontSize="small" />
-                          进行中
-                        </Typography>
-                      ) : (
-                        <Typography variant="h6" color="warning.main" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <HourglassEmpty sx={{ mr: 0.5 }} fontSize="small" />
-                          等待中
-                        </Typography>
-                      )}
-                      <Typography variant="caption">状态</Typography>
-                    </Paper>
-                    <Paper sx={{ p: 2, textAlign: 'center' }}>
-                      <Typography variant="h6" color="text.secondary">
-                        {new Date(currentEval.created_at).toLocaleDateString()}
-                      </Typography>
-                      <Typography variant="caption">创建时间</Typography>
-                    </Paper>
-                  </Box>                  <Divider sx={{ my: 2 }} />
-
-                  {/* Sample Data Preview */}
-                  <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <DataIcon color="secondary" />
-                    样本数据
+                  <Typography variant="h4" color="primary">
+                    {(getEvaluationResult(currentEval) * 100).toFixed(1)}%
                   </Typography>
+                </Box>
 
-                  <Box sx={{ maxHeight: 300, overflow: 'auto' }}>
-                    <List>                      <ListItem>
-                        <ListItemText
-                          primary="用户输入"
-                          secondary={
-                            (() => {
-                              if (typeof currentEval.samples === 'object' && currentEval.samples) {
-                                if ('user_input' in currentEval.samples) {                                  if (Array.isArray(currentEval.samples.user_input)) {
-                                    // MultiTurn case - user_input is MultiTurnConversationItem[]
-                                    return currentEval.samples.user_input
-                                      .map((item) => `${item.type === 'human' ? '用户' : 'AI'}: ${item.content}`)
-                                      .join(' | ');
-                                  } else {
-                                    // SingleTurn/Custom case - user_input is string
-                                    return currentEval.samples.user_input;
-                                  }
-                                }
-                              }
-                              return 'N/A';
-                            })()
-                          }
-                        />
-                      </ListItem>
-                      <ListItem>
-                        <ListItemText
-                          primary="系统回答"
-                          secondary={
-                            typeof currentEval.samples === 'object' && 'response' in currentEval.samples
-                              ? currentEval.samples.response
-                              : 'N/A'
-                          }
-                        />
-                      </ListItem>
-                      {typeof currentEval.samples === 'object' && 'retrieved_contexts' in currentEval.samples && currentEval.samples.retrieved_contexts && (
-                        <ListItem>
-                          <ListItemText
-                            primary="检索上下文"
-                            secondary={
-                              <Box sx={{ mt: 1 }}>
-                                {currentEval.samples.retrieved_contexts.map((context: string, index: number) => (
-                                  <Chip
-                                    key={index}
-                                    label={`上下文 ${index + 1}: ${context.substring(0, 50)}...`}
-                                    sx={{ m: 0.5 }}
-                                    size="small"
-                                  />
-                                ))}
-                              </Box>
-                            }
-                          />
-                        </ListItem>
-                      )}
-                      {typeof currentEval.samples === 'object' && 'reference' in currentEval.samples && currentEval.samples.reference && (
-                        <ListItem>
-                          <ListItemText
-                            primary="参考答案"
-                            secondary={currentEval.samples.reference}
-                          />
-                        </ListItem>
-                      )}
-                    </List>
-                  </Box>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Evaluation History Chart */}
-            <Card>
-              <CardContent>
-                <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <MetricIcon color="primary" />
-                  评估趋势分析
-                </Typography>
-
-                {evaluationHistory.length > 0 ? (
-                  <Box sx={{ height: 300 }}>
-                    <Line data={chartData} options={chartOptions} />
-                  </Box>
-                ) : (
-                  <Box sx={{ textAlign: 'center', py: 4 }}>
-                    <Typography color="text.secondary">
-                      暂无历史评估数据
-                    </Typography>
-                  </Box>
-                )}
+                <Box sx={{ mb: 2 }}>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    gutterBottom
+                  >
+                    创建时间
+                  </Typography>
+                  <Typography variant="body1">
+                    {new Date(currentEval.created_at).toLocaleString()}
+                  </Typography>
+                </Box>
               </CardContent>
             </Card>
-          </Box>
+          ) : (
+            <Card sx={{ mb: 3 }}>
+              <CardContent>
+                <Alert severity="info">未选择具体的评估记录</Alert>
+              </CardContent>
+            </Card>
+          )}
 
-          {/* Sidebar */}
-          <Box sx={{ width: '33.33%' }}>
+          {/* Evaluation Data */}
+          {currentEval && currentEval.samples && (
             <Card>
               <CardContent>
-                <Typography variant="h6" sx={{ mb: 2 }}>
-                  历史评估
-                </Typography>
+                <Box
+                  sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}
+                >
+                  <DataIcon color="primary" />
+                  <Typography variant="h6">评估数据</Typography>
+                </Box>
 
-                <List sx={{ maxHeight: 400, overflow: 'auto' }}>
-                  {evaluationHistory.map((item, index) => (
+                {renderSampleContent(currentEval)}
+              </CardContent>
+            </Card>
+          )}
+        </Box>
+
+        {/* Right Panel - Evaluation History */}
+        <Box sx={{ flex: 1 }}>
+          <Card>
+            <CardContent>
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}
+              >
+                <MetricIcon color="primary" />
+                <Typography variant="h6">评估历史</Typography>
+              </Box>
+
+              {/* Chart */}
+              {evaluationHistory.length > 0 && (
+                <Box sx={{ mb: 3, height: 300 }}>
+                  <Line data={chartData} options={chartOptions} />
+                </Box>
+              )}
+
+              {/* History List */}
+              <Typography variant="subtitle1" sx={{ mb: 2 }}>
+                历史记录
+              </Typography>
+              {evaluationsLoading ? (
+                <Box>
+                  {[1, 2, 3].map((i) => (
+                    <Skeleton
+                      key={i}
+                      variant="rectangular"
+                      height={60}
+                      sx={{ mb: 1 }}
+                    />
+                  ))}
+                </Box>
+              ) : evaluationHistory.length > 0 ? (
+                <List dense>
+                  {evaluationHistory.map((evaluation) => (
                     <ListItem
-                      key={item.id}
+                      key={evaluation.id}
                       sx={{
                         border: 1,
-                        borderColor: item.id === evaluationId ? 'primary.main' : 'divider',
+                        borderColor: "divider",
                         borderRadius: 1,
                         mb: 1,
-                        cursor: 'pointer',
-                        '&:hover': {
-                          backgroundColor: 'action.hover',
+                        bgcolor:
+                          evaluation.id === evaluationId
+                            ? "action.selected"
+                            : "background.paper",
+                        cursor: "pointer",
+                        "&:hover": {
+                          bgcolor: "action.hover",
                         },
                       }}
-                      onClick={() => navigate(`/evaluation/rag/${taskId}/eval/${item.id}`)}
+                      onClick={() =>
+                        navigate(`/evaluation/rag/${taskId}/${evaluation.id}`)
+                      }
                     >
                       <ListItemText
-                        primary={`评估 ${index + 1}`}
+                        primary={
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 1,
+                            }}
+                          >
+                            <Typography variant="body2">
+                              评估 #{evaluation.id.slice(0, 8)}
+                            </Typography>
+                            <Chip
+                              label={evaluation.status}
+                              color={getStatusColor(evaluation.status)}
+                              size="small"
+                            />
+                          </Box>
+                        }
                         secondary={
                           <Box>
-                            <Typography variant="caption" display="block">
-                              得分: {item.result?.toFixed(3) || 'N/A'}
-                            </Typography>
-                            <Typography variant="caption" display="block">
-                              {new Date(item.created_at).toLocaleString()}
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                            >
+                              结果: {evaluation.result !== undefined ? (evaluation.result * 100).toFixed(1) : 'N/A'}% |
+                              {new Date(
+                                evaluation.created_at
+                              ).toLocaleDateString()}
                             </Typography>
                           </Box>
                         }
                       />
-                      <Chip
-                        label={item.status}
-                        size="small"
-                        color={item.status === 'completed' ? 'success' : 'default'}
-                      />
                     </ListItem>
                   ))}
                 </List>
-
-                {evaluationHistory.length === 0 && (
-                  <Box sx={{ textAlign: 'center', py: 2 }}>
-                    <Typography variant="body2" color="text.secondary">
-                      暂无评估记录
-                    </Typography>
-                  </Box>
-                )}
-              </CardContent>
-            </Card>
-          </Box>
+              ) : (
+                <Alert severity="info">暂无评估历史记录</Alert>
+              )}
+            </CardContent>
+          </Card>
         </Box>
       </Box>
     </Box>
