@@ -228,9 +228,8 @@ const PromptEvaluationDetailPage: React.FC = () => {
       },
     },
   };
-
   const handleBack = () => {
-    navigate(`/evaluation/prompt/${taskId}`);
+    navigate('/evaluation/prompt');
   };
 
   const getScoreColor = (score: string) => {

@@ -178,9 +178,8 @@ const RagEvaluationDetailPage: React.FC = () => {
       },
     },
   };
-
   const handleBack = () => {
-    navigate(`/evaluation/rag/${taskId}`);
+    navigate('/evaluation/rag');
   };
   if (loading) {
     return (
