@@ -16,25 +16,48 @@ import { TaskService as RagTaskService } from '../../services/eval/rag/task.serv
 import { EvaluationService as PromptEvaluationService } from '../../services/eval/prompt/evaluation.service';
 import { TaskService as PromptTaskService } from '../../services/eval/prompt/task.service';
 
+// Types for internal state management
+interface ActiveTasks {
+  rag: string[];
+  prompt: number[];
+}
+
+// Constants
+const POLLING_INTERVAL = 3000; // 3 seconds
+const CLEANUP_WARNING_MESSAGE = '关闭页面将删除所有创建的评估任务，确定要离开吗？';
+
+/**
+ * Custom hook for managing RAG and Prompt evaluations
+ * Provides centralized state management, service operations, and navigation helpers
+ */
 export const useEvaluationManager = () => {
   const navigate = useNavigate();
 
-  // Services - wrap in useMemo to prevent unnecessary recreation on each render
-  const ragTaskService = useMemo(() => new RagTaskService(), []);
-  const ragEvaluationService = useMemo(() => new RagEvaluationService(), []);
-  const promptTaskService = useMemo(() => new PromptTaskService(), []);
-  const promptEvaluationService = useMemo(() => new PromptEvaluationService(), []);
+  // Services - memoized to prevent unnecessary recreation
+  const services = useMemo(() => ({
+    rag: {
+      task: new RagTaskService(),
+      evaluation: new RagEvaluationService(),
+    },
+    prompt: {
+      task: new PromptTaskService(),
+      evaluation: new PromptEvaluationService(),
+    },
+  }), []);
 
-  // State for active tasks (for cleanup on page leave)
-  const [activeTasks, setActiveTasks] = useState<{
-    rag: string[];
-    prompt: number[];
-  }>({ rag: [], prompt: [] });
+  // State for tracking active tasks (for cleanup on page leave)
+  const [activeTasks, setActiveTasks] = useState<ActiveTasks>({
+    rag: [],
+    prompt: []
+  });
 
-  // RAG Evaluation Management
+  // ===========================================
+  // RAG EVALUATION OPERATIONS
+  // ===========================================
+  // RAG Task Management
   const createRagTask = useCallback(async (formData: RagFormData) => {
     try {
-      const response = await ragTaskService.createTask({
+      const response = await services.rag.task.createTask({
         name: formData.taskName,
         description: formData.description,
       });
@@ -50,11 +73,11 @@ export const useEvaluationManager = () => {
       console.error('Failed to create RAG task:', error);
       throw error;
     }
-  }, [ragTaskService]);
+  }, [services.rag.task]);
 
   const updateRagTask = useCallback(async (taskId: string, formData: RagFormData) => {
     try {
-      await ragTaskService.updateTask(taskId, {
+      await services.rag.task.updateTask(taskId, {
         name: formData.taskName,
         description: formData.description,
       });
@@ -62,7 +85,7 @@ export const useEvaluationManager = () => {
       console.error('Failed to update RAG task:', error);
       throw error;
     }
-  }, [ragTaskService]);
+  }, [services.rag.task]);  // RAG Evaluation Creation
   const createRagEvaluation = useCallback(async (taskId: string, formData: RagFormData) => {
     try {
       if (!formData.samples || formData.samples.length === 0) {
@@ -71,7 +94,8 @@ export const useEvaluationManager = () => {
 
       let evaluationData: CreateEvaluationDto;
 
-      switch (formData.evaluationType) {        case 'single_turn':
+      switch (formData.evaluationType) {
+        case 'single_turn':
           if (formData.metricId === undefined) {
             throw new Error('Metric ID is required for single_turn evaluation');
           }
@@ -110,23 +134,26 @@ export const useEvaluationManager = () => {
           throw new Error(`Unsupported evaluation type: ${formData.evaluationType}`);
       }
 
-      const response = await ragEvaluationService.createEvaluation(taskId, evaluationData);
+      const response = await services.rag.evaluation.createEvaluation(taskId, evaluationData);
       return response;
     } catch (error) {
       console.error('Failed to create RAG evaluation:', error);
       throw error;
     }
-  }, [ragEvaluationService]);
+  }, [services.rag.evaluation]);
+  // ===========================================
+  // PROMPT EVALUATION OPERATIONS
+  // ===========================================
 
-  // Prompt Evaluation Management
+  // Prompt Task Management
   const createPromptTask = useCallback(async (formData: PromptFormData) => {
     try {
-      await promptTaskService.createTask({
+      await services.prompt.task.createTask({
         taskName: formData.taskName,
       });
 
       // Get the latest task ID since createTask doesn't return it
-      const tasks = await promptTaskService.getAllTasks();
+      const tasks = await services.prompt.task.getAllTasks();
       const latestTask = tasks[tasks.length - 1];
 
       setActiveTasks(prev => ({
@@ -139,11 +166,11 @@ export const useEvaluationManager = () => {
       console.error('Failed to create prompt task:', error);
       throw error;
     }
-  }, [promptTaskService]);
+  }, [services.prompt.task]);
 
   const createPromptEvaluation = useCallback(async (taskId: number, formData: PromptFormData) => {
     try {
-      const response = await promptEvaluationService.createEvaluation(taskId, {
+      const response = await services.prompt.evaluation.createEvaluation(taskId, {
         prompt: formData.prompt,
       });
       return response;
@@ -151,7 +178,10 @@ export const useEvaluationManager = () => {
       console.error('Failed to create prompt evaluation:', error);
       throw error;
     }
-  }, [promptEvaluationService]);
+  }, [services.prompt.evaluation]);
+  // ===========================================
+  // UTILITY FUNCTIONS
+  // ===========================================
 
   // Polling for RAG evaluation status
   const pollRagEvaluationStatus = useCallback(async (
@@ -160,12 +190,7 @@ export const useEvaluationManager = () => {
     onProgress?: (status: EvaluationStatusResponse) => void
   ) => {
     try {
-      // Just use the provided getEvaluationStatus method
-      // We'll implement polling ourselves
-
-      // Manual polling implementation
-      const pollInterval = 3000; // 3 seconds
-      let status = await ragEvaluationService.getEvaluationStatus(taskId, evaluationId);
+      let status = await services.rag.evaluation.getEvaluationStatus(taskId, evaluationId);
 
       if (onProgress) {
         onProgress(status);
@@ -173,8 +198,8 @@ export const useEvaluationManager = () => {
 
       // Continue polling while the evaluation is not completed
       while (status.status === 'pending' || status.status === 'running') {
-        await new Promise(resolve => setTimeout(resolve, pollInterval));
-        status = await ragEvaluationService.getEvaluationStatus(taskId, evaluationId);
+        await new Promise(resolve => setTimeout(resolve, POLLING_INTERVAL));
+        status = await services.rag.evaluation.getEvaluationStatus(taskId, evaluationId);
 
         if (onProgress) {
           onProgress(status);
@@ -190,9 +215,11 @@ export const useEvaluationManager = () => {
       console.error('Failed to poll RAG evaluation status:', error);
       throw error;
     }
-  }, [ragEvaluationService]);
+  }, [services.rag.evaluation]);
+  // ===========================================
+  // NAVIGATION HELPERS
+  // ===========================================
 
-  // Navigation helpers
   const navigateToRagOverview = useCallback((taskId?: string) => {
     const url = taskId ? `/evaluation/rag/${taskId}` : '/evaluation/rag';
     navigate(url);
@@ -215,15 +242,17 @@ export const useEvaluationManager = () => {
       ? `/evaluation/prompt/${taskId}/eval/${evaluationId}`
       : `/evaluation/prompt/${taskId}/details`;
     navigate(url);
-  }, [navigate]);
-  // Cleanup functions
+  }, [navigate]);  // ===========================================
+  // CLEANUP FUNCTIONS
+  // ===========================================
+
   const cleanupActiveTasks = useCallback(async () => {
     try {
       // Delete RAG tasks
       if (activeTasks.rag.length > 0) {
         console.log('Cleaning up RAG tasks:', activeTasks.rag);
         await Promise.allSettled(
-          activeTasks.rag.map(taskId => ragTaskService.deleteTask(taskId))
+          activeTasks.rag.map(taskId => services.rag.task.deleteTask(taskId))
         );
       }
 
@@ -231,7 +260,7 @@ export const useEvaluationManager = () => {
       if (activeTasks.prompt.length > 0) {
         console.log('Cleaning up Prompt tasks:', activeTasks.prompt);
         await Promise.allSettled(
-          activeTasks.prompt.map(taskId => promptTaskService.deleteTask(taskId))
+          activeTasks.prompt.map(taskId => services.prompt.task.deleteTask(taskId))
         );
       }
 
@@ -239,14 +268,13 @@ export const useEvaluationManager = () => {
     } catch (error) {
       console.error('Failed to cleanup tasks:', error);
     }
-  }, [activeTasks, ragTaskService, promptTaskService]);
-
+  }, [activeTasks, services.rag.task, services.prompt.task]);
   // Setup cleanup on page unload
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
       if (activeTasks.rag.length > 0 || activeTasks.prompt.length > 0) {
         event.preventDefault();
-        event.returnValue = '关闭页面将删除所有创建的评估任务，确定要离开吗？';
+        event.returnValue = CLEANUP_WARNING_MESSAGE;
         return event.returnValue;
       }
     };
@@ -263,9 +291,12 @@ export const useEvaluationManager = () => {
       window.removeEventListener('unload', handleUnload);
     };
   }, [activeTasks, cleanupActiveTasks]);
+  // ===========================================
+  // PUBLIC API
+  // ===========================================
 
   return {
-    // RAG methods
+    // RAG operations
     createRagTask,
     updateRagTask,
     createRagEvaluation,
@@ -273,13 +304,13 @@ export const useEvaluationManager = () => {
     navigateToRagOverview,
     navigateToRagDetails,
 
-    // Prompt methods
+    // Prompt operations
     createPromptTask,
     createPromptEvaluation,
     navigateToPromptOverview,
     navigateToPromptDetails,
 
-    // Cleanup
+    // Utility functions
     cleanupActiveTasks,
     activeTasks,
   };

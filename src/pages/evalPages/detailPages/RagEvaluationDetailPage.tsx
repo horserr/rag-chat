@@ -41,8 +41,8 @@ import { EvaluationService as RagEvaluationService } from '../../../services/eva
 import type {
   TaskResponse,
   EvaluationListResponse,
+  EvaluationDetails as EvaluationDetail,
 } from '../../../models/rag-evaluation';
-import type { EvaluationDetail } from '../../../models/rag-evaluation-interface-fixes';
 
 // Register Chart.js components
 ChartJS.register(
@@ -296,20 +296,39 @@ const RagEvaluationDetailPage: React.FC = () => {
                   </Typography>
 
                   <Box sx={{ maxHeight: 300, overflow: 'auto' }}>
-                    <List>
-                      <ListItem>
+                    <List>                      <ListItem>
                         <ListItemText
                           primary="用户输入"
-                          secondary={currentEval.samples?.user_input}
+                          secondary={
+                            (() => {
+                              if (typeof currentEval.samples === 'object' && currentEval.samples) {
+                                if ('user_input' in currentEval.samples) {                                  if (Array.isArray(currentEval.samples.user_input)) {
+                                    // MultiTurn case - user_input is MultiTurnConversationItem[]
+                                    return currentEval.samples.user_input
+                                      .map((item) => `${item.type === 'human' ? '用户' : 'AI'}: ${item.content}`)
+                                      .join(' | ');
+                                  } else {
+                                    // SingleTurn/Custom case - user_input is string
+                                    return currentEval.samples.user_input;
+                                  }
+                                }
+                              }
+                              return 'N/A';
+                            })()
+                          }
                         />
                       </ListItem>
                       <ListItem>
                         <ListItemText
                           primary="系统回答"
-                          secondary={currentEval.samples?.response}
+                          secondary={
+                            typeof currentEval.samples === 'object' && 'response' in currentEval.samples
+                              ? currentEval.samples.response
+                              : 'N/A'
+                          }
                         />
                       </ListItem>
-                      {currentEval.samples?.retrieved_contexts && (
+                      {typeof currentEval.samples === 'object' && 'retrieved_contexts' in currentEval.samples && currentEval.samples.retrieved_contexts && (
                         <ListItem>
                           <ListItemText
                             primary="检索上下文"
@@ -328,7 +347,7 @@ const RagEvaluationDetailPage: React.FC = () => {
                           />
                         </ListItem>
                       )}
-                      {currentEval.samples?.reference && (
+                      {typeof currentEval.samples === 'object' && 'reference' in currentEval.samples && currentEval.samples.reference && (
                         <ListItem>
                           <ListItemText
                             primary="参考答案"

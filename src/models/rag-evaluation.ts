@@ -214,6 +214,7 @@ export interface MultiTurnEvaluationDetails {
   id: string;
   eval_type: "multi_turn";
   status: EvaluationStatus;
+  samples: MultiTurnSample;
   parameters: {
     eval_metric: string;
   };
@@ -240,47 +241,3 @@ export interface DeleteTaskResponse {
   status: "success";
   message: "task deleted";
 }
-// Add this to rag-evaluation.ts
-export interface EvaluationSampleResult {
-  user_input: string;
-  response: string;
-  retrieved_contexts?: string[];
-  reference?: string;
-  score?: number;
-  explanation?: string;
-}
-
-// Unified evaluation details for single-turn, custom, and multi-turn
-export interface EvaluationDetailBase {
-  id: string;
-  task_id: string;
-  status: EvaluationStatus;
-  created_at: string;
-  name?: string;
-}
-
-export interface SingleTurnEvaluationDetail extends EvaluationDetailBase {
-  eval_type: "single_turn";
-  metric: string;
-  result: number;
-  samples: EvaluationSampleResult;
-}
-
-export interface CustomEvaluationDetail extends EvaluationDetailBase {
-  eval_type: "custom";
-  metric: string;
-  result: number;
-  samples: EvaluationSampleResult;
-}
-
-export interface MultiTurnEvaluationDetail extends EvaluationDetailBase {
-  eval_type: "multi_turn";
-  metric: string;
-  result: number;
-  samples: EvaluationSampleResult;
-}
-
-export type EvaluationDetail =
-  | SingleTurnEvaluationDetail
-  | CustomEvaluationDetail
-  | MultiTurnEvaluationDetail;

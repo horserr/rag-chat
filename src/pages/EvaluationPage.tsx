@@ -66,7 +66,9 @@ const EvaluationPage: React.FC = () => {
   const isPromptHovered = centralExpanded && viewState === "default";
 
   return (
-    <Box sx={{ height: "100vh", position: "relative", overflow: "hidden" }}>      {/* When creating RAG evaluation */}
+    <Box sx={{ height: "100vh", position: "relative", overflow: "hidden" }}>
+      {" "}
+      {/* When creating RAG evaluation */}
       {viewState === "rag-creating" && (
         <>
           {/* Left side - Task summary for RAG creation */}
@@ -99,7 +101,8 @@ const EvaluationPage: React.FC = () => {
             <CreationFlow evaluationType="rag" onClose={handleCloseCreation} />
           </motion.div>
         </>
-      )}      {/* When creating Prompt evaluation */}
+      )}{" "}
+      {/* When creating Prompt evaluation */}
       {viewState === "prompt-creating" && (
         <>
           {/* Left side - Task summary for Prompt creation */}
@@ -135,7 +138,8 @@ const EvaluationPage: React.FC = () => {
             />
           </motion.div>
         </>
-      )}      {/* Default state - Split view */}
+      )}{" "}
+      {/* Default state - Split view */}
       {viewState === "default" && (
         <>
           {/* Left Section - RAG */}
@@ -177,7 +181,6 @@ const EvaluationPage: React.FC = () => {
           </motion.div>
         </>
       )}
-
       {/* Central Floating Button */}
       {viewState === "default" && (
         <CentralFloatingButton
