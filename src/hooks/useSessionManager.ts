@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { useCreateSession } from "./useSessions";
-import { useAuthCheck } from "./auth/useAuthCheck";
+import { useAuthCheck } from "./auth";
 
 // Constants
 const MAX_RETRIES = 3;

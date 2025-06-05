@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Initialization Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .button:hover {
+            background: #0056b3;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 3px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 3px;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Task Initialization Test</h1>
+    <p>This test simulates the initialization process that should happen when the EvaluationPage loads.</p>
+
+    <div class="test-section">
+        <h3>📋 Current State</h3>
+        <div id="currentState" class="status info">
+            Active Tasks: <span id="activeTasks">{ rag: [], prompt: [] }</span>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>🔧 Mock Services</h3>
+        <button class="button" onclick="addMockRagTask()">Add Mock RAG Task</button>
+        <button class="button" onclick="addMockPromptTask()">Add Mock Prompt Task</button>
+        <button class="button" onclick="clearMockTasks()">Clear Mock Tasks</button>
+        <div id="mockTasksStatus" class="status info">
+            Mock RAG Tasks: <span id="mockRagCount">0</span> |
+            Mock Prompt Tasks: <span id="mockPromptCount">0</span>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>⚡ Initialization Test</h3>
+        <button class="button" onclick="testInitialization()">🚀 Test initializeActiveTasks()</button>
+        <div id="initializationStatus" class="status info">Ready to test initialization</div>
+    </div>
+
+    <div class="test-section">
+        <h3>🧹 Cleanup Test</h3>
+        <button class="button" onclick="testCleanup()">🗑️ Test cleanupActiveTasks()</button>
+        <div id="cleanupStatus" class="status info">Ready to test cleanup</div>
+    </div>
+
+    <div class="test-section">
+        <h3>📝 Test Log</h3>
+        <button class="button" onclick="clearLog()">Clear Log</button>
+        <div id="log" class="log"></div>
+    </div>
+
+    <script>
+        // Mock data store
+        let mockTasks = {
+            rag: [],
+            prompt: []
+        };
+
+        // Simulated active tasks (this would be the React state in the real app)
+        let activeTasks = {
+            rag: [],
+            prompt: []
+        };
+
+        // Mock services
+        const mockServices = {
+            rag: {
+                task: {
+                    getTasks: async () => {
+                        addLog("📡 Mock RAG service: getTasks() called");
+                        return {
+                            tasks: mockTasks.rag.map(task => ({
+                                id: task,
+                                name: `RAG Task ${task}`,
+                                description: `Description for RAG task ${task}`
+                            }))
+                        };
+                    },
+                    deleteTask: async (taskId) => {
+                        addLog(`🗑️ Mock RAG service: deleteTask(${taskId}) called`);
+                        return { success: true };
+                    }
+                }
+            },
+            prompt: {
+                task: {
+                    getAllTasks: async () => {
+                        addLog("📡 Mock Prompt service: getAllTasks() called");
+                        return mockTasks.prompt.map(task => ({
+                            taskId: task,
+                            taskName: `Prompt Task ${task}`
+                        }));
+                    },
+                    deleteTask: async (taskId) => {
+                        addLog(`🗑️ Mock Prompt service: deleteTask(${taskId}) called`);
+                        return { success: true };
+                    }
+                }
+            }
+        };
+
+        function addLog(message) {
+            const log = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            log.innerHTML += `[${timestamp}] ${message}\n`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function updateDisplay() {
+            document.getElementById('activeTasks').textContent = JSON.stringify(activeTasks);
+            document.getElementById('mockRagCount').textContent = mockTasks.rag.length;
+            document.getElementById('mockPromptCount').textContent = mockTasks.prompt.length;
+        }
+
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+        }
+
+        function addMockRagTask() {
+            const taskId = `rag-${Date.now()}`;
+            mockTasks.rag.push(taskId);
+            addLog(`✅ Added mock RAG task: ${taskId}`);
+            updateDisplay();
+        }
+
+        function addMockPromptTask() {
+            const taskId = Math.floor(Math.random() * 1000);
+            mockTasks.prompt.push(taskId);
+            addLog(`✅ Added mock Prompt task: ${taskId}`);
+            updateDisplay();
+        }
+
+        function clearMockTasks() {
+            mockTasks = { rag: [], prompt: [] };
+            addLog("🧹 Cleared all mock tasks");
+            updateDisplay();
+        }
+
+        // Simulate the initializeActiveTasks function from useEvaluationManager
+        async function testInitialization() {
+            const initStatus = document.getElementById('initializationStatus');
+            initStatus.textContent = "Running initialization...";
+            initStatus.className = "status info";
+
+            try {
+                addLog("🚀 Starting initializeActiveTasks simulation...");
+
+                // Get all RAG tasks
+                const ragTasksResponse = await mockServices.rag.task.getTasks();
+                const ragTasks = ragTasksResponse.tasks || [];
+                addLog(`📋 Found ${ragTasks.length} RAG tasks: ${ragTasks.map(t => t.id).join(', ')}`);
+
+                // Get all Prompt tasks
+                const promptTasks = await mockServices.prompt.task.getAllTasks();
+                addLog(`📋 Found ${promptTasks.length} Prompt tasks: ${promptTasks.map(t => t.taskId).join(', ')}`);
+
+                // Update activeTasks with all existing task IDs
+                const newActiveTasks = {
+                    rag: ragTasks.map(task => task.id),
+                    prompt: promptTasks.map(task => task.taskId),
+                };
+
+                activeTasks = newActiveTasks;
+                addLog(`✅ Updated activeTasks: ${JSON.stringify(newActiveTasks)}`);
+
+                initStatus.textContent = `✅ Initialization successful! Loaded ${newActiveTasks.rag.length} RAG + ${newActiveTasks.prompt.length} Prompt tasks`;
+                initStatus.className = "status success";
+
+                updateDisplay();
+
+            } catch (error) {
+                addLog(`❌ Initialization failed: ${error.message}`);
+                initStatus.textContent = `❌ Initialization failed: ${error.message}`;
+                initStatus.className = "status error";
+            }
+        }
+
+        // Simulate the cleanupActiveTasks function from useEvaluationManager
+        async function testCleanup() {
+            const cleanupStatus = document.getElementById('cleanupStatus');
+            cleanupStatus.textContent = "Running cleanup...";
+            cleanupStatus.className = "status info";
+
+            try {
+                addLog("🧹 Starting cleanupActiveTasks simulation...");
+                addLog(`🔍 Current activeTasks: ${JSON.stringify(activeTasks)}`);
+
+                // Delete RAG tasks
+                if (activeTasks.rag.length > 0) {
+                    addLog(`🗑️ Cleaning up ${activeTasks.rag.length} RAG tasks: ${activeTasks.rag.join(', ')}`);
+                    await Promise.allSettled(
+                        activeTasks.rag.map(taskId => mockServices.rag.task.deleteTask(taskId))
+                    );
+                } else {
+                    addLog("ℹ️ No RAG tasks to clean up");
+                }
+
+                // Delete Prompt tasks
+                if (activeTasks.prompt.length > 0) {
+                    addLog(`🗑️ Cleaning up ${activeTasks.prompt.length} Prompt tasks: ${activeTasks.prompt.join(', ')}`);
+                    await Promise.allSettled(
+                        activeTasks.prompt.map(taskId => mockServices.prompt.task.deleteTask(taskId))
+                    );
+                } else {
+                    addLog("ℹ️ No Prompt tasks to clean up");
+                }
+
+                // Reset activeTasks
+                activeTasks = { rag: [], prompt: [] };
+                addLog("✅ Reset activeTasks to empty");
+
+                cleanupStatus.textContent = "✅ Cleanup successful! All tasks cleaned up";
+                cleanupStatus.className = "status success";
+
+                updateDisplay();
+
+            } catch (error) {
+                addLog(`❌ Cleanup failed: ${error.message}`);
+                cleanupStatus.textContent = `❌ Cleanup failed: ${error.message}`;
+                cleanupStatus.className = "status error";
+            }
+        }
+
+        // Initialize display
+        updateDisplay();
+        addLog("🎉 Test environment initialized");
+        addLog("📖 Instructions:");
+        addLog("1. Add some mock tasks using the buttons above");
+        addLog("2. Test initialization to see if tasks are loaded into activeTasks");
+        addLog("3. Test cleanup to see if tasks are properly cleaned up");
+        addLog("4. This simulates the real flow in the React application");
+    </script>
+</body>
+</html>

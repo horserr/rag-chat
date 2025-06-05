@@ -1,9 +1,6 @@
 import { Box } from "@mui/material";
-import FeaturesSection from "../components/home/FeaturesSection";
-import HeroSection from "../components/home/HeroSection";
-import HomeFooter from "../components/home/HomeFooter";
-import HomeHeader from "../components/home/HomeHeader";
-import useAuthCheck from "../hooks/auth/useAuthCheck";
+import { FeaturesSection, HeroSection, HomeFooter, HomeHeader } from "../components/home";
+import { useAuthCheck } from "../hooks/auth";
 
 const HomePage = () => {
   const { data: isLoggedIn } = useAuthCheck();

@@ -1,10 +1,9 @@
-import React from "react";
 import { Avatar, useTheme } from "@mui/material";
 import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
 import SmartToyOutlinedIcon from "@mui/icons-material/SmartToyOutlined";
 
 interface MessageAvatarProps {
-  sender: "user" | "assistant";
+  sender: "user" | "bot";
 }
 
 const MessageAvatar = ({ sender }: MessageAvatarProps) => {

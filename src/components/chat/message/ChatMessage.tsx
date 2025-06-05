@@ -1,4 +1,3 @@
-import React from "react";
 import { Box } from "@mui/material";
 import type { ChatMessage as ChatMessageType } from "../../../types";
 import MessageAvatar from "./MessageAvatar";

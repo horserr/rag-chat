@@ -17,7 +17,7 @@ const LoadingIndicator = ({ messagesCount }: LoadingIndicatorProps) => {
       className="message-animation"
     >
       <Box sx={{ display: "flex", alignItems: "center" }}>
-        <MessageAvatar sender="assistant" />
+        <MessageAvatar sender="bot" />
         <Paper
           elevation={0}
           sx={{

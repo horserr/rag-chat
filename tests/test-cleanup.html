@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>测试页面卸载清理</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+      }
+      .status {
+        background: #f0f0f0;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+      }
+      button {
+        padding: 10px 20px;
+        margin: 5px;
+        font-size: 16px;
+      }
+      .console-log {
+        background: #000;
+        color: #00ff00;
+        padding: 10px;
+        font-family: monospace;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>测试页面卸载清理功能</h1>
+
+    <div class="status">
+      <h3>活跃任务状态:</h3>
+      <p>RAG 任务: <span id="rag-tasks">[]</span></p>
+      <p>Prompt 任务: <span id="prompt-tasks">[]</span></p>
+    </div>
+
+    <div>
+      <button onclick="addRagTask()">添加 RAG 任务</button>
+      <button onclick="addPromptTask()">添加 Prompt 任务</button>
+      <button onclick="clearTasks()">清空任务</button>
+      <button onclick="testCleanup()">测试清理</button>
+    </div>
+
+    <div>
+      <h3>测试说明:</h3>
+      <ol>
+        <li>点击"添加任务"按钮创建一些模拟任务</li>
+        <li>打开浏览器开发者工具的控制台</li>
+        <li>尝试关闭当前标签页或刷新页面</li>
+        <li>观察是否显示警告消息和控制台日志</li>
+      </ol>
+    </div>
+
+    <div>
+      <h3>控制台日志:</h3>
+      <div id="console-output" class="console-log"></div>
+    </div>
+
+    <script>
+      // 模拟 activeTasks 状态
+      let activeTasks = { rag: [], prompt: [] };
+
+      // 模拟清理警告消息
+      const CLEANUP_WARNING_MESSAGE =
+        "关闭页面将删除所有创建的评估任务，确定要离开吗？";
+
+      // 更新显示
+      function updateDisplay() {
+        document.getElementById("rag-tasks").textContent = JSON.stringify(
+          activeTasks.rag
+        );
+        document.getElementById("prompt-tasks").textContent = JSON.stringify(
+          activeTasks.prompt
+        );
+      }
+
+      // 添加到控制台日志显示
+      function addLog(message) {
+        const output = document.getElementById("console-output");
+        const timestamp = new Date().toLocaleTimeString();
+        output.innerHTML += `[${timestamp}] ${message}<br>`;
+        output.scrollTop = output.scrollHeight;
+        console.log(message);
+      }
+
+      // 模拟添加任务
+      function addRagTask() {
+        const taskId = `rag-${Date.now()}`;
+        activeTasks.rag.push(taskId);
+        updateDisplay();
+        addLog(`✅ Added RAG task: ${taskId}`);
+      }
+
+      function addPromptTask() {
+        const taskId = Math.floor(Math.random() * 1000);
+        activeTasks.prompt.push(taskId);
+        updateDisplay();
+        addLog(`✅ Added Prompt task: ${taskId}`);
+      }
+
+      function clearTasks() {
+        activeTasks = { rag: [], prompt: [] };
+        updateDisplay();
+        addLog("🧹 Cleared all tasks");
+      }
+
+      // 模拟清理函数
+      async function cleanupActiveTasks() {
+        addLog(
+          "🧹 Starting cleanup - activeTasks: " + JSON.stringify(activeTasks)
+        );
+
+        // 模拟删除 RAG 任务
+        if (activeTasks.rag.length > 0) {
+          addLog(
+            "🗑️ Cleaning up RAG tasks: " + JSON.stringify(activeTasks.rag)
+          );
+          for (const taskId of activeTasks.rag) {
+            addLog(`📤 Deleting RAG task: ${taskId}`);
+            // 模拟 API 调用延迟
+            await new Promise((resolve) => setTimeout(resolve, 100));
+            addLog(`✅ Successfully deleted RAG task: ${taskId}`);
+          }
+        }
+
+        // 模拟删除 Prompt 任务
+        if (activeTasks.prompt.length > 0) {
+          addLog(
+            "🗑️ Cleaning up Prompt tasks: " + JSON.stringify(activeTasks.prompt)
+          );
+          for (const taskId of activeTasks.prompt) {
+            addLog(`📤 Deleting Prompt task: ${taskId}`);
+            // 模拟 API 调用延迟
+            await new Promise((resolve) => setTimeout(resolve, 100));
+            addLog(`✅ Successfully deleted Prompt task: ${taskId}`);
+          }
+        }
+
+        activeTasks = { rag: [], prompt: [] };
+        updateDisplay();
+        addLog("🎉 Cleanup completed successfully");
+      }
+
+      function testCleanup() {
+        cleanupActiveTasks();
+      }
+
+      // 设置页面卸载事件监听器
+      window.addEventListener("beforeunload", (event) => {
+        if (activeTasks.rag.length > 0 || activeTasks.prompt.length > 0) {
+          addLog("⚠️ beforeunload triggered - showing warning");
+          // 正确设置 returnValue 以显示警告消息
+          event.preventDefault();
+          event.returnValue = CLEANUP_WARNING_MESSAGE;
+          return CLEANUP_WARNING_MESSAGE;
+        }
+      });
+
+      window.addEventListener("unload", () => {
+        addLog("🚪 unload triggered - starting cleanup");
+        cleanupActiveTasks();
+      });
+
+      // 初始化显示
+      updateDisplay();
+      addLog("📄 Test page loaded");
+    </script>
+  </body>
+</html>

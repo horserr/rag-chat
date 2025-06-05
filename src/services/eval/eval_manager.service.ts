@@ -10,19 +10,21 @@ import {
   type SingleTurnSample,
   type CustomSample,
   type MultiTurnSample,
-} from "../../models/evaluation";
+} from "../../models/rag-evaluation";
+import { TaskService as RagTaskService } from './rag';
+import { EvaluationService as RagEvaluationService } from './rag';
 
 /**
  * Evaluation Manager Service - High-level service for managing evaluations
  * This service combines task and evaluation operations without authentication
  */
 export class EvaluationManagerService {
-  private taskService: EvalTaskService;
-  private promptEvalService: PromptEvalService;
+  private taskService: RagTaskService;
+  private evaluationService: RagEvaluationService;
 
   constructor() {
-    this.taskService = new EvalTaskService();
-    this.promptEvalService = new PromptEvalService();
+    this.taskService = new RagTaskService();
+    this.evaluationService = new RagEvaluationService();
   }
 
   // Task management methods

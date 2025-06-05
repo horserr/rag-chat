@@ -131,10 +131,11 @@
     {
       // 类型检查任务
       // 运行 TypeScript 编译器进行类型检查，不生成文件
+      // 使用 -b 标志以支持项目引用，与 build 保持一致
       "label": "type-check",
       "type": "shell",
       "command": "npx",
-      "args": ["tsc", "--noEmit"],
+      "args": ["tsc", "-b", "--noEmit"],
       "group": "build",
       "options": {
         "cwd": "${workspaceFolder}"
@@ -144,7 +145,8 @@
         "echo": true,
         "reveal": "always",
         "focus": true,
-        "panel": "shared"
+        "panel": "shared",
+        "clear": true // 清除之前的输出以便查看结果
       }
     },
     {
@@ -162,7 +164,23 @@
         "echo": true,
         "reveal": "always",
         "focus": true,
-        "panel": "shared"
+        "panel": "shared",
+        "clear": true // 清除之前的输出以便查看结果
+      }
+    },
+    {
+      // 完整代码检查任务
+      // 同时运行类型检查和代码质量检查
+      "label": "full-check",
+      "dependsOrder": "sequence",
+      "dependsOn": ["type-check", "lint-check"],
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared",
+        "clear": true
       }
     }
   ]
