@@ -184,7 +184,7 @@ const PromptEvaluationOverviewPage: React.FC = () => {
                     startIcon={<DetailsIcon />}
                     onClick={handleNavigateToDetails}
                   >
-                    查看详情
+                    view details
                   </Button>
                 </Box>
               }

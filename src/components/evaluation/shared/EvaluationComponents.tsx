@@ -25,6 +25,7 @@ import {
   DialogActions,
   Button,
   TextField,
+  LinearProgress,
 } from "@mui/material";
 import { motion } from "framer-motion";
 import React from "react";
@@ -43,8 +44,13 @@ interface TaskCardProps {
   loading?: boolean;
 }
 
+/**
+ * Get the appropriate icon for a given evaluation status
+ * @param status The evaluation status
+ * @returns React element with the appropriate icon
+ */
 const getStatusIcon = (status: string) => {
-  switch (status) {
+  switch (status.toLowerCase()) {
     case "completed":
       return <CompletedIcon color="success" />;
     case "failed":
@@ -58,10 +64,15 @@ const getStatusIcon = (status: string) => {
   }
 };
 
+/**
+ * Get the appropriate color for a given evaluation status
+ * @param status The evaluation status
+ * @returns MUI color string for the status
+ */
 const getStatusColor = (
   status: string
 ): "success" | "error" | "primary" | "warning" | "default" => {
-  switch (status) {
+  switch (status.toLowerCase()) {
     case "completed":
       return "success";
     case "failed":
@@ -73,6 +84,52 @@ const getStatusColor = (
     default:
       return "default";
   }
+};
+
+/**
+ * A button wrapped in motion effects for animated interactions
+ */
+const MotionButton: React.FC<{
+  children: React.ReactNode;
+  onClick: () => void;
+  disabled?: boolean;
+  variant?: "text" | "contained" | "outlined";
+  color?: "primary" | "secondary" | "error" | "info" | "success" | "warning";
+  size?: "small" | "medium" | "large";
+  sx?: any;
+  title?: string;
+  "aria-label"?: string;
+}> = ({
+  children,
+  onClick,
+  disabled = false,
+  variant = "text",
+  color = "primary",
+  size = "medium",
+  sx,
+  title,
+  "aria-label": ariaLabel,
+}) => {
+  return (
+    <motion.div
+      whileHover={!disabled ? { scale: 1.05 } : {}}
+      whileTap={!disabled ? { scale: 0.95 } : {}}
+      style={{ display: "inline-block" }}
+    >
+      <Button
+        variant={variant}
+        color={color}
+        size={size}
+        disabled={disabled}
+        onClick={onClick}
+        sx={sx}
+        title={title}
+        aria-label={ariaLabel}
+      >
+        {children}
+      </Button>
+    </motion.div>
+  );
 };
 
 export const TaskCard: React.FC<TaskCardProps> = ({
@@ -244,7 +301,11 @@ export const TaskCard: React.FC<TaskCardProps> = ({
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setShowDeleteDialog(false)}>取消</Button>
-          <Button onClick={handleDeleteConfirm} color="error" variant="contained">
+          <Button
+            onClick={handleDeleteConfirm}
+            color="error"
+            variant="contained"
+          >
             删除
           </Button>
         </DialogActions>
@@ -291,18 +352,43 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   );
 };
 
+/**
+ * Evaluation status types
+ */
+type EvaluationStatus = "completed" | "failed" | "running" | "pending";
+
+/**
+ * Evaluation data structure
+ */
+interface EvaluationData {
+  id: string | number;
+  name?: string;
+  status: EvaluationStatus | string;
+  eval_type?: string;
+  metric?: string;
+  result?: number;
+  created_at?: string;
+}
+
+/**
+ * Props for the EvaluationCard component
+ */
 interface EvaluationCardProps {
-  evaluation: {
-    id: string | number;
-    name?: string;
-    status: string;
-    eval_type?: string;
-    metric?: string;
-    result?: number;
-    created_at?: string;
-  };
+  /**
+   * Evaluation data to display in the card
+   */
+  evaluation: EvaluationData;
+  /**
+   * Progress value for running evaluations (0-100)
+   */
   progress?: number;
+  /**
+   * Callback when "View details" button is clicked
+   */
   onViewDetails: () => void;
+  /**
+   * Whether the card is in loading state
+   */
   loading?: boolean;
 }
 
@@ -312,6 +398,18 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({
   onViewDetails,
   loading = false,
 }) => {
+  // Create a callback handler for the view details action
+  const handleViewDetails = React.useCallback(() => {
+    console.log(`View details clicked for evaluation ID: ${evaluation.id}`);
+    console.log(`Evaluation status: ${evaluation.status}`);
+    console.log(`Navigation should occur to detail page for this evaluation`);
+
+    // Add a small delay to ensure UI feedback before navigation
+    setTimeout(() => {
+      onViewDetails();
+    }, 100);
+  }, [evaluation.id, evaluation.status, onViewDetails]);
+
   if (loading) {
     return (
       <Card>
@@ -322,10 +420,15 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({
           </Box>
           <Skeleton variant="text" height={20} width="70%" />
           <Skeleton variant="text" height={16} width="50%" sx={{ mt: 1 }} />
+          <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
+            <Skeleton variant="rectangular" width={100} height={36} />
+          </Box>
         </CardContent>
       </Card>
     );
   }
+
+  const isViewable = evaluation.status !== "pending";
 
   return (
     <motion.div
@@ -333,7 +436,16 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <Card>
+      <Card
+        sx={{
+          position: "relative",
+          transition: "all 0.3s",
+          "&:hover": {
+            boxShadow: 3,
+            transform: "translateY(-2px)",
+          },
+        }}
+      >
         <CardContent>
           <Box
             sx={{
@@ -372,24 +484,11 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({
 
           {evaluation.status === "running" && progress !== undefined && (
             <Box sx={{ mb: 2 }}>
-              <Box
-                sx={{
-                  width: "100%",
-                  height: 4,
-                  backgroundColor: "grey.300",
-                  borderRadius: 2,
-                  overflow: "hidden",
-                }}
-              >
-                <Box
-                  sx={{
-                    width: `${progress}%`,
-                    height: "100%",
-                    backgroundColor: "primary.main",
-                    transition: "width 0.3s ease",
-                  }}
-                />
-              </Box>
+              <LinearProgress
+                variant="determinate"
+                value={progress}
+                sx={{ mb: 1 }}
+              />
               <Typography variant="caption" sx={{ mt: 0.5, display: "block" }}>
                 进度: {progress}%
               </Typography>
@@ -414,34 +513,29 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({
           )}
 
           <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              style={{
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                padding: 0,
+            <MotionButton
+              variant="contained"
+              color="primary"
+              size="small"
+              onClick={handleViewDetails}
+              disabled={!isViewable}
+              sx={{
+                textTransform: "none",
+                fontWeight: "500",
+                padding: "4px 16px",
+                borderRadius: "4px",
+                boxShadow: isViewable ? 1 : 0,
+                opacity: isViewable ? 1 : 0.6,
               }}
-              onClick={onViewDetails}
-              disabled={evaluation.status === "pending"}
+              aria-label="View evaluation details"
+              title={
+                isViewable
+                  ? "View detailed evaluation information"
+                  : "This evaluation cannot be viewed yet"
+              }
             >
-              <Typography
-                variant="button"
-                color={
-                  evaluation.status === "pending" ? "text.disabled" : "primary"
-                }
-                sx={{
-                  textDecoration: "none",
-                  "&:hover": {
-                    textDecoration:
-                      evaluation.status !== "pending" ? "underline" : "none",
-                  },
-                }}
-              >
-                查看详情
-              </Typography>
-            </motion.button>
+              View details
+            </MotionButton>
           </Box>
         </CardContent>
       </Card>
@@ -449,19 +543,31 @@ export const EvaluationCard: React.FC<EvaluationCardProps> = ({
   );
 };
 
+/**
+ * Props for the LoadingState component
+ */
 interface LoadingStateProps {
+  /**
+   * The type of items being loaded
+   */
   type: "tasks" | "evaluations";
+  /**
+   * The number of skeleton placeholders to show
+   */
   count?: number;
 }
 
+/**
+ * LoadingState component displays skeleton placeholders while content is loading
+ */
 export const LoadingState: React.FC<LoadingStateProps> = ({
   type,
   count = 3,
 }) => {
   return (
-    <>
+    <Box sx={{ opacity: 0.7 }}>
       {Array.from({ length: count }, (_, i) => (
-        <div key={i}>
+        <Box key={i} sx={{ mb: 2 }}>
           {type === "tasks" ? (
             <TaskCard
               task={{ id: "", name: "" }}
@@ -475,24 +581,51 @@ export const LoadingState: React.FC<LoadingStateProps> = ({
               loading={true}
             />
           )}
-        </div>
+        </Box>
       ))}
-    </>
+    </Box>
   );
 };
 
+/**
+ * Props for the EmptyState component
+ */
 interface EmptyStateProps {
+  /**
+   * The type of empty state to display
+   */
   type: "tasks" | "evaluations";
+  /**
+   * Optional action to perform when the button is clicked
+   */
   onAction?: () => void;
+  /**
+   * Optional label for the action button
+   */
   actionLabel?: string;
+  /**
+   * Optional custom message to display
+   */
+  customMessage?: string;
 }
 
+/**
+ * EmptyState component displayed when there are no tasks or evaluations
+ */
 export const EmptyState: React.FC<EmptyStateProps> = ({
   type,
   onAction,
   actionLabel,
+  customMessage,
 }) => {
   const isTasksEmpty = type === "tasks";
+
+  // Default messages
+  const title =
+    customMessage || (isTasksEmpty ? "暂无评估任务" : "该任务暂无评估记录");
+  const subtitle = isTasksEmpty
+    ? "开始创建您的第一个评估任务，体验智能评估功能"
+    : "为此任务创建评估记录以开始分析";
 
   return (
     <Box sx={{ textAlign: "center", py: 6 }}>
@@ -510,6 +643,9 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
         }}
       >
         <Box
+          component={motion.div}
+          animate={{ scale: [0.9, 1.1, 0.9] }}
+          transition={{ repeat: Infinity, duration: 2 }}
           sx={{
             width: 32,
             height: 32,
@@ -519,23 +655,30 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
           }}
         />
       </Box>
-      <Typography variant="h6" color="text.primary" gutterBottom sx={{ fontWeight: 500 }}>
-        {isTasksEmpty ? "暂无评估任务" : "该任务暂无评估记录"}
+      <Typography
+        variant="h6"
+        color="text.primary"
+        gutterBottom
+        sx={{ fontWeight: 500 }}
+      >
+        {title}
       </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 3, maxWidth: 300, mx: "auto" }}>
-        {isTasksEmpty
-          ? "开始创建您的第一个评估任务，体验智能评估功能"
-          : "为此任务创建评估记录以开始分析"}
+      <Typography
+        variant="body2"
+        color="text.secondary"
+        sx={{ mb: 3, maxWidth: 300, mx: "auto" }}
+      >
+        {subtitle}
       </Typography>
       {onAction && actionLabel && (
-        <motion.div
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-        >
+        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
           <Button
             variant="contained"
             size="large"
-            onClick={onAction}
+            onClick={() => {
+              console.log(`Action button clicked: ${actionLabel}`);
+              onAction();
+            }}
             sx={{
               px: 4,
               py: 1.5,

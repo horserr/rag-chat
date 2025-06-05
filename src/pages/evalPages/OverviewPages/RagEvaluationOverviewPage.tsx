@@ -82,15 +82,15 @@ const RagEvaluationOverviewPage: React.FC = () => {
   const handleTaskRename = async (taskId: string | number, newName: string) => {
     try {
       // Find the current task to preserve description
-      const currentTask = tasks.find(t => t.id === taskId);
+      const currentTask = tasks.find((t) => t.id === taskId);
       await updateRagTask({
         taskId: String(taskId),
         formData: {
           taskName: newName,
           description: currentTask?.description || "",
           evaluationType: "single_turn", // Required by the type, but not used for updates
-          isTaskCreated: true // Required by the type, but not used for updates
-        }
+          isTaskCreated: true, // Required by the type, but not used for updates
+        },
       });
     } catch (error) {
       console.error("Failed to rename task:", error);
@@ -135,20 +135,19 @@ const RagEvaluationOverviewPage: React.FC = () => {
                 ))}
               </>
             )}
-
             {tasksError && (
               <Alert severity="error">
                 Failed to load tasks: {(tasksError as Error).message}
               </Alert>
             )}
-
             {!tasksLoading && !tasksError && tasks.length === 0 && (
               <EmptyState
                 type="tasks"
                 onAction={handleNavigateToEvaluation}
                 actionLabel="创建新任务"
               />
-            )}            {!tasksLoading &&
+            )}{" "}
+            {!tasksLoading &&
               !tasksError &&
               tasks.map((task: TaskDto) => (
                 <TaskCard
@@ -168,13 +167,14 @@ const RagEvaluationOverviewPage: React.FC = () => {
         {isDetailView ? (
           <DetailPanel>
             <PanelHeader
-              title={PAGE_CONFIG.evaluationsPanelTitle}              actions={
+              title={PAGE_CONFIG.evaluationsPanelTitle}
+              actions={
                 <Button
                   variant="contained"
                   startIcon={<DetailsIcon />}
                   onClick={handleNavigateToDetails}
                 >
-                  查看详情
+                  view details
                 </Button>
               }
             />

@@ -14,10 +14,9 @@ import { useOverviewPage } from "./useOverviewPage";
 export const usePromptOverviewLogic = () => {
   const [newPrompt, setNewPrompt] = useState("");
   const [showNewEvaluationDialog, setShowNewEvaluationDialog] = useState(false);
-
   const overviewLogic = useOverviewPage<number>({
     baseRoute: "/evaluation/prompt",
-    detailRoute: "/evaluation/prompt",
+    detailRoute: "/evaluation/prompt/eval",
   });
 
   // Query hooks

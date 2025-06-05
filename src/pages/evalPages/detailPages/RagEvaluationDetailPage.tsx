@@ -1,40 +1,40 @@
-import React from "react";
 import {
-  Box,
-  Typography,
-  Card,
-  CardContent,
-  Chip,
-  Button,
-  Alert,
-  Skeleton,
-} from "@mui/material";
-import {
-  ArrowBack as BackIcon,
   Analytics as AnalyticsIcon,
+  ArrowBack as BackIcon,
   DataObject as DataIcon,
   Assessment as MetricIcon,
 } from "@mui/icons-material";
-import { Line } from "react-chartjs-2";
 import {
-  Chart as ChartJS,
+  Alert,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Chip,
+  Skeleton,
+  Typography,
+} from "@mui/material";
+import {
   CategoryScale,
+  Chart as ChartJS,
+  Legend,
+  LineElement,
   LinearScale,
   PointElement,
-  LineElement,
   Title,
   Tooltip,
-  Legend,
 } from "chart.js";
-import { useRagDetailLogic } from "../../../hooks/evaluation";
+import React from "react";
+import { Line } from "react-chartjs-2";
 import {
-  RagSampleContent,
   RagEvaluationHistoryList,
+  RagSampleContent,
   generateRagChartData,
-  ragChartOptions,
+  getStatusColor,
   getStatusIcon,
-  getStatusColor
+  ragChartOptions,
 } from "../../../components/evaluation/shared";
+import { useRagDetailLogic } from "../../../hooks/evaluation";
 
 // Register Chart.js components
 ChartJS.register(
@@ -47,7 +47,8 @@ ChartJS.register(
   Legend
 );
 
-const RagEvaluationDetailPage: React.FC = () => {  const {
+const RagEvaluationDetailPage: React.FC = () => {
+  const {
     task,
     currentEval,
     evaluationHistory,
@@ -92,7 +93,8 @@ const RagEvaluationDetailPage: React.FC = () => {  const {
       <Box sx={{ p: 3 }}>
         <Alert severity="error" sx={{ mb: 2 }}>
           Failed to load data: {(hasError as Error).message}
-        </Alert>        <Button
+        </Alert>{" "}
+        <Button
           variant="contained"
           startIcon={<BackIcon />}
           onClick={handleBack}
@@ -115,19 +117,21 @@ const RagEvaluationDetailPage: React.FC = () => {  const {
     <Box sx={{ p: 3 }}>
       {/* Header */}
       <Box sx={{ mb: 3 }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>        <Button
-          variant="outlined"
-          startIcon={<BackIcon />}
-          onClick={handleBack}
-        >
-          返回
-        </Button>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+          {" "}
+          <Button
+            variant="outlined"
+            startIcon={<BackIcon />}
+            onClick={handleBack}
+          >
+            back
+          </Button>
           <Typography variant="h4" fontWeight="bold">
-            评估详情
+            Evaluation Detail
           </Typography>
         </Box>
         <Typography variant="body1" color="text.secondary">
-          任务: {task.name} | 评估ID: {evaluationId}
+          task: {task.name} | taskID: {evaluationId}
         </Typography>
       </Box>
 
@@ -141,7 +145,8 @@ const RagEvaluationDetailPage: React.FC = () => {  const {
                   sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}
                 >
                   <AnalyticsIcon color="primary" />
-                  <Typography variant="h6">评估详情</Typography>                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <Typography variant="h6">评估详情</Typography>{" "}
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     {React.createElement(getStatusIcon(currentEval.status))}
                     <Chip
                       label={currentEval.status}
@@ -172,7 +177,9 @@ const RagEvaluationDetailPage: React.FC = () => {  const {
                   >
                     评估指标
                   </Typography>
-                  <Typography variant="body1">{getMetricName(currentEval)}</Typography>
+                  <Typography variant="body1">
+                    {getMetricName(currentEval)}
+                  </Typography>
                 </Box>
 
                 <Box sx={{ mb: 2 }}>
@@ -237,17 +244,17 @@ const RagEvaluationDetailPage: React.FC = () => {  const {
                 <MetricIcon color="primary" />
                 <Typography variant="h6">评估历史</Typography>
               </Box>
-
               {/* Chart */}
-              {evaluationHistory.length > 0 && (                <Box sx={{ mb: 3, height: 300 }}>
+              {evaluationHistory.length > 0 && (
+                <Box sx={{ mb: 3, height: 300 }}>
                   <Line data={chartData} options={ragChartOptions} />
                 </Box>
               )}
-
               {/* History List */}
               <Typography variant="subtitle1" sx={{ mb: 2 }}>
                 历史记录
-              </Typography>              <RagEvaluationHistoryList
+              </Typography>{" "}
+              <RagEvaluationHistoryList
                 evaluationHistory={evaluationHistory}
                 isLoading={evaluationsLoading}
                 currentEvaluationId={evaluationId}
@@ -257,7 +264,8 @@ const RagEvaluationDetailPage: React.FC = () => {  const {
           </Card>
         </Box>
       </Box>
-    </Box>  );
+    </Box>
+  );
 };
 
 export default RagEvaluationDetailPage;

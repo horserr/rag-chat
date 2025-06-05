@@ -56,12 +56,12 @@ export function useRagOverviewLogic({
     prefetchTask(taskId);
     prefetchEvaluations(taskId);
   };
-
   const handleViewDetails = (evaluationId: string) => {
     if (selectedTask) {
-      navigate(`${detailRoute}/${selectedTask}/${evaluationId}`);
+      navigate(`${detailRoute}/${selectedTask}/eval/${evaluationId}`);
     }
   };
+
   const handleNavigateToEvaluation = () => {
     navigate("/evaluation/rag/create");
   };

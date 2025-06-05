@@ -1,5 +1,6 @@
 @evalUrl = {{baseUrl}}/api/rag
-@taskId = 7
+@taskId = 8
+@evalId = 6
 
 ### 1.1 获取所有任务列表
 GET {{evalUrl}}/task HTTP/1.1
@@ -199,7 +200,7 @@ Content-Type: application/json
 # }
 
 ### 2.3 异步状态查询
-GET {{evalUrl}}/task/{{taskId}}/eval/{{eval_id}}/status HTTP/1.1
+GET {{evalUrl}}/task/{{taskId}}/eval/{{evalId}}/status HTTP/1.1
 
 # Response (pending):
 # {
@@ -270,7 +271,7 @@ GET {{evalUrl}}/task/{{taskId}}/eval/{{eval_id}}/status HTTP/1.1
 
 ### 2.4 删除评估
 // todo don't support delete eval, remove this API
-DELETE {{evalUrl}}/task/1/eval/{{eval_id}} HTTP/1.1
+DELETE {{evalUrl}}/task/1/eval/{{evalId}} HTTP/1.1
 
 # Response:
 # {
@@ -281,7 +282,7 @@ DELETE {{evalUrl}}/task/1/eval/{{eval_id}} HTTP/1.1
 
 ### 2.5 查看评估任务详情 - 单轮评估
 // todo 请将这个api与2.3合并，使用GET /task/{task_id}/eval/{eval_id}获取评估详情
-GET {{evalUrl}}/task/{{taskId}}/eval/{{eval_id}} HTTP/1.1
+GET {{evalUrl}}/task/{{taskId}}/eval/{{evalId}} HTTP/1.1
 
 # Response (single_turn):
 # {
