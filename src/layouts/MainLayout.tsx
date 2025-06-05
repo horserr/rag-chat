@@ -64,7 +64,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                   ? "RAG Evaluation"
                   : "RAG Chat"}
               </Typography>
-            </Box>            <Box sx={{ display: "flex", gap: 2 }}>
+            </Box>{" "}
+            <Box sx={{ display: "flex", gap: 2 }}>
               <Button
                 color="inherit"
                 variant={
@@ -130,8 +131,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             </Box>
           </Toolbar>
         </AppBar>
-      ) : null}
-      <Container
+      ) : null}{" "}      <Container
         component="main"
         maxWidth={false} // 占据整个屏幕宽度，没有左右边距
         disableGutters // 移除容器的默认内边距
@@ -143,7 +143,16 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           overflow: isHomeOrLoginPage ? "overlay" : "hidden", // 使用overlay让滚动条覆盖在内容上
         }}
       >
-        {children}
+        <Box
+          sx={{
+            height: "100%",
+            width: "100%",
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          {children}
+        </Box>
       </Container>
       {/* Footer removed and moved to chat input area */}
     </Box>

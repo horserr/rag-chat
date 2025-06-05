@@ -13,19 +13,21 @@ import {
   useTheme,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { motion } from "framer-motion";
 import { useEvaluationManager } from "../../hooks/evaluation";
-import type { PromptFormData, RagFormData } from "../../models/evaluation-form";
-import PromptPreviewPanel from "./components/PromptPreviewPanel";
+import type { RagFormData, PromptFormData } from "../../models/evaluation-form";
 import RagPreviewPanel from "./components/RagPreviewPanel";
-import PromptConfigurationStep from "./form-steps/prompt/PromptConfigurationStep.tsx";
-import PromptReviewStep from "./form-steps/prompt/PromptReviewStep.tsx";
-import RagConfigurationStep from "./form-steps/rag/RagConfigurationStep.tsx";
-import RagDatasetStep from "./form-steps/rag/RagDatasetStep.tsx";
-import RagReviewStep from "./form-steps/rag/RagReviewStep.tsx";
+import PromptPreviewPanel from "./components/PromptPreviewPanel";
+import RagConfigurationStep from "./form-steps/rag/RagConfigurationStep";
+import RagDatasetStep from "./form-steps/rag/RagDatasetStep";
+import RagReviewStep from "./form-steps/rag/RagReviewStep";
+import PromptConfigurationStep from "./form-steps/prompt/PromptConfigurationStep";
+import PromptReviewStep from "./form-steps/prompt/PromptReviewStep";
 import CustomStepIcon from "./CreationFlow/components/CustomStepIcon";
 import { useFormValidation } from "./CreationFlow/hooks/useFormValidation";
-import { getStepsConfig, getTypeColor } from "./CreationFlow/utils/stepConfig";
+import {
+  getStepsConfig,
+  getTypeColor,
+} from "./CreationFlow/utils/stepConfig";
 
 interface CreationFlowProps {
   evaluationType: "rag" | "prompt";
@@ -102,14 +104,11 @@ const CreationFlow: React.FC<CreationFlowProps> = ({
       setIsSubmitting(true);
       try {
         if (evaluationType === "rag") {
-          const ragData = formData as RagFormData;
-          const taskId = await evaluationManager.createRagTask(ragData);
-          await evaluationManager.createRagEvaluation(taskId, ragData);
+          const taskId = await evaluationManager.createRagTask(formData as RagFormData);
+          await evaluationManager.createRagEvaluation(taskId, formData as RagFormData);
           evaluationManager.navigateToRagOverview();
         } else {
-          const promptData = formData as PromptFormData;
-          const taskId = await evaluationManager.createPromptTask(promptData);
-          await evaluationManager.createPromptEvaluation(taskId, promptData);
+          await evaluationManager.createPromptTask(formData as PromptFormData);
           evaluationManager.navigateToPromptOverview();
         }
         onClose();
@@ -156,10 +155,7 @@ const CreationFlow: React.FC<CreationFlowProps> = ({
           );
         case 1:
           return (
-            <RagDatasetStep
-              formData={ragData}
-              onFormChange={handleFormChange}
-            />
+            <RagDatasetStep formData={ragData} onFormChange={handleFormChange} />
           );
         case 2:
           return (
@@ -181,10 +177,7 @@ const CreationFlow: React.FC<CreationFlowProps> = ({
           );
         case 1:
           return (
-            <PromptReviewStep
-              formData={promptData}
-              onFormChange={handleFormChange}
-            />
+            <PromptReviewStep formData={promptData} onFormChange={handleFormChange} />
           );
         default:
           return null;
@@ -204,14 +197,8 @@ const CreationFlow: React.FC<CreationFlowProps> = ({
       );
     }
   };
-
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      style={{ height: "100%", display: "flex", flexDirection: "column" }}
-    >
+    <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
       {/* Header */}
       <Box
         sx={{
@@ -221,11 +208,12 @@ const CreationFlow: React.FC<CreationFlowProps> = ({
           p: 3,
           borderBottom: 1,
           borderColor: "divider",
+          background: `linear-gradient(135deg, ${typeColor}15, transparent)`,
         }}
       >
         <Typography variant="h5" fontWeight="bold" color={typeColor}>
           Create {evaluationType.toUpperCase()} Evaluation
-        </Typography>{" "}
+        </Typography>
         <IconButton onClick={onClose} color="default">
           <CloseIcon />
         </IconButton>
@@ -301,10 +289,9 @@ const CreationFlow: React.FC<CreationFlowProps> = ({
             ? "Creating..."
             : isLastStep
             ? "Create Evaluation"
-            : "Next"}
-        </Button>
+            : "Next"}        </Button>
       </Paper>
-    </motion.div>
+    </Box>
   );
 };
 

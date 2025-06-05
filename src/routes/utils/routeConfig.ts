@@ -6,8 +6,7 @@ import {
   PromptEvaluationOverviewPage,
   PromptEvaluationDetailPage,
 } from "../../pages/evalPages";
-import RagCreationPage from "../../pages/creationPages/RagCreationPage";
-import PromptCreationPage from "../../pages/creationPages/PromptCreationPage";
+import EvaluationCreationPage from "../../pages/creationPages/EvaluationCreationPage";
 
 // Route configuration types
 export interface RouteConfig {
@@ -24,7 +23,7 @@ export const createEvaluationRoutes = (): RouteConfig[] => {
   const ragRoutes: RouteConfig[] = [
     {
       path: "/evaluation/rag/create",
-      element: createProtectedRoute(RagCreationPage),
+      element: createProtectedRoute(() => React.createElement(EvaluationCreationPage, { key: "rag" })),
     },
     {
       path: "/evaluation/rag",
@@ -47,7 +46,7 @@ export const createEvaluationRoutes = (): RouteConfig[] => {
   const promptRoutes: RouteConfig[] = [
     {
       path: "/evaluation/prompt/create",
-      element: createProtectedRoute(PromptCreationPage),
+      element: createProtectedRoute(() => React.createElement(EvaluationCreationPage, { key: "prompt" })),
     },
     {
       path: "/evaluation/prompt",
