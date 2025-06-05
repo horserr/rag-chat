@@ -33,16 +33,14 @@ export const useOverviewPage = <T extends string | number>({
     setSelectedTask(taskId);
     navigate(`${baseRoute}/${taskId}`);
   };
-
   const handleViewDetails = (evaluationId: T) => {
     if (selectedTask) {
       navigate(`${detailRoute}/${selectedTask}/${evaluationId}`);
     }
   };
 
-  const handleNavigateToEvaluation = () => {
-    navigate("/evaluation");
-  };
+  // Remove the problematic navigation function
+  // Components can now handle their own creation flow logic
 
   return {
     selectedTask,
@@ -51,7 +49,6 @@ export const useOverviewPage = <T extends string | number>({
     setShowDetailDialog,
     handleTaskSelect,
     handleViewDetails,
-    handleNavigateToEvaluation,
     isDetailView: !!selectedTask,
   };
 };

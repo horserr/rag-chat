@@ -4,6 +4,8 @@ import {
   MoreVert as MoreIcon,
   Schedule as PendingIcon,
   PlayArrow as StartIcon,
+  Delete as DeleteIcon,
+  Edit as EditIcon,
 } from "@mui/icons-material";
 import {
   Box,
@@ -13,6 +15,16 @@ import {
   IconButton,
   Skeleton,
   Typography,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  TextField,
 } from "@mui/material";
 import { motion } from "framer-motion";
 import React from "react";
@@ -26,6 +38,8 @@ interface TaskCardProps {
   isSelected?: boolean;
   onClick: () => void;
   onHover?: () => void;
+  onDelete?: (taskId: string | number) => void;
+  onRename?: (taskId: string | number, newName: string) => void;
   loading?: boolean;
 }
 
@@ -66,8 +80,60 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   isSelected = false,
   onClick,
   onHover,
+  onDelete,
+  onRename,
   loading = false,
 }) => {
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = React.useState(false);
+  const [showRenameDialog, setShowRenameDialog] = React.useState(false);
+  const [newName, setNewName] = React.useState(task.name);
+  const [renameError, setRenameError] = React.useState("");
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    event.stopPropagation();
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleDeleteClick = () => {
+    setShowDeleteDialog(true);
+    handleMenuClose();
+  };
+
+  const handleRenameClick = () => {
+    setNewName(task.name);
+    setRenameError("");
+    setShowRenameDialog(true);
+    handleMenuClose();
+  };
+
+  const handleDeleteConfirm = () => {
+    if (onDelete) {
+      onDelete(task.id);
+    }
+    setShowDeleteDialog(false);
+  };
+
+  const handleRenameConfirm = () => {
+    const trimmedName = newName.trim();
+    if (!trimmedName) {
+      setRenameError("任务名称不能为空");
+      return;
+    }
+    if (trimmedName === task.name) {
+      setShowRenameDialog(false);
+      return;
+    }
+    if (onRename) {
+      onRename(task.id, trimmedName);
+    }
+    setShowRenameDialog(false);
+  };
+
   if (loading) {
     return (
       <Card>
@@ -80,61 +146,148 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   }
 
   return (
-    <motion.div
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      transition={{ duration: 0.2 }}
-    >
-      <Card
-        sx={{
-          cursor: "pointer",
-          border: isSelected ? 2 : 1,
-          borderColor: isSelected ? "primary.main" : "divider",
-          "&:hover": {
-            boxShadow: 2,
-          },
-        }}
-        onClick={onClick}
-        onMouseEnter={onHover}
+    <>
+      <motion.div
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        transition={{ duration: 0.2 }}
       >
-        <CardContent>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "start",
-            }}
-          >
-            <Box sx={{ flex: 1 }}>
-              <Typography variant="h6" noWrap>
-                {task.name}
-              </Typography>
-              <Typography variant="body2" color="text.secondary" noWrap>
-                ID: {task.id}
-              </Typography>
-              {task.description && (
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{
-                    mt: 1,
-                    display: "-webkit-box",
-                    "-webkit-line-clamp": 2,
-                    "-webkit-box-orient": "vertical",
-                    overflow: "hidden",
-                  }}
-                >
-                  {task.description}
+        <Card
+          sx={{
+            cursor: "pointer",
+            border: isSelected ? 2 : 1,
+            borderColor: isSelected ? "primary.main" : "divider",
+            "&:hover": {
+              boxShadow: 2,
+            },
+          }}
+          onClick={onClick}
+          onMouseEnter={onHover}
+        >
+          <CardContent>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "start",
+              }}
+            >
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="h6" noWrap>
+                  {task.name}
                 </Typography>
+                <Typography variant="body2" color="text.secondary" noWrap>
+                  ID: {task.id}
+                </Typography>
+                {task.description && (
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{
+                      mt: 1,
+                      display: "-webkit-box",
+                      "-webkit-line-clamp": 2,
+                      "-webkit-box-orient": "vertical",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {task.description}
+                  </Typography>
+                )}
+              </Box>
+              {(onDelete || onRename) && (
+                <IconButton size="small" onClick={handleMenuOpen}>
+                  <MoreIcon />
+                </IconButton>
               )}
             </Box>
-            <IconButton size="small">
-              <MoreIcon />
-            </IconButton>
-          </Box>
-        </CardContent>
-      </Card>
-    </motion.div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Action Menu */}
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleMenuClose}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {onRename && (
+          <MenuItem onClick={handleRenameClick}>
+            <ListItemIcon>
+              <EditIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>重命名</ListItemText>
+          </MenuItem>
+        )}
+        {onDelete && (
+          <MenuItem onClick={handleDeleteClick}>
+            <ListItemIcon>
+              <DeleteIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>删除</ListItemText>
+          </MenuItem>
+        )}
+      </Menu>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={showDeleteDialog}
+        onClose={() => setShowDeleteDialog(false)}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <DialogTitle>确认删除</DialogTitle>
+        <DialogContent>
+          <Typography>
+            确定要删除任务 "{task.name}" 吗？此操作无法撤销。
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowDeleteDialog(false)}>取消</Button>
+          <Button onClick={handleDeleteConfirm} color="error" variant="contained">
+            删除
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Rename Dialog */}
+      <Dialog
+        open={showRenameDialog}
+        onClose={() => setShowRenameDialog(false)}
+        onClick={(e) => e.stopPropagation()}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>重命名任务</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="任务名称"
+            fullWidth
+            variant="outlined"
+            value={newName}
+            onChange={(e) => {
+              setNewName(e.target.value);
+              setRenameError("");
+            }}
+            error={!!renameError}
+            helperText={renameError}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleRenameConfirm();
+              }
+            }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowRenameDialog(false)}>取消</Button>
+          <Button onClick={handleRenameConfirm} variant="contained">
+            保存
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 };
 
@@ -342,27 +495,65 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   const isTasksEmpty = type === "tasks";
 
   return (
-    <Box sx={{ textAlign: "center", py: 4 }}>
-      <Typography variant="body1" color="text.secondary" gutterBottom>
+    <Box sx={{ textAlign: "center", py: 6 }}>
+      <Box
+        sx={{
+          width: 64,
+          height: 64,
+          borderRadius: "50%",
+          bgcolor: "action.hover",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          mx: "auto",
+          mb: 2,
+        }}
+      >
+        <Box
+          sx={{
+            width: 32,
+            height: 32,
+            bgcolor: "primary.main",
+            borderRadius: "50%",
+            opacity: 0.7,
+          }}
+        />
+      </Box>
+      <Typography variant="h6" color="text.primary" gutterBottom sx={{ fontWeight: 500 }}>
         {isTasksEmpty ? "暂无评估任务" : "该任务暂无评估记录"}
       </Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 3, maxWidth: 300, mx: "auto" }}>
+        {isTasksEmpty
+          ? "开始创建您的第一个评估任务，体验智能评估功能"
+          : "为此任务创建评估记录以开始分析"}
+      </Typography>
       {onAction && actionLabel && (
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          style={{
-            background: "#1976d2",
-            color: "white",
-            border: "none",
-            padding: "8px 16px",
-            borderRadius: "4px",
-            cursor: "pointer",
-            marginTop: "16px",
-          }}
-          onClick={onAction}
+        <motion.div
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
         >
-          {actionLabel}
-        </motion.button>
+          <Button
+            variant="contained"
+            size="large"
+            onClick={onAction}
+            sx={{
+              px: 4,
+              py: 1.5,
+              borderRadius: 3,
+              fontWeight: "bold",
+              background: "linear-gradient(135deg, #1976d2, #42a5f5)",
+              boxShadow: "0 8px 24px rgba(25, 118, 210, 0.3)",
+              "&:hover": {
+                background: "linear-gradient(135deg, #1565c0, #1976d2)",
+                boxShadow: "0 12px 32px rgba(25, 118, 210, 0.4)",
+                transform: "translateY(-2px)",
+              },
+              transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+            }}
+          >
+            {actionLabel}
+          </Button>
+        </motion.div>
       )}
     </Box>
   );

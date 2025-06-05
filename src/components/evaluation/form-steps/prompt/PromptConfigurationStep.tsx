@@ -11,10 +11,8 @@ interface PromptConfigurationStepProps {
 const PromptConfigurationStep: React.FC<PromptConfigurationStepProps> = ({
   formData,
   onFormChange,
-  ...props
+  errors,
 }) => {
-  // Explicitly acknowledge unused props
-  void props;
   return (
     <Box sx={{ pt: 2, pb: 3 }}>
       <Typography variant="h6" sx={{ mb: 3 }}>
@@ -26,16 +24,15 @@ const PromptConfigurationStep: React.FC<PromptConfigurationStepProps> = ({
           Prompt
           评估将分析您的提示词质量，包括语义相似度、词汇多样性、编辑距离等多个维度的评分。
         </Typography>
-      </Alert>
-
-      <TextField
+      </Alert>      <TextField
         fullWidth
         label="任务名称"
         value={formData.taskName}
         onChange={(e) => onFormChange("taskName", e.target.value)}
         margin="normal"
         required
-        helperText="为您的 Prompt 评估任务起一个描述性的名称"
+        error={!!errors.taskName}
+        helperText={errors.taskName || "为您的 Prompt 评估任务起一个描述性的名称"}
       />
 
       <TextField
@@ -47,7 +44,8 @@ const PromptConfigurationStep: React.FC<PromptConfigurationStepProps> = ({
         multiline
         rows={8}
         required
-        helperText="输入您想要评估的提示词内容"
+        error={!!errors.prompt}
+        helperText={errors.prompt || "输入您想要评估的提示词内容"}
         placeholder="请输入您的 prompt 内容..."
       />
 

@@ -9,9 +9,7 @@ export const useFormValidation = (
     const newErrors: Record<string, string> = {};
 
     if (evaluationType === "rag") {
-      const ragData = formData as RagFormData;
-
-      switch (activeStep) {
+      const ragData = formData as RagFormData;      switch (activeStep) {
         case 0: // Configuration
           if (!ragData.taskName.trim()) {
             newErrors.taskName = "请输入任务名称";
@@ -42,8 +40,11 @@ export const useFormValidation = (
             newErrors.samples = "数据集中没有有效的样本";
           }
           break;
-      }
-    } else {
+
+        case 2: // Review - no additional validation needed
+          // The review step just displays the already validated data
+          break;
+      }} else {
       const promptData = formData as PromptFormData;
 
       switch (activeStep) {
@@ -54,6 +55,9 @@ export const useFormValidation = (
           if (!promptData.prompt.trim()) {
             newErrors.prompt = "请输入提示词";
           }
+          break;
+        case 1: // Review - no additional validation needed
+          // The review step just displays the already validated data
           break;
       }
     }

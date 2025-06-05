@@ -73,9 +73,9 @@ export function useRagOverviewLogic({
       invalidateTaskData(selectedTask);
     }
   };
-
   return {
     selectedTask,
+    setSelectedTask,
     tasks,
     evaluations,
     showDetailDialog,

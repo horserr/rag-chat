@@ -1,35 +1,35 @@
-import React from 'react';
-import {
-  Box,
-  Alert,
-  Button,
-  Stack,
-} from '@mui/material';
-import {
-  Add as AddIcon,
-  Analytics as DetailsIcon,
-} from '@mui/icons-material';
-import { usePromptOverviewLogic } from '../../../hooks/evaluation';
+import React from "react";
+import { Box, Alert, Button, Stack } from "@mui/material";
+import { Add as AddIcon, Analytics as DetailsIcon } from "@mui/icons-material";
+import { useState } from "react";
+import { motion } from "framer-motion";
+import CreationFlow from "../../../components/evaluation/CreationFlow";
+import { usePromptOverviewLogic } from "../../../hooks/evaluation";
+import { usePromptOperations } from "../../../hooks/evaluation/operations/usePromptOperations";
+import { useEvaluationNavigation } from "../../../hooks/evaluation/utils/useEvaluationNavigation";
 import {
   TaskCard,
   EvaluationCard,
   EmptyState,
-} from '../../../components/evaluation/shared/EvaluationComponents';
+} from "../../../components/evaluation/shared/EvaluationComponents";
 import {
   EvaluationPageHeader,
   PanelHeader,
-} from '../../../components/evaluation/shared/Headers';
+} from "../../../components/evaluation/shared/Headers";
 import {
   AnimatedPanel,
   DetailPanel,
   PlaceholderPanel,
-} from '../../../components/evaluation/shared/Panels';
+} from "../../../components/evaluation/shared/Panels";
 import {
   NewEvaluationDialog,
   DetailDialog,
-} from '../../../components/evaluation/shared/Dialogs';
-import { EVALUATION_CONSTANTS } from '../../../components/evaluation/shared/constants';
-import type { PromptTask, PromptEvaluationResponse } from '../../../models/prompt-evaluation';
+} from "../../../components/evaluation/shared/Dialogs";
+import { EVALUATION_CONSTANTS } from "../../../components/evaluation/shared/constants";
+import type {
+  PromptTask,
+  PromptEvaluationResponse,
+} from "../../../models/prompt-evaluation";
 
 // 页面配置常量
 const PAGE_CONFIG = {
@@ -47,13 +47,14 @@ const PAGE_CONFIG = {
 } as const;
 
 const PromptEvaluationOverviewPage: React.FC = () => {
+  // CreationFlow state
+  const [showCreationFlow, setShowCreationFlow] = useState(false);
+
   const {
     selectedTask,
     showDetailDialog,
-    setShowDetailDialog,
-    handleTaskSelect,
+    setShowDetailDialog,    handleTaskSelect,
     handleViewDetails,
-    handleNavigateToEvaluation,
     isDetailView,
     newPrompt,
     setNewPrompt,
@@ -70,6 +71,49 @@ const PromptEvaluationOverviewPage: React.FC = () => {
     handleRefresh,
     handleCreateEvaluation,
   } = usePromptOverviewLogic();
+
+  // Handle opening CreationFlow instead of navigation
+  const handleNavigateToEvaluation = () => {
+    setShowCreationFlow(true);
+  };
+
+  // Handle closing CreationFlow
+  const handleCloseCreationFlow = () => {
+    setShowCreationFlow(false);
+    handleRefresh(); // Refresh tasks after creation
+  };
+
+  // Add delete and rename operations
+  const { deletePromptTask } = usePromptOperations();
+  const { navigateToPromptDetails } = useEvaluationNavigation();
+
+  // Handle task delete
+  const handleTaskDelete = async (taskId: string | number) => {
+    try {
+      await deletePromptTask(Number(taskId));
+      // Note: Prompt tasks use number IDs, so we convert accordingly
+    } catch (error) {
+      console.error("Failed to delete task:", error);
+    }
+  };
+
+  // Handle task rename - Note: Prompt tasks don't currently support renaming in the backend
+  // This is a placeholder for future implementation
+  const handleTaskRename = async (taskId: string | number, newName: string) => {
+    console.log(
+      "Task rename not yet supported for prompt tasks:",
+      taskId,
+      newName
+    );
+    // TODO: Implement when backend supports prompt task updates
+  };
+
+  // Handle navigate to detail page
+  const handleNavigateToDetails = () => {
+    if (selectedTask) {
+      navigateToPromptDetails(selectedTask);
+    }
+  };
 
   return (
     <Box sx={{ height: "100vh", display: "flex", flexDirection: "column" }}>
@@ -95,41 +139,42 @@ const PromptEvaluationOverviewPage: React.FC = () => {
                 {EVALUATION_CONSTANTS.MOCK_LOADING_ITEMS.map((i) => (
                   <TaskCard
                     key={i}
-                    task={{ id: '', name: '' }}
+                    task={{ id: "", name: "" }}
                     onClick={() => {}}
                     loading={true}
                   />
                 ))}
               </>
             )}
-
             {tasksError && (
               <Alert severity="error">
                 Failed to load tasks: {(tasksError as Error).message}
               </Alert>
             )}
-
             {!tasksLoading && !tasksError && tasks.length === 0 && (
               <EmptyState
                 type="tasks"
                 onAction={handleNavigateToEvaluation}
                 actionLabel="创建新任务"
               />
-            )}
-
-            {!tasksLoading && !tasksError && tasks.map((task: PromptTask) => (
-              <TaskCard
-                key={task.taskId}
-                task={{
-                  id: task.taskId,
-                  name: task.taskName,
-                  description: `Task ID: ${task.taskId}`
-                }}
-                isSelected={selectedTask === task.taskId}
-                onClick={() => handleTaskSelect(task.taskId)}
-                onHover={() => handleTaskHover(task.taskId)}
-              />
-            ))}
+            )}{" "}
+            {!tasksLoading &&
+              !tasksError &&
+              tasks.map((task: PromptTask) => (
+                <TaskCard
+                  key={task.taskId}
+                  task={{
+                    id: task.taskId,
+                    name: task.taskName,
+                    description: `Task ID: ${task.taskId}`,
+                  }}
+                  isSelected={selectedTask === task.taskId}
+                  onClick={() => handleTaskSelect(task.taskId)}
+                  onHover={() => handleTaskHover(task.taskId)}
+                  onDelete={handleTaskDelete}
+                  onRename={handleTaskRename}
+                />
+              ))}
           </Stack>
         </AnimatedPanel>
 
@@ -147,11 +192,11 @@ const PromptEvaluationOverviewPage: React.FC = () => {
                     color="secondary"
                   >
                     新增评估
-                  </Button>
+                  </Button>{" "}
                   <Button
                     variant="outlined"
                     startIcon={<DetailsIcon />}
-                    onClick={() => setShowDetailDialog(true)}
+                    onClick={handleNavigateToDetails}
                   >
                     查看详情
                   </Button>
@@ -166,7 +211,7 @@ const PromptEvaluationOverviewPage: React.FC = () => {
                   {[1, 2].map((i) => (
                     <EvaluationCard
                       key={i}
-                      evaluation={{ id: '', status: '' }}
+                      evaluation={{ id: "", status: "" }}
                       onViewDetails={() => {}}
                       loading={true}
                     />
@@ -176,27 +221,30 @@ const PromptEvaluationOverviewPage: React.FC = () => {
 
               {evaluationsError && (
                 <Alert severity="error">
-                  Failed to load evaluations: {(evaluationsError as Error).message}
+                  Failed to load evaluations:{" "}
+                  {(evaluationsError as Error).message}
                 </Alert>
               )}
 
-              {!evaluationsLoading && !evaluationsError && evaluations.length === 0 && (
-                <EmptyState type="evaluations" />
-              )}
+              {!evaluationsLoading &&
+                !evaluationsError &&
+                evaluations.length === 0 && <EmptyState type="evaluations" />}
 
-              {!evaluationsLoading && !evaluationsError && evaluations.map((evaluation: PromptEvaluationResponse) => (
-                <EvaluationCard
-                  key={evaluation.evalId}
-                  evaluation={{
-                    id: evaluation.evalId,
-                    status: 'completed',
-                    result: parseFloat(evaluation.promptScore),
-                    name: `评估 #${evaluation.evalId}`,
-                    created_at: new Date().toISOString(),
-                  }}
-                  onViewDetails={() => handleViewDetails(evaluation.evalId)}
-                />
-              ))}
+              {!evaluationsLoading &&
+                !evaluationsError &&
+                evaluations.map((evaluation: PromptEvaluationResponse) => (
+                  <EvaluationCard
+                    key={evaluation.evalId}
+                    evaluation={{
+                      id: evaluation.evalId,
+                      status: "completed",
+                      result: parseFloat(evaluation.promptScore),
+                      name: `评估 #${evaluation.evalId}`,
+                      created_at: new Date().toISOString(),
+                    }}
+                    onViewDetails={() => handleViewDetails(evaluation.evalId)}
+                  />
+                ))}
             </Stack>
           </DetailPanel>
         ) : (
@@ -219,9 +267,7 @@ const PromptEvaluationOverviewPage: React.FC = () => {
         helpText={PAGE_CONFIG.newEvaluationDialog.helpText}
         isSubmitting={createEvaluationMutation.isPending}
         disabled={!newPrompt.trim()}
-      />
-
-      {/* Detail Dialog */}
+      />      {/* Detail Dialog */}
       <DetailDialog
         open={showDetailDialog}
         onClose={() => setShowDetailDialog(false)}
@@ -234,6 +280,30 @@ const PromptEvaluationOverviewPage: React.FC = () => {
           </Box>
         )}
       </DetailDialog>
+
+      {/* CreationFlow Overlay */}
+      {showCreationFlow && (
+        <motion.div
+          initial={{ opacity: 0, x: -50 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -50 }}
+          transition={{ duration: 0.4 }}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            zIndex: 1300,
+            backgroundColor: "white",
+          }}
+        >
+          <CreationFlow
+            evaluationType="prompt"
+            onClose={handleCloseCreationFlow}
+          />
+        </motion.div>
+      )}
     </Box>
   );
 };

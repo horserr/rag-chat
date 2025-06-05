@@ -162,10 +162,7 @@ const CreationFlow: React.FC<CreationFlowProps> = ({
           );
         case 2:
           return (
-            <RagReviewStep
-              formData={ragData}
-              onFormChange={handleFormChange}
-            />
+            <RagReviewStep formData={ragData} onFormChange={handleFormChange} />
           );
         default:
           return null;
@@ -200,7 +197,9 @@ const CreationFlow: React.FC<CreationFlowProps> = ({
       return <RagPreviewPanel formData={ragData} currentStep={activeStep} />;
     } else {
       const promptData = formData as PromptFormData;
-      return <PromptPreviewPanel formData={promptData} currentStep={activeStep} />;
+      return (
+        <PromptPreviewPanel formData={promptData} currentStep={activeStep} />
+      );
     }
   };
 
@@ -224,7 +223,8 @@ const CreationFlow: React.FC<CreationFlowProps> = ({
       >
         <Typography variant="h5" fontWeight="bold" color={typeColor}>
           Create {evaluationType.toUpperCase()} Evaluation
-        </Typography>        <IconButton onClick={onClose} color="default">
+        </Typography>{" "}
+        <IconButton onClick={onClose} color="default">
           <CloseIcon />
         </IconButton>
       </Box>
