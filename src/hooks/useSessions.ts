@@ -54,7 +54,8 @@ export const useCreateSession = () => {
           response.message || "Unknown error"
         }`
       );
-    },    onSuccess: (newSession: SessionDto) => {
+    },
+    onSuccess: (newSession: SessionDto) => {
       // Add the new session to the sessions cache for the current token
       // Use the token from closure to ensure consistency
       queryClient.setQueryData(
@@ -65,7 +66,7 @@ export const useCreateSession = () => {
       // Also invalidate queries to trigger refetch if needed
       queryClient.invalidateQueries({
         queryKey: ["sessions", token],
-        exact: true
+        exact: true,
       });
     },
   });
@@ -82,7 +83,8 @@ export const useDeleteSession = () => {
 
       const sessionService = new SessionService(token);
       return await sessionService.delete_session(sessionId);
-    },    onSuccess: (_, sessionId) => {
+    },
+    onSuccess: (_, sessionId) => {
       // Remove the session from the cache for the current token
       // Use the token from closure to ensure consistency
       queryClient.setQueryData(
@@ -97,7 +99,46 @@ export const useDeleteSession = () => {
       // Invalidate sessions query to ensure consistency
       queryClient.invalidateQueries({
         queryKey: ["sessions", token],
-        exact: true
+        exact: true,
+      });
+    },
+  });
+};
+
+// Hook for renaming a session
+export const useRenameSession = () => {
+  const queryClient = useQueryClient();
+  const token = TokenService.getToken();
+
+  return useMutation({
+    mutationFn: async ({
+      sessionId,
+      newTitle,
+    }: {
+      sessionId: number;
+      newTitle: string;
+    }) => {
+      if (!token) throw new Error("No token");
+
+      const sessionService = new SessionService(token);
+      return await sessionService.put_session(sessionId, newTitle);
+    },
+    onSuccess: (_, { sessionId, newTitle }) => {
+      // Update the session in the cache
+      queryClient.setQueryData(
+        ["sessions", token],
+        (oldSessions: SessionDto[] = []) =>
+          oldSessions.map((session) =>
+            session.id === sessionId
+              ? { ...session, title: newTitle }
+              : session
+          )
+      );
+
+      // Invalidate sessions query to ensure consistency
+      queryClient.invalidateQueries({
+        queryKey: ["sessions", token],
+        exact: true,
       });
     },
   });

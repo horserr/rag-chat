@@ -62,9 +62,8 @@ export function useRagOverviewLogic({
       navigate(`${detailRoute}/${selectedTask}/${evaluationId}`);
     }
   };
-
   const handleNavigateToEvaluation = () => {
-    navigate("/evaluation/create");
+    navigate("/evaluation/rag/create");
   };
 
   const handleRefresh = () => {

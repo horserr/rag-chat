@@ -1,9 +1,6 @@
 import React from "react";
 import { Box, Alert, Button, Stack } from "@mui/material";
 import { Add as AddIcon, Analytics as DetailsIcon } from "@mui/icons-material";
-import { useState } from "react";
-import { motion } from "framer-motion";
-import CreationFlow from "../../../components/evaluation/CreationFlow";
 import { usePromptOverviewLogic } from "../../../hooks/evaluation";
 import { usePromptOperations } from "../../../hooks/evaluation/operations/usePromptOperations";
 import { useEvaluationNavigation } from "../../../hooks/evaluation/utils/useEvaluationNavigation";
@@ -47,8 +44,6 @@ const PAGE_CONFIG = {
 } as const;
 
 const PromptEvaluationOverviewPage: React.FC = () => {
-  // CreationFlow state
-  const [showCreationFlow, setShowCreationFlow] = useState(false);
 
   const {
     selectedTask,
@@ -70,22 +65,13 @@ const PromptEvaluationOverviewPage: React.FC = () => {
     handleTaskHover,
     handleRefresh,
     handleCreateEvaluation,
-  } = usePromptOverviewLogic();
-
-  // Handle opening CreationFlow instead of navigation
+  } = usePromptOverviewLogic();  // Handle opening CreationFlow instead of navigation
   const handleNavigateToEvaluation = () => {
-    setShowCreationFlow(true);
+    navigateToPromptCreation();
   };
-
-  // Handle closing CreationFlow
-  const handleCloseCreationFlow = () => {
-    setShowCreationFlow(false);
-    handleRefresh(); // Refresh tasks after creation
-  };
-
   // Add delete and rename operations
   const { deletePromptTask } = usePromptOperations();
-  const { navigateToPromptDetails } = useEvaluationNavigation();
+  const { navigateToPromptDetails, navigateToPromptCreation } = useEvaluationNavigation();
 
   // Handle task delete
   const handleTaskDelete = async (taskId: string | number) => {
@@ -280,30 +266,6 @@ const PromptEvaluationOverviewPage: React.FC = () => {
           </Box>
         )}
       </DetailDialog>
-
-      {/* CreationFlow Overlay */}
-      {showCreationFlow && (
-        <motion.div
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -50 }}
-          transition={{ duration: 0.4 }}
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            zIndex: 1300,
-            backgroundColor: "white",
-          }}
-        >
-          <CreationFlow
-            evaluationType="prompt"
-            onClose={handleCloseCreationFlow}
-          />
-        </motion.div>
-      )}
     </Box>
   );
 };

@@ -4,6 +4,7 @@ import {
   useSessions,
   useCreateSession,
   useDeleteSession,
+  useRenameSession,
 } from "../../hooks/useSessions";
 import SidebarHeader from "./sidebar/SidebarHeader";
 import SessionListItem from "./sidebar/SessionListItem";
@@ -28,6 +29,7 @@ const ChatHistorySidebar = ({
   const { data: sessions = [], isLoading: loading } = useSessions();
   const createSessionMutation = useCreateSession();
   const deleteSessionMutation = useDeleteSession();
+  const renameSessionMutation = useRenameSession();
   const queryClient = useQueryClient();
 
   const handleNewSession = async () => {
@@ -58,6 +60,17 @@ const ChatHistorySidebar = ({
         throw new Error(`Error deleting session ${id}: ${error.message}`);
       },
     });
+  };
+
+  const handleRenameSession = (id: number, newTitle: string) => {
+    renameSessionMutation.mutate(
+      { sessionId: id, newTitle },
+      {
+        onError: (error) => {
+          console.error(`Error renaming session ${id}:`, error);
+        },
+      }
+    );
   };
 
   return (
@@ -93,6 +106,7 @@ const ChatHistorySidebar = ({
                 isSelected={sessionId === session.id}
                 onSelect={setSessionId}
                 onDelete={handleDeleteSession}
+                onRename={handleRenameSession}
               />
             ))
           ) : (

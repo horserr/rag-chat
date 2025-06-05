@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import CentralFloatingButton from "../components/evaluation/components/CentralFloatingButton";
 import EvaluationSection from "../components/evaluation/EvaluationSection";
 import { useEvaluationStats } from "../hooks/evaluation";
-import { useEvaluationManager } from "../hooks/evaluation";
+import { useTaskInitialization } from "../hooks/evaluation/core/useTaskInitialization";
 
 // Style configurations
 const SECTION_STYLE = {
@@ -18,7 +18,7 @@ const SECTION_STYLE = {
 const EvaluationPage: React.FC = () => {
   const [centralExpanded, setCentralExpanded] = useState(false);
   const { ragCount, promptCount } = useEvaluationStats();
-  const { } = useEvaluationManager(); // Hook handles task initialization automatically
+  useTaskInitialization(); // Hook handles task initialization automatically
   const navigate = useNavigate();
   // Stable callback for create evaluation navigation
   const handleCreateRagEvaluation = useCallback(() => {
