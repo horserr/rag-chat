@@ -27,6 +27,10 @@ export const useEvaluationNavigation = () => {
     [navigate]
   );
 
+  const navigateToRagCreation = useCallback(() => {
+    navigate("/evaluation/rag/create");
+  }, [navigate]);
+
   // Prompt Navigation
   const navigateToPromptOverview = useCallback(
     (taskId?: number) => {
@@ -48,6 +52,10 @@ export const useEvaluationNavigation = () => {
     [navigate]
   );
 
+  const navigateToPromptCreation = useCallback(() => {
+    navigate("/evaluation/prompt/create");
+  }, [navigate]);
+
   // Generic navigation helpers
   const navigateToHome = useCallback(() => {
     navigate("/");
@@ -61,10 +69,12 @@ export const useEvaluationNavigation = () => {
     // RAG navigation
     navigateToRagOverview,
     navigateToRagDetails,
+    navigateToRagCreation,
 
     // Prompt navigation
     navigateToPromptOverview,
     navigateToPromptDetails,
+    navigateToPromptCreation,
 
     // Generic navigation
     navigateToHome,

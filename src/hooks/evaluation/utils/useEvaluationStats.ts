@@ -1,59 +1,54 @@
-import { useEffect, useState, useCallback, useMemo } from 'react';
-import { TaskService as RagTaskService } from '../../../services/eval/rag/task.service';
-import { TaskService as PromptTaskService } from '../../../services/eval/prompt/task.service';
-
-interface EvaluationStats {
-  ragCount: number;
-  promptCount: number;
-  loading: boolean;
-  error: string | null;
-}
+import { useMemo } from 'react';
+import { useRagTasks } from '../queries/useRagQueries';
+import { usePromptTasks } from '../queries/usePromptQueries';
 
 export const useEvaluationStats = () => {
-  const [stats, setStats] = useState<EvaluationStats>({
-    ragCount: 0,
-    promptCount: 0,
-    loading: true,
-    error: null,
-  });
+  // Use React Query hooks to leverage existing caching mechanisms
+  const {
+    data: ragTasksData,
+    isLoading: ragLoading,
+    error: ragError,
+    refetch: refetchRagTasks,
+  } = useRagTasks();
 
-  const ragTaskService = useMemo(() => new RagTaskService(), []);
-  const promptTaskService = useMemo(() => new PromptTaskService(), []);
+  const {
+    data: promptTasksData,
+    isLoading: promptLoading,
+    error: promptError,
+    refetch: refetchPromptTasks,
+  } = usePromptTasks();
 
-  const fetchStats = useCallback(async () => {
-    try {
-      setStats(prev => ({ ...prev, loading: true, error: null }));
+  // Calculate stats from React Query data
+  const stats = useMemo(() => {
+    const ragCount = ragTasksData?.tasks?.length || 0;
+    const promptCount = promptTasksData?.tasks?.length || 0;
+    const loading = ragLoading || promptLoading;
+    const error = ragError || promptError
+      ? 'Failed to load evaluation statistics'
+      : null;
 
-      // Get RAG tasks count
-      const ragTasks = await ragTaskService.getTasks();
-      const ragCount = ragTasks.tasks?.length || 0;
+    return {
+      ragCount,
+      promptCount,
+      loading,
+      error,
+    };
+  }, [
+    ragTasksData?.tasks?.length,
+    promptTasksData?.tasks?.length,
+    ragLoading,
+    promptLoading,
+    ragError,
+    promptError,
+  ]);
 
-      // Get Prompt tasks count
-      const promptTasks = await promptTaskService.getAllTasks();
-      const promptCount = promptTasks?.length || 0;
-
-      setStats({
-        ragCount,
-        promptCount,
-        loading: false,
-        error: null,
-      });
-    } catch (error) {
-      console.error('Failed to fetch evaluation stats:', error);
-      setStats(prev => ({
-        ...prev,
-        loading: false,
-        error: 'Failed to load evaluation statistics',
-      }));
-    }
-  }, [ragTaskService, promptTaskService]);
-
-  useEffect(() => {
-    fetchStats();
-  }, [fetchStats]);
+  // Combined refetch function
+  const refetch = useMemo(() => async () => {
+    await Promise.all([refetchRagTasks(), refetchPromptTasks()]);
+  }, [refetchRagTasks, refetchPromptTasks]);
 
   return {
     ...stats,
-    refetch: fetchStats,
+    refetch,
   };
 };

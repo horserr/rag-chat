@@ -6,6 +6,8 @@ import {
   PromptEvaluationOverviewPage,
   PromptEvaluationDetailPage,
 } from "../../pages/evalPages";
+import RagCreationPage from "../../pages/creationPages/RagCreationPage";
+import PromptCreationPage from "../../pages/creationPages/PromptCreationPage";
 
 // Route configuration types
 export interface RouteConfig {
@@ -20,6 +22,10 @@ const createProtectedRoute = (Component: React.ComponentType) =>
 // Evaluation route configurations
 export const createEvaluationRoutes = (): RouteConfig[] => {
   const ragRoutes: RouteConfig[] = [
+    {
+      path: "/evaluation/rag/create",
+      element: createProtectedRoute(RagCreationPage),
+    },
     {
       path: "/evaluation/rag",
       element: createProtectedRoute(RagEvaluationOverviewPage),
@@ -39,6 +45,10 @@ export const createEvaluationRoutes = (): RouteConfig[] => {
   ];
 
   const promptRoutes: RouteConfig[] = [
+    {
+      path: "/evaluation/prompt/create",
+      element: createProtectedRoute(PromptCreationPage),
+    },
     {
       path: "/evaluation/prompt",
       element: createProtectedRoute(PromptEvaluationOverviewPage),

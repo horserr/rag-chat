@@ -14,29 +14,19 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { useEvaluationManager } from "../../hooks/evaluation";
-import type { PromptFormData, RagFormData } from "../../models/evaluation-form";
-import PromptPreviewPanel from "./components/PromptPreviewPanel";
-import RagPreviewPanel from "./components/RagPreviewPanel";
-import PromptConfigurationStep from "./form-steps/prompt/PromptConfigurationStep.tsx";
-import PromptReviewStep from "./form-steps/prompt/PromptReviewStep.tsx";
-import RagConfigurationStep from "./form-steps/rag/RagConfigurationStep.tsx";
-import RagDatasetStep from "./form-steps/rag/RagDatasetStep.tsx";
-import RagReviewStep from "./form-steps/rag/RagReviewStep.tsx";
-import CustomStepIcon from "./CreationFlow/components/CustomStepIcon";
-import { useFormValidation } from "./CreationFlow/hooks/useFormValidation";
-import { getStepsConfig, getTypeColor } from "./CreationFlow/utils/stepConfig";
+import type { PromptFormData } from "../../models/evaluation-form";
+import PromptPreviewPanel from "../../components/evaluation/components/PromptPreviewPanel";
+import PromptConfigurationStep from "../../components/evaluation/form-steps/prompt/PromptConfigurationStep";
+import PromptReviewStep from "../../components/evaluation/form-steps/prompt/PromptReviewStep";
+import CustomStepIcon from "../../components/evaluation/CreationFlow/components/CustomStepIcon";
+import { useFormValidation } from "../../components/evaluation/CreationFlow/hooks/useFormValidation";
+import { getStepsConfig, getTypeColor } from "../../components/evaluation/CreationFlow/utils/stepConfig";
 
-interface CreationFlowProps {
-  evaluationType: "rag" | "prompt";
-  onClose: () => void;
-}
-
-const CreationFlow: React.FC<CreationFlowProps> = ({
-  evaluationType,
-  onClose,
-}) => {
+const PromptCreationPage: React.FC = () => {
   const theme = useTheme();
+  const navigate = useNavigate();
   const evaluationManager = useEvaluationManager();
 
   // Form state
@@ -44,31 +34,20 @@ const CreationFlow: React.FC<CreationFlowProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Initialize form data based on evaluation type
-  const [formData, setFormData] = useState<RagFormData | PromptFormData>(() => {
-    if (evaluationType === "rag") {
-      return {
-        taskName: "",
-        description: "",
-        evaluationType: "single_turn" as const,
-        isTaskCreated: false,
-      } as RagFormData;
-    } else {
-      return {
-        taskName: "",
-        prompt: "",
-        isTaskCreated: false,
-      } as PromptFormData;
-    }
+  // Initialize form data for Prompt evaluation
+  const [formData, setFormData] = useState<PromptFormData>({
+    taskName: "",
+    prompt: "",
+    isTaskCreated: false,
   });
 
   // Configuration
-  const { steps } = getStepsConfig(evaluationType);
-  const typeColor = getTypeColor(evaluationType, theme);
-  const { validateStep } = useFormValidation(evaluationType, formData);
+  const { steps } = getStepsConfig("prompt");
+  const typeColor = getTypeColor("prompt", theme);
+  const { validateStep } = useFormValidation("prompt", formData);
 
   // Form handlers
-  const updateFormData = useCallback((updates: Partial<typeof formData>) => {
+  const updateFormData = useCallback((updates: Partial<PromptFormData>) => {
     setFormData((prev) => ({ ...prev, ...updates }));
   }, []);
 
@@ -101,18 +80,9 @@ const CreationFlow: React.FC<CreationFlowProps> = ({
       // Final step - submit evaluation
       setIsSubmitting(true);
       try {
-        if (evaluationType === "rag") {
-          const ragData = formData as RagFormData;
-          const taskId = await evaluationManager.createRagTask(ragData);
-          await evaluationManager.createRagEvaluation(taskId, ragData);
-          evaluationManager.navigateToRagOverview();
-        } else {
-          const promptData = formData as PromptFormData;
-          const taskId = await evaluationManager.createPromptTask(promptData);
-          await evaluationManager.createPromptEvaluation(taskId, promptData);
-          evaluationManager.navigateToPromptOverview();
-        }
-        onClose();
+        const taskId = await evaluationManager.createPromptTask(formData);
+        await evaluationManager.createPromptEvaluation(taskId, formData);
+        evaluationManager.navigateToPromptOverview();
       } catch (error) {
         console.error("Failed to submit evaluation:", error);
         setErrors({
@@ -128,10 +98,8 @@ const CreationFlow: React.FC<CreationFlowProps> = ({
     activeStep,
     steps.length,
     validateStep,
-    evaluationType,
     formData,
     evaluationManager,
-    onClose,
   ]);
 
   const handleBack = useCallback(() => {
@@ -139,69 +107,32 @@ const CreationFlow: React.FC<CreationFlowProps> = ({
     setErrors({});
   }, []);
 
+  const handleClose = useCallback(() => {
+    navigate("/evaluation");
+  }, [navigate]);
+
   const isLastStep = activeStep === steps.length - 1;
 
   // Render step content
   const renderStepContent = () => {
-    if (evaluationType === "rag") {
-      const ragData = formData as RagFormData;
-      switch (activeStep) {
-        case 0:
-          return (
-            <RagConfigurationStep
-              formData={ragData}
-              onFormChange={handleFormChange}
-              errors={errors}
-            />
-          );
-        case 1:
-          return (
-            <RagDatasetStep
-              formData={ragData}
-              onFormChange={handleFormChange}
-            />
-          );
-        case 2:
-          return (
-            <RagReviewStep formData={ragData} onFormChange={handleFormChange} />
-          );
-        default:
-          return null;
-      }
-    } else {
-      const promptData = formData as PromptFormData;
-      switch (activeStep) {
-        case 0:
-          return (
-            <PromptConfigurationStep
-              formData={promptData}
-              onFormChange={handleFormChange}
-              errors={errors}
-            />
-          );
-        case 1:
-          return (
-            <PromptReviewStep
-              formData={promptData}
-              onFormChange={handleFormChange}
-            />
-          );
-        default:
-          return null;
-      }
-    }
-  };
-
-  // Render preview panel
-  const renderPreviewPanel = () => {
-    if (evaluationType === "rag") {
-      const ragData = formData as RagFormData;
-      return <RagPreviewPanel formData={ragData} currentStep={activeStep} />;
-    } else {
-      const promptData = formData as PromptFormData;
-      return (
-        <PromptPreviewPanel formData={promptData} currentStep={activeStep} />
-      );
+    switch (activeStep) {
+      case 0:
+        return (
+          <PromptConfigurationStep
+            formData={formData}
+            onFormChange={handleFormChange}
+            errors={errors}
+          />
+        );
+      case 1:
+        return (
+          <PromptReviewStep
+            formData={formData}
+            onFormChange={handleFormChange}
+          />
+        );
+      default:
+        return null;
     }
   };
 
@@ -210,7 +141,7 @@ const CreationFlow: React.FC<CreationFlowProps> = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      style={{ height: "100%", display: "flex", flexDirection: "column" }}
+      style={{ height: "100vh", display: "flex", flexDirection: "column" }}
     >
       {/* Header */}
       <Box
@@ -224,9 +155,9 @@ const CreationFlow: React.FC<CreationFlowProps> = ({
         }}
       >
         <Typography variant="h5" fontWeight="bold" color={typeColor}>
-          Create {evaluationType.toUpperCase()} Evaluation
-        </Typography>{" "}
-        <IconButton onClick={onClose} color="default">
+          Create PROMPT Evaluation
+        </Typography>
+        <IconButton onClick={handleClose} color="default">
           <CloseIcon />
         </IconButton>
       </Box>
@@ -264,7 +195,7 @@ const CreationFlow: React.FC<CreationFlowProps> = ({
             overflow: "auto",
           }}
         >
-          {renderPreviewPanel()}
+          <PromptPreviewPanel formData={formData} currentStep={activeStep} />
         </Box>
       </Box>
 
@@ -308,4 +239,8 @@ const CreationFlow: React.FC<CreationFlowProps> = ({
   );
 };
 
-export default CreationFlow;
+// Named export
+export { PromptCreationPage };
+
+// Default export
+export default PromptCreationPage;
