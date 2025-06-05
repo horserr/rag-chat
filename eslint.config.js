@@ -25,7 +25,7 @@ export default tseslint.config(
         "warn",
         { allowConstantExport: true },
       ],
-      "reactHooks/exhaustive-deps": "warn",
+      "react-hooks/exhaustive-deps": "warn",
       // React Query rules
       "@tanstack/query/exhaustive-deps": "error",
       "@tanstack/query/no-rest-destructuring": "warn",

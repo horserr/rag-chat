@@ -27,6 +27,7 @@ import {
   TextField,
   LinearProgress,
 } from "@mui/material";
+import type { SxProps, Theme } from "@mui/material";
 import { motion } from "framer-motion";
 import React from "react";
 
@@ -96,7 +97,7 @@ const MotionButton: React.FC<{
   variant?: "text" | "contained" | "outlined";
   color?: "primary" | "secondary" | "error" | "info" | "success" | "warning";
   size?: "small" | "medium" | "large";
-  sx?: any;
+  sx?: SxProps<Theme>;
   title?: string;
   "aria-label"?: string;
 }> = ({
