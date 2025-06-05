@@ -29,7 +29,7 @@ export class TaskService {
     try {
       const response = await this.http.get("task");
       return response.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       // fixme
       // if (
       //   error.response?.status === 404 &&
