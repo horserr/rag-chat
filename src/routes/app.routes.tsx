@@ -5,8 +5,9 @@ import EvaluationPage from "../pages/EvaluationPage";
 import HomePage from "../pages/HomePage";
 import LoginPage from "../pages/LoginPage";
 import ProtectedRoute from "../components/common/ProtectedRoute";
+import MainLayout from "../layouts/MainLayout";
 import { TokenService } from "../services/auth/token.service";
-import { createEvaluationRoutes } from "./utils/routeConfig";
+import { createEvaluationRoutes, createCreationRoutes, type RouteConfig } from "./utils/routeConfig";
 
 // Route definitions
 const AppRoutes: React.FC = () => {
@@ -19,6 +20,7 @@ const AppRoutes: React.FC = () => {
       setLastVisitedPage(savedPage);
     }
   }, []);
+
   // Save the last visited protected page
   useEffect(() => {
     const handlePageHide = () => {
@@ -49,43 +51,55 @@ const AppRoutes: React.FC = () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, []);
-  return (
-    <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route
-        path="/chat"
-        element={
-          <ProtectedRoute>
-            <ChatPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/evaluation"
-        element={
-          <ProtectedRoute>
-            <EvaluationPage />
-          </ProtectedRoute>
-        }
-      />
 
-      {/* Dynamic evaluation routes */}
-      {createEvaluationRoutes().map((route) => (
+  return (    <Routes>
+      {/* Creation routes - these don't use MainLayout */}
+      {createCreationRoutes().map((route: RouteConfig) => (
         <Route key={route.path} path={route.path} element={route.element} />
       ))}
 
-      {/* Default redirect based on auth status */}
-      <Route
-        path="*"
-        element={
-          TokenService.isTokenValid() ? (
-            <Navigate to={lastVisitedPage} />
-          ) : (
-            <Navigate to="/" />
-          )
-        }
-      />
+      {/* Main routes - these use MainLayout */}
+      <Route path="/*" element={
+        <MainLayout>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route
+              path="/chat"
+              element={
+                <ProtectedRoute>
+                  <ChatPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/evaluation"
+              element={
+                <ProtectedRoute>
+                  <EvaluationPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Dynamic evaluation routes (non-creation) */}
+            {createEvaluationRoutes().map((route: RouteConfig) => (
+              <Route key={route.path} path={route.path} element={route.element} />
+            ))}
+
+            {/* Default redirect based on auth status */}
+            <Route
+              path="*"
+              element={
+                TokenService.isTokenValid() ? (
+                  <Navigate to={lastVisitedPage} />
+                ) : (
+                  <Navigate to="/" />
+                )
+              }
+            />
+          </Routes>
+        </MainLayout>
+      } />
     </Routes>
   );
 };

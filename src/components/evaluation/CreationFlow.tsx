@@ -1,33 +1,28 @@
-import React, { useCallback, useState } from "react";
 import {
   Alert,
   Box,
   Button,
   CircularProgress,
-  IconButton,
   Paper,
   Step,
   StepLabel,
   Stepper,
-  Typography,
   useTheme,
 } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
+import React, { useCallback, useState } from "react";
 import { useEvaluationManager } from "../../hooks/evaluation";
-import type { RagFormData, PromptFormData } from "../../models/evaluation-form";
-import RagPreviewPanel from "./components/RagPreviewPanel";
+import type { PromptFormData, RagFormData } from "../../models/evaluation-form";
+import CreationLayout from "../../layouts/CreationLayout";
 import PromptPreviewPanel from "./components/PromptPreviewPanel";
+import RagPreviewPanel from "./components/RagPreviewPanel";
+import CustomStepIcon from "./CreationFlow/components/CustomStepIcon";
+import { useFormValidation } from "./CreationFlow/hooks/useFormValidation";
+import { getStepsConfig, getTypeColor } from "./CreationFlow/utils/stepConfig";
+import PromptConfigurationStep from "./form-steps/prompt/PromptConfigurationStep";
+import PromptReviewStep from "./form-steps/prompt/PromptReviewStep";
 import RagConfigurationStep from "./form-steps/rag/RagConfigurationStep";
 import RagDatasetStep from "./form-steps/rag/RagDatasetStep";
 import RagReviewStep from "./form-steps/rag/RagReviewStep";
-import PromptConfigurationStep from "./form-steps/prompt/PromptConfigurationStep";
-import PromptReviewStep from "./form-steps/prompt/PromptReviewStep";
-import CustomStepIcon from "./CreationFlow/components/CustomStepIcon";
-import { useFormValidation } from "./CreationFlow/hooks/useFormValidation";
-import {
-  getStepsConfig,
-  getTypeColor,
-} from "./CreationFlow/utils/stepConfig";
 
 interface CreationFlowProps {
   evaluationType: "rag" | "prompt";
@@ -104,8 +99,13 @@ const CreationFlow: React.FC<CreationFlowProps> = ({
       setIsSubmitting(true);
       try {
         if (evaluationType === "rag") {
-          const taskId = await evaluationManager.createRagTask(formData as RagFormData);
-          await evaluationManager.createRagEvaluation(taskId, formData as RagFormData);
+          const taskId = await evaluationManager.createRagTask(
+            formData as RagFormData
+          );
+          await evaluationManager.createRagEvaluation(
+            taskId,
+            formData as RagFormData
+          );
           evaluationManager.navigateToRagOverview();
         } else {
           await evaluationManager.createPromptTask(formData as PromptFormData);
@@ -155,7 +155,10 @@ const CreationFlow: React.FC<CreationFlowProps> = ({
           );
         case 1:
           return (
-            <RagDatasetStep formData={ragData} onFormChange={handleFormChange} />
+            <RagDatasetStep
+              formData={ragData}
+              onFormChange={handleFormChange}
+            />
           );
         case 2:
           return (
@@ -177,7 +180,10 @@ const CreationFlow: React.FC<CreationFlowProps> = ({
           );
         case 1:
           return (
-            <PromptReviewStep formData={promptData} onFormChange={handleFormChange} />
+            <PromptReviewStep
+              formData={promptData}
+              onFormChange={handleFormChange}
+            />
           );
         default:
           return null;
@@ -197,101 +203,129 @@ const CreationFlow: React.FC<CreationFlowProps> = ({
       );
     }
   };
+
+  // 自定义背景渐变色
+  const backgroundGradient = `linear-gradient(135deg, ${typeColor}80, ${typeColor}40)`;
+
   return (
-    <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-      {/* Header */}
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          p: 3,
-          borderBottom: 1,
-          borderColor: "divider",
-          background: `linear-gradient(135deg, ${typeColor}15, transparent)`,
-        }}
-      >
-        <Typography variant="h5" fontWeight="bold" color={typeColor}>
-          Create {evaluationType.toUpperCase()} Evaluation
-        </Typography>
-        <IconButton onClick={onClose} color="default">
-          <CloseIcon />
-        </IconButton>
-      </Box>
-
-      {/* Stepper */}
-      <Box sx={{ px: 3, py: 2, borderBottom: 1, borderColor: "divider" }}>
-        <Stepper activeStep={activeStep} alternativeLabel>
-          {steps.map((label) => (
-            <Step key={label}>
-              <StepLabel StepIconComponent={CustomStepIcon}>{label}</StepLabel>
-            </Step>
-          ))}
-        </Stepper>
-      </Box>
-
-      {/* Content */}
+    <CreationLayout
+      title={`Create ${evaluationType.toUpperCase()} Evaluation`}
+      titleColor={typeColor}
+      onClose={onClose}
+      backgroundGradient={backgroundGradient}
+    >
       <Box sx={{ display: "flex", flex: 1, overflow: "hidden" }}>
-        {/* Main Content */}
-        <Box sx={{ flex: 2, p: 3, overflow: "auto" }}>
-          {errors.general && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {errors.general}
-            </Alert>
-          )}
-          {renderStepContent()}
-        </Box>
-
-        {/* Preview Panel */}
+        {/* Left Column - Main Content */}
         <Box
           sx={{
-            flex: 1,
-            borderLeft: 1,
-            borderColor: "divider",
-            bgcolor: "background.default",
-            overflow: "auto",
+            flex: 3,
+            display: "flex",
+            flexDirection: "column",
+            overflow: "hidden",
+            maxWidth: "65%",
           }}
         >
-          {renderPreviewPanel()}
+          {/* Main Content Area */}
+          <Box sx={{ flex: 1, p: 4, overflow: "auto" }}>
+            {errors.general && (
+              <Alert severity="error" sx={{ mb: 2 }}>
+                {errors.general}
+              </Alert>
+            )}
+            {renderStepContent()}
+          </Box>
+        </Box>
+
+        {/* Right Column - Preview Panel */}
+        <Box
+          sx={{
+            flex: 2,
+            borderLeft: 1,
+            borderColor: "divider",
+            bgcolor: theme.palette.background.default,
+            display: "flex",
+            flexDirection: "column",
+            overflow: "hidden",
+          }}
+        >
+          {/* Stepper Navigation */}
+          <Box
+            sx={{
+              pt: 3,
+              px: 4,
+              pb: 2,
+              borderBottom: 1,
+              borderColor: "divider",
+            }}
+          >
+            <Stepper activeStep={activeStep} alternativeLabel>
+              {steps.map((label) => (
+                <Step key={label}>
+                  <StepLabel StepIconComponent={CustomStepIcon}>
+                    {label}
+                  </StepLabel>
+                </Step>
+              ))}
+            </Stepper>
+
+            {/* Navigation Buttons */}
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                mt: 2.5,
+                mb: 0.5
+              }}
+            >
+              <Button
+                onClick={handleBack}
+                disabled={activeStep === 0 || isSubmitting}
+                variant="outlined"
+                size="medium"
+              >
+                Back
+              </Button>
+
+              <Button
+                onClick={handleNext}
+                disabled={isSubmitting}
+                variant="contained"
+                size="medium"
+                sx={{
+                  bgcolor: typeColor,
+                  "&:hover": { bgcolor: typeColor, filter: "brightness(0.9)" },
+                  minWidth: "120px"
+                }}
+                startIcon={isSubmitting ? <CircularProgress size={16} color="inherit" /> : null}
+              >
+                {isSubmitting
+                  ? "Creating..."
+                  : isLastStep
+                  ? "Create Evaluation"
+                  : "Next"}
+              </Button>
+            </Box>
+          </Box>
+
+          {/* Preview Panel */}
+          <Box sx={{ flex: 1, p: 3, overflow: "auto" }}>
+            <Paper
+              elevation={0}
+              sx={{
+                height: "100%",
+                borderRadius: 2,
+                border: `1px solid ${theme.palette.divider}`,
+                bgcolor: theme.palette.background.paper,
+                overflow: "auto",
+                p: 2
+              }}
+            >
+              {renderPreviewPanel()}
+            </Paper>
+          </Box>
         </Box>
       </Box>
-
-      {/* Footer */}
-      <Paper
-        sx={{
-          p: 2,
-          display: "flex",
-          justifyContent: "space-between",
-          borderTop: 1,
-          borderColor: "divider",
-          borderRadius: 0,
-        }}
-        elevation={0}
-      >
-        <Button
-          onClick={handleBack}
-          disabled={activeStep === 0 || isSubmitting}
-          variant="outlined"
-        >
-          Back
-        </Button>
-
-        <Button
-          onClick={handleNext}
-          disabled={isSubmitting}
-          variant="contained"
-          sx={{ bgcolor: typeColor, "&:hover": { bgcolor: typeColor } }}
-          startIcon={
-            isSubmitting ? <CircularProgress size={20} color="inherit" /> : null
-          }
-        >
-          {isSubmitting
-            ? "Creating..."
-            : isLastStep
-            ? "Create Evaluation"
-            : "Next"}        </Button>
-      </Paper>
-    </Box>
+    </CreationLayout>
   );
 };
 

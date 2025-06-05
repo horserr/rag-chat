@@ -31,7 +31,7 @@ const EvaluationPage: React.FC = () => {
 
   // Stable callback for central toggle
   const handleToggleCentral = useCallback(() => {
-    setCentralExpanded(prev => !prev);
+    setCentralExpanded((prev) => !prev);
   }, []);
   // Note: initializeActiveTasks is now handled by useEvaluationManager hook
   // No need to call it here to avoid duplicate initialization
@@ -50,7 +50,9 @@ const EvaluationPage: React.FC = () => {
           ...SECTION_STYLE,
           left: 0,
         }}
-      >        <EvaluationSection
+      >
+        {" "}
+        <EvaluationSection
           type="rag"
           count={ragCount}
           isHovered={isRagHovered}

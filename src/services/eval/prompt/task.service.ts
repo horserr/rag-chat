@@ -29,7 +29,16 @@ export class TaskService {
     try {
       const response = await this.http.get("task");
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
+      // fixme
+      // if (
+      //   error.response?.status === 404 &&
+      //   error.response?.data?.detail === "Tasks not found"
+      // ) {
+      //   // Handle not found error
+      //   console.warn("No tasks found for PromptEvaluation");
+      //   return [];
+      // }
       console.error("Error fetching tasks:", error);
       throw error;
     }
@@ -63,7 +72,7 @@ export class TaskService {
   async updateTaskName(taskId: number, taskName: string): Promise<void> {
     try {
       await this.http.put(`task/${taskId}`, null, {
-        params: { task_name: taskName }
+        params: { task_name: taskName },
       });
     } catch (error) {
       console.error("Error updating task:", error);
@@ -137,7 +146,9 @@ export class TaskService {
    *   "detail": "Evals not found"
    * }
    */
-  async getTaskEvaluations(taskId: number): Promise<PromptEvaluationListResponse | PromptEvaluationErrorResponse> {
+  async getTaskEvaluations(
+    taskId: number
+  ): Promise<PromptEvaluationListResponse | PromptEvaluationErrorResponse> {
     try {
       const response = await this.http.get(`task/${taskId}/eval`);
       return response.data;

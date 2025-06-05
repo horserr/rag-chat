@@ -18,13 +18,27 @@ export interface RouteConfig {
 const createProtectedRoute = (Component: React.ComponentType) =>
   React.createElement(ProtectedRoute, null, React.createElement(Component));
 
-// Evaluation route configurations
-export const createEvaluationRoutes = (): RouteConfig[] => {
-  const ragRoutes: RouteConfig[] = [
+// Creation routes - these use their own layout (CreationLayout)
+export const createCreationRoutes = (): RouteConfig[] => {
+  return [
     {
       path: "/evaluation/rag/create",
-      element: createProtectedRoute(() => React.createElement(EvaluationCreationPage, { key: "rag" })),
+      element: createProtectedRoute(() =>
+        React.createElement(EvaluationCreationPage, { key: "rag" })
+      ),
     },
+    {
+      path: "/evaluation/prompt/create",
+      element: createProtectedRoute(() =>
+        React.createElement(EvaluationCreationPage, { key: "prompt" })
+      ),
+    },
+  ];
+};
+
+// Evaluation route configurations (non-creation routes)
+export const createEvaluationRoutes = (): RouteConfig[] => {
+  const ragRoutes: RouteConfig[] = [
     {
       path: "/evaluation/rag",
       element: createProtectedRoute(RagEvaluationOverviewPage),
@@ -44,10 +58,6 @@ export const createEvaluationRoutes = (): RouteConfig[] => {
   ];
 
   const promptRoutes: RouteConfig[] = [
-    {
-      path: "/evaluation/prompt/create",
-      element: createProtectedRoute(() => React.createElement(EvaluationCreationPage, { key: "prompt" })),
-    },
     {
       path: "/evaluation/prompt",
       element: createProtectedRoute(PromptEvaluationOverviewPage),
