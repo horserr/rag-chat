@@ -1,6 +1,7 @@
 // Export all models
 export * from './auth';
 export * from './evaluation-hooks';
+export * from './knowledge';
 export * from './message';
 export * from './prompt-evaluation';
 export * from './rag-evaluation';

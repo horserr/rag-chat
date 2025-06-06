@@ -14,7 +14,10 @@ import {
 import { useRagOverviewLogic } from "../../../hooks/evaluation";
 import { useRagOperations } from "../../../hooks/evaluation/operations/useRagOperations";
 import { useEvaluationNavigation } from "../../../hooks/evaluation/utils/useEvaluationNavigation";
-import { TasksList, EvaluationsList } from "../../../components/evaluation/OverView/components";
+import {
+  TasksList,
+  EvaluationsList,
+} from "../../../components/evaluation/OverView/components";
 
 // 页面配置常量
 const PAGE_CONFIG = {
@@ -45,7 +48,6 @@ const RagEvaluationOverviewPage: React.FC = () => {
     isDetailView,
     handleTaskSelect,
     handleTaskHover,
-    handleViewDetails,
     handleNavigateToEvaluation,
     handleRefresh,
   } = useRagOverviewLogic({
@@ -103,9 +105,10 @@ const RagEvaluationOverviewPage: React.FC = () => {
   const handleTaskHoverAdapter = (taskId: string | number) => {
     handleTaskHover(String(taskId));
   };
-
   const handleViewDetailsAdapter = (evaluationId: string | number) => {
-    handleViewDetails(String(evaluationId));
+    if (selectedTask) {
+      navigateToRagDetails(selectedTask, String(evaluationId));
+    }
   };
 
   return (
@@ -123,7 +126,9 @@ const RagEvaluationOverviewPage: React.FC = () => {
             title={PAGE_CONFIG.tasksPanelTitle}
             onRefresh={handleRefresh}
             isRefreshing={tasksLoading}
-          />          {/* Tasks List */}          <TasksList
+          />{" "}
+          {/* Tasks List */}{" "}
+          <TasksList
             tasks={tasks}
             selectedTask={selectedTask}
             tasksLoading={tasksLoading}
@@ -150,7 +155,9 @@ const RagEvaluationOverviewPage: React.FC = () => {
                   view details
                 </Button>
               }
-            />            {/* Evaluations List */}            <EvaluationsList
+            />{" "}
+            {/* Evaluations List */}{" "}
+            <EvaluationsList
               evaluations={evaluations}
               evaluationsLoading={evaluationsLoading}
               evaluationsError={evaluationsError}

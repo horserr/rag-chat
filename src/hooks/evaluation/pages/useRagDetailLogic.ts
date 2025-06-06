@@ -1,16 +1,16 @@
-import { useMemo } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useMemo } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   useRagTask,
   useRagEvaluation,
   useRagEvaluations,
-} from '../queries/useRagQueries';
+} from "../queries/useRagQueries";
 import type {
   EvaluationDetails,
   SingleTurnEvaluationDetails,
   CustomEvaluationDetails,
   MultiTurnEvaluationDetails,
-} from '../../../models/rag-evaluation';
+} from "../../../models/rag-evaluation";
 
 /**
  * Custom hook for managing RAG evaluation detail page logic
@@ -46,8 +46,8 @@ export const useRagDetailLogic = () => {
   const currentEval = evaluationData || null;
 
   // Memoize evaluation history to avoid dependency changes on every render
-  const evaluationHistory = useMemo(() =>
-    evaluationsData?.evaluations || [],
+  const evaluationHistory = useMemo(
+    () => evaluationsData?.evaluations || [],
     [evaluationsData]
   );
 
@@ -57,7 +57,7 @@ export const useRagDetailLogic = () => {
 
   // Handlers
   const handleBack = () => {
-    navigate(`/evaluation/rag/${taskId}`);
+    navigate("/evaluation/rag");
   };
 
   const handleEvaluationClick = (evalId: string) => {
@@ -66,17 +66,19 @@ export const useRagDetailLogic = () => {
 
   // Helper functions
   const getMetricName = (eval_: EvaluationDetails | null): string => {
-    if (!eval_) return '';
+    if (!eval_) return "";
 
     switch (eval_.eval_type) {
       case "single_turn":
-        return `Metric ID: ${(eval_ as SingleTurnEvaluationDetails).parameters.metric_id}`;
+        return `Metric ID: ${
+          (eval_ as SingleTurnEvaluationDetails).parameters.metric_id
+        }`;
       case "custom":
         return (eval_ as CustomEvaluationDetails).parameters.eval_metric;
       case "multi_turn":
         return (eval_ as MultiTurnEvaluationDetails).parameters.eval_metric;
       default:
-        return '';
+        return "";
     }
   };
 
@@ -87,8 +89,13 @@ export const useRagDetailLogic = () => {
       // For multi-turn evaluations, calculate average of coherence values
       const multiTurnEval = eval_ as MultiTurnEvaluationDetails;
       if (Array.isArray(multiTurnEval.result)) {
-        const sum = multiTurnEval.result.reduce((acc, item) => acc + item.coherence, 0);
-        return multiTurnEval.result.length > 0 ? sum / multiTurnEval.result.length : 0;
+        const sum = multiTurnEval.result.reduce(
+          (acc, item) => acc + item.coherence,
+          0
+        );
+        return multiTurnEval.result.length > 0
+          ? sum / multiTurnEval.result.length
+          : 0;
       }
       return 0;
     }

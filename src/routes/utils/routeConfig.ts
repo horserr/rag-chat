@@ -1,4 +1,5 @@
 import React from "react";
+import { Navigate } from "react-router-dom";
 import ProtectedRoute from "../../components/common/ProtectedRoute";
 import {
   RagEvaluationOverviewPage,
@@ -7,6 +8,12 @@ import {
   PromptEvaluationDetailPage,
 } from "../../pages/evalPages";
 import EvaluationCreationPage from "../../pages/creationPages/EvaluationCreationPage";
+import ChatPage from "../../pages/ChatPage";
+import EvaluationPage from "../../pages/EvaluationPage";
+import KnowledgePage from "../../pages/KnowledgePage";
+import HomePage from "../../pages/HomePage";
+import LoginPage from "../../pages/LoginPage";
+import { TokenService } from "../../services/auth/token.service";
 
 // Route configuration types
 export interface RouteConfig {
@@ -77,4 +84,40 @@ export const createEvaluationRoutes = (): RouteConfig[] => {
   ];
 
   return [...ragRoutes, ...promptRoutes];
+};
+
+// Main routes configuration (routes that use MainLayout)
+export const createMainRoutes = (): RouteConfig[] => {
+  return [
+    {
+      path: "/",
+      element: React.createElement(HomePage),
+    },
+    {
+      path: "/login",
+      element: React.createElement(LoginPage),
+    },
+    {
+      path: "/chat",
+      element: createProtectedRoute(ChatPage),
+    },
+    {
+      path: "/knowledge",
+      element: createProtectedRoute(KnowledgePage),
+    },
+    {
+      path: "/evaluation",
+      element: createProtectedRoute(EvaluationPage),
+    },
+  ];
+};
+
+// Default redirect route based on auth status
+export const createRedirectRoute = (lastVisitedPage: string): RouteConfig => {
+  return {
+    path: "*",
+    element: TokenService.isTokenValid()
+      ? React.createElement(Navigate, { to: lastVisitedPage })
+      : React.createElement(Navigate, { to: "/" }),
+  };
 };
