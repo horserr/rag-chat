@@ -1,13 +1,12 @@
 import React from "react";
-import { Box, Grid, Paper, Typography, useTheme } from "@mui/material";
+import { Box, Grid } from "@mui/material";
 import { motion } from "framer-motion";
 import PageHeader from "../components/common/PageHeader";
-import LoginForm from "../components/login/LoginForm";
 import LoginFeatures from "../components/login/LoginFeatures";
 import LoginFooter from "../components/login/LoginFooter";
+import AuthContainer from "../components/login/AuthContainer";
 
 const LoginPage: React.FC = () => {
-  const theme = useTheme();
   return (
     <Box
       className="login-page"
@@ -39,30 +38,7 @@ const LoginPage: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <Paper
-                elevation={4}
-                sx={{
-                  p: { xs: 2, sm: 4 },
-                  borderRadius: 2,
-                  background: `linear-gradient(135deg, ${theme.palette.background.paper} 0%, ${theme.palette.background.paper} 100%)`,
-                }}
-              >
-                <Box sx={{ mb: 3, textAlign: "center" }}>
-                  <Typography
-                    variant="h4"
-                    fontWeight="bold"
-                    color="primary"
-                    gutterBottom
-                  >
-                    Welcome Back
-                  </Typography>
-                  <Typography variant="body1" color="text.secondary">
-                    Sign in to continue to the RAG Chat Platform
-                  </Typography>
-                </Box>
-
-                <LoginForm />
-              </Paper>
+              <AuthContainer />
             </motion.div>
           </Grid>
 
