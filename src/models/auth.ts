@@ -7,6 +7,28 @@ interface RegisterDto {
     email: string;
     password: string;
     name: string;
+    verification_code: string;
 }
 
-export type { LoginDto, RegisterDto };
+interface VerificationCodeDto {
+    email: string;
+}
+
+interface VerificationCodeResponse {
+    success: boolean;
+    message: string;
+}
+
+interface RegisterResponse {
+    success: boolean;
+    message: string;
+    user_id?: string;
+}
+
+export type {
+    LoginDto,
+    RegisterDto,
+    VerificationCodeDto,
+    VerificationCodeResponse,
+    RegisterResponse
+};

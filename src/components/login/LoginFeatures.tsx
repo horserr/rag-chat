@@ -1,5 +1,11 @@
 import React from "react";
-import { Box, Card, CardContent, Typography, useTheme } from "@mui/material";
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  useTheme,
+} from "@mui/material";
 import { motion } from "framer-motion";
 
 const LoginFeatures: React.FC = () => {
