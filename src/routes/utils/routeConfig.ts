@@ -55,10 +55,6 @@ export const createEvaluationRoutes = (): RouteConfig[] => {
       element: createProtectedRoute(RagEvaluationDetailPage),
     },
     {
-      path: "/evaluation/rag/:taskId/details",
-      element: createProtectedRoute(RagEvaluationDetailPage),
-    },
-    {
       path: "/evaluation/rag/:taskId/eval/:evaluationId",
       element: createProtectedRoute(RagEvaluationDetailPage),
     },

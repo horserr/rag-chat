@@ -131,7 +131,7 @@ const RagEvaluationDetailPage: React.FC = () => {
           </Typography>
         </Box>
         <Typography variant="body1" color="text.secondary">
-          task: {task.name} | taskID: {evaluationId}
+          task: {task.name} | taskID: {task.id}
         </Typography>
       </Box>
 

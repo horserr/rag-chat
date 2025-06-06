@@ -9,7 +9,6 @@ import {
 } from '@mui/material';
 import { CloudUpload as UploadIcon } from '@mui/icons-material';
 import type { KnowledgeFileUpload } from '../../models/knowledge';
-import KnowledgePreviewPanel from './KnowledgePreviewPanel';
 
 interface KnowledgeFileUploaderProps {
   onUpload: (knowledgeFile: KnowledgeFileUpload) => Promise<void>;
@@ -127,37 +126,23 @@ const KnowledgeFileUploader: React.FC<KnowledgeFileUploaderProps> = ({
             </Typography>
           </Box>
         )}
-      </Paper>
-
-      {fileContent && (
-        <>
-          <Box sx={{ mb: 3 }}>
-            <Typography variant="h6" sx={{ mb: 2 }}>Preview</Typography>
-            <KnowledgePreviewPanel
-              source={{
-                ...fileContent.source,
-                resourceText: fileContent.resource.text,
-              }}
-            />
-          </Box>
-
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleSubmit}
-            disabled={isUploading}
-            sx={{ mt: 2 }}
-          >
-            {isUploading ? (
-              <>
-                <CircularProgress size={20} sx={{ mr: 1 }} color="inherit" />
-                Uploading...
-              </>
-            ) : (
-              'Upload Knowledge'
-            )}
-          </Button>
-        </>
+      </Paper>      {fileContent && (
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleSubmit}
+          disabled={isUploading}
+          sx={{ mt: 2 }}
+        >
+          {isUploading ? (
+            <>
+              <CircularProgress size={20} sx={{ mr: 1 }} color="inherit" />
+              Uploading...
+            </>
+          ) : (
+            'Upload Knowledge'
+          )}
+        </Button>
       )}
     </Box>
   );

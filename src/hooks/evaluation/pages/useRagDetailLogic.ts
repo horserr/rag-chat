@@ -61,7 +61,7 @@ export const useRagDetailLogic = () => {
   };
 
   const handleEvaluationClick = (evalId: string) => {
-    navigate(`/evaluation/rag/${taskId}/${evalId}`);
+    navigate(`/evaluation/rag/${taskId}/eval/${evalId}`);
   };
 
   // Helper functions
