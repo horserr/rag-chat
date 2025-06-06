@@ -167,12 +167,11 @@ const RegisterFormFields: React.FC<RegisterFormFieldsProps> = ({
         fullWidth
         name="confirmPassword"
         label="Confirm Password"
-        type={showConfirmPassword ? "text" : "password"}
-        id="confirmPassword"
+        type={showConfirmPassword ? "text" : "password"}        id="confirmPassword"
         autoComplete="new-password"
         value={formData.confirmPassword}
         onChange={(e) => onInputChange("confirmPassword", e.target.value)}
-        error={error || (formData.password && formData.confirmPassword && formData.password !== formData.confirmPassword)}
+        error={error || Boolean(formData.password && formData.confirmPassword && formData.password !== formData.confirmPassword)}
         InputProps={{
           startAdornment: (
             <InputAdornment position="start">

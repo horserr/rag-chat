@@ -146,4 +146,20 @@ Content-Type: application/json
 3. Click "Create Account" on the login page
 4. Test the complete registration flow
 
+## Troubleshooting
+
+### TypeScript Compilation Issues
+During Docker build, there were some TypeScript compilation errors that have been resolved:
+
+1. **Boolean Type Error in RegisterFormFields**: Fixed type mismatch where `boolean | ""` was not assignable to `boolean | undefined` by wrapping the condition in `Boolean()`.
+
+2. **Unused Import in RegisterSuccess**: Removed unused `Box` import from Material-UI components.
+
+These fixes ensure that the application builds successfully in production environments with strict TypeScript checking.
+
+### Build Verification
+- ✅ TypeScript compilation: `npx tsc -b --noEmit`
+- ✅ Production build: `npm run build`
+- ✅ Docker build compatibility verified
+
 The registration system is now fully integrated and ready for use!
