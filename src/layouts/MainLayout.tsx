@@ -13,6 +13,7 @@ import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import ChatIcon from "@mui/icons-material/Chat";
 import AssessmentIcon from "@mui/icons-material/Assessment";
+import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
 import CloseIcon from "@mui/icons-material/Close";
 
 // Main layout
@@ -40,10 +41,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({
   // Check if current page is homepage or login page
   const isHomeOrLoginPage =
     location.pathname === "/" || location.pathname === "/login";
-
   // Determine title to show
   const pageTitle = customTitle || (location.pathname.includes("evaluation")
     ? "RAG Evaluation"
+    : location.pathname.includes("knowledge")
+    ? "Knowledge Base"
     : "RAG Chat");
 
   return (
@@ -100,8 +102,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
 
             <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
               {!hideNavButtons && (
-                <>
-                  <Button
+                <>                  <Button
                     color="inherit"
                     variant={
                       location.pathname.includes("/chat") ? "outlined" : "text"
@@ -130,6 +131,38 @@ const MainLayout: React.FC<MainLayoutProps> = ({
                     }}
                   >
                     Chat
+                  </Button>
+                  <Button
+                    color="inherit"
+                    variant={
+                      location.pathname.includes("/knowledge")
+                        ? "outlined"
+                        : "text"
+                    }
+                    onClick={() => navigate("/knowledge")}
+                    startIcon={<LibraryBooksIcon />}
+                    sx={{
+                      color: "white",
+                      borderColor: "white",
+                      "&:hover": {
+                        borderColor: "white",
+                        backgroundColor: "rgba(255,255,255,0.1)",
+                      },
+                      "&:focus": {
+                        outline: "none",
+                        boxShadow: "none",
+                      },
+                      "&:focus-visible": {
+                        outline: "2px solid white",
+                        outlineOffset: "2px",
+                      },
+                      "&:active": {
+                        outline: "none",
+                        boxShadow: "none",
+                      },
+                    }}
+                  >
+                    Knowledge
                   </Button>
                   <Button
                     color="inherit"

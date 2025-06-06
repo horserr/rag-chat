@@ -1,6 +1,6 @@
 @evalUrl = {{baseUrl}}/api/rag
-@taskId = 8
-@evalId = 6
+@taskId = 12
+@evalId = 10
 
 ### 1.1 获取所有任务列表
 GET {{evalUrl}}/task HTTP/1.1

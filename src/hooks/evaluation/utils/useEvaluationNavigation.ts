@@ -21,7 +21,7 @@ export const useEvaluationNavigation = () => {
     (taskId: string, evaluationId?: string) => {
       const url = evaluationId
         ? `/evaluation/rag/${taskId}/eval/${evaluationId}`
-        : `/evaluation/rag/${taskId}/details`;
+        : `/evaluation/rag/${taskId}`;
       navigate(url);
     },
     [navigate]

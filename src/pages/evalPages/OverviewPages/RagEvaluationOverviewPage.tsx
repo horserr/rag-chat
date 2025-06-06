@@ -1,12 +1,7 @@
 import { Analytics as DetailsIcon } from "@mui/icons-material";
-import { Alert, Box, Button, Stack, Typography } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import React from "react";
 import { DetailDialog } from "../../../components/evaluation/shared/Dialogs";
-import {
-  EmptyState,
-  EvaluationCard,
-  TaskCard,
-} from "../../../components/evaluation/shared/EvaluationComponents";
 import {
   EvaluationPageHeader,
   PanelHeader,
@@ -16,14 +11,13 @@ import {
   DetailPanel,
   PlaceholderPanel,
 } from "../../../components/evaluation/shared/Panels";
-import { EVALUATION_CONSTANTS } from "../../../components/evaluation/shared/constants";
 import { useRagOverviewLogic } from "../../../hooks/evaluation";
 import { useRagOperations } from "../../../hooks/evaluation/operations/useRagOperations";
 import { useEvaluationNavigation } from "../../../hooks/evaluation/utils/useEvaluationNavigation";
-import type {
-  EvaluationListItem,
-  TaskDto,
-} from "../../../models/rag-evaluation";
+import {
+  TasksList,
+  EvaluationsList,
+} from "../../../components/evaluation/OverView/components";
 
 // 页面配置常量
 const PAGE_CONFIG = {
@@ -54,7 +48,6 @@ const RagEvaluationOverviewPage: React.FC = () => {
     isDetailView,
     handleTaskSelect,
     handleTaskHover,
-    handleViewDetails,
     handleNavigateToEvaluation,
     handleRefresh,
   } = useRagOverviewLogic({
@@ -104,6 +97,20 @@ const RagEvaluationOverviewPage: React.FC = () => {
     }
   };
 
+  // Create adapter functions to handle type conversions
+  const handleTaskSelectAdapter = (taskId: string | number) => {
+    handleTaskSelect(String(taskId));
+  };
+
+  const handleTaskHoverAdapter = (taskId: string | number) => {
+    handleTaskHover(String(taskId));
+  };
+  const handleViewDetailsAdapter = (evaluationId: string | number) => {
+    if (selectedTask) {
+      navigateToRagDetails(selectedTask, String(evaluationId));
+    }
+  };
+
   return (
     <Box sx={{ height: "100vh", display: "flex", flexDirection: "column" }}>
       <EvaluationPageHeader
@@ -119,48 +126,19 @@ const RagEvaluationOverviewPage: React.FC = () => {
             title={PAGE_CONFIG.tasksPanelTitle}
             onRefresh={handleRefresh}
             isRefreshing={tasksLoading}
+          />{" "}
+          {/* Tasks List */}{" "}
+          <TasksList
+            tasks={tasks}
+            selectedTask={selectedTask}
+            tasksLoading={tasksLoading}
+            tasksError={tasksError}
+            handleTaskSelect={handleTaskSelectAdapter}
+            handleTaskHover={handleTaskHoverAdapter}
+            handleTaskDelete={handleTaskDelete}
+            handleTaskRename={handleTaskRename}
+            handleNavigateToEvaluation={handleNavigateToEvaluation}
           />
-
-          {/* Tasks List */}
-          <Stack spacing={2}>
-            {tasksLoading && (
-              <>
-                {EVALUATION_CONSTANTS.MOCK_LOADING_ITEMS.map((i) => (
-                  <TaskCard
-                    key={i}
-                    task={{ id: "", name: "" }}
-                    onClick={() => {}}
-                    loading={true}
-                  />
-                ))}
-              </>
-            )}
-            {tasksError && (
-              <Alert severity="error">
-                Failed to load tasks: {(tasksError as Error).message}
-              </Alert>
-            )}
-            {!tasksLoading && !tasksError && tasks.length === 0 && (
-              <EmptyState
-                type="tasks"
-                onAction={handleNavigateToEvaluation}
-                actionLabel="创建新任务"
-              />
-            )}{" "}
-            {!tasksLoading &&
-              !tasksError &&
-              tasks.map((task: TaskDto) => (
-                <TaskCard
-                  key={task.id}
-                  task={task}
-                  isSelected={selectedTask === task.id}
-                  onClick={() => handleTaskSelect(task.id)}
-                  onHover={() => handleTaskHover(task.id)}
-                  onDelete={handleTaskDelete}
-                  onRename={handleTaskRename}
-                />
-              ))}
-          </Stack>
         </AnimatedPanel>
 
         {/* Evaluation Details Panel */}
@@ -177,44 +155,14 @@ const RagEvaluationOverviewPage: React.FC = () => {
                   view details
                 </Button>
               }
+            />{" "}
+            {/* Evaluations List */}{" "}
+            <EvaluationsList
+              evaluations={evaluations}
+              evaluationsLoading={evaluationsLoading}
+              evaluationsError={evaluationsError}
+              handleViewDetails={handleViewDetailsAdapter}
             />
-
-            {/* Evaluations List */}
-            <Stack spacing={2}>
-              {evaluationsLoading && (
-                <>
-                  {[1, 2].map((i) => (
-                    <EvaluationCard
-                      key={i}
-                      evaluation={{ id: "", status: "" }}
-                      onViewDetails={() => {}}
-                      loading={true}
-                    />
-                  ))}
-                </>
-              )}
-
-              {evaluationsError && (
-                <Alert severity="error">
-                  Failed to load evaluations:{" "}
-                  {(evaluationsError as Error).message}
-                </Alert>
-              )}
-
-              {!evaluationsLoading &&
-                !evaluationsError &&
-                evaluations.length === 0 && <EmptyState type="evaluations" />}
-
-              {!evaluationsLoading &&
-                !evaluationsError &&
-                evaluations.map((evaluation: EvaluationListItem) => (
-                  <EvaluationCard
-                    key={evaluation.id}
-                    evaluation={evaluation}
-                    onViewDetails={() => handleViewDetails(evaluation.id)}
-                  />
-                ))}
-            </Stack>
           </DetailPanel>
         ) : (
           <PlaceholderPanel

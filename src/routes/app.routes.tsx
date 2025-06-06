@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
-import ChatPage from "../pages/ChatPage";
-import EvaluationPage from "../pages/EvaluationPage";
-import HomePage from "../pages/HomePage";
-import LoginPage from "../pages/LoginPage";
-import ProtectedRoute from "../components/common/ProtectedRoute";
+import { Routes, Route } from "react-router-dom";
 import MainLayout from "../layouts/MainLayout";
-import { TokenService } from "../services/auth/token.service";
-import { createEvaluationRoutes, createCreationRoutes, type RouteConfig } from "./utils/routeConfig";
+import {
+  createEvaluationRoutes,
+  createCreationRoutes,
+  createMainRoutes,
+  createRedirectRoute,
+  type RouteConfig,
+} from "./utils/routeConfig";
 
 // Route definitions
 const AppRoutes: React.FC = () => {
@@ -25,7 +25,11 @@ const AppRoutes: React.FC = () => {
   useEffect(() => {
     const handlePageHide = () => {
       const pathname = window.location.pathname;
-      if (pathname === "/chat" || pathname === "/evaluation") {
+      if (
+        pathname === "/chat" ||
+        pathname === "/evaluation" ||
+        pathname === "/knowledge"
+      ) {
         localStorage.setItem("lastVisitedPage", pathname);
       }
     };
@@ -36,9 +40,13 @@ const AppRoutes: React.FC = () => {
 
     // Also save on visibility change (when tab becomes hidden)
     const handleVisibilityChange = () => {
-      if (document.visibilityState === 'hidden') {
+      if (document.visibilityState === "hidden") {
         const pathname = window.location.pathname;
-        if (pathname === "/chat" || pathname === "/evaluation") {
+        if (
+          pathname === "/chat" ||
+          pathname === "/evaluation" ||
+          pathname === "/knowledge"
+        ) {
           localStorage.setItem("lastVisitedPage", pathname);
         }
       }
@@ -52,54 +60,44 @@ const AppRoutes: React.FC = () => {
     };
   }, []);
 
-  return (    <Routes>
+  return (
+    <Routes>
       {/* Creation routes - these don't use MainLayout */}
       {createCreationRoutes().map((route: RouteConfig) => (
         <Route key={route.path} path={route.path} element={route.element} />
-      ))}
-
+      ))}{" "}
       {/* Main routes - these use MainLayout */}
-      <Route path="/*" element={
-        <MainLayout>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route
-              path="/chat"
-              element={
-                <ProtectedRoute>
-                  <ChatPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/evaluation"
-              element={
-                <ProtectedRoute>
-                  <EvaluationPage />
-                </ProtectedRoute>
-              }
-            />
-
-            {/* Dynamic evaluation routes (non-creation) */}
-            {createEvaluationRoutes().map((route: RouteConfig) => (
-              <Route key={route.path} path={route.path} element={route.element} />
-            ))}
-
-            {/* Default redirect based on auth status */}
-            <Route
-              path="*"
-              element={
-                TokenService.isTokenValid() ? (
-                  <Navigate to={lastVisitedPage} />
-                ) : (
-                  <Navigate to="/" />
-                )
-              }
-            />
-          </Routes>
-        </MainLayout>
-      } />
+      <Route
+        path="/*"
+        element={
+          <MainLayout>
+            <Routes>
+              {/* Main routes */}
+              {createMainRoutes().map((route: RouteConfig) => (
+                <Route
+                  key={route.path}
+                  path={route.path}
+                  element={route.element}
+                />
+              ))}
+              {/* Dynamic evaluation routes (non-creation) */}
+              {createEvaluationRoutes().map((route: RouteConfig) => (
+                <Route
+                  key={route.path}
+                  path={route.path}
+                  element={route.element}
+                />
+              ))}
+              {/* Default redirect based on auth status */}
+              <Route
+                key={createRedirectRoute(lastVisitedPage).path}
+                path={createRedirectRoute(lastVisitedPage).path}
+                element={createRedirectRoute(lastVisitedPage).element}
+              />
+            </Routes>
+          </MainLayout>
+        }
+      />
     </Routes>
   );
 };

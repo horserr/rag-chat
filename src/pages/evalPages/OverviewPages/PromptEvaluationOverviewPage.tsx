@@ -8,7 +8,7 @@ import {
   TaskCard,
   EvaluationCard,
   EmptyState,
-} from "../../../components/evaluation/shared/EvaluationComponents";
+} from "../../../components/evaluation/shared/components";
 import {
   EvaluationPageHeader,
   PanelHeader,
