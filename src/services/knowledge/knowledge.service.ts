@@ -169,7 +169,8 @@ export class KnowledgeService {
     } catch (error) {
       throw this.handleError(error, "Failed to download file");
     }
-  }  /**
+  }
+  /**
    * Handle API errors
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

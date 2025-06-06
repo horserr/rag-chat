@@ -4,7 +4,6 @@ import {
   List,
   ListItem,
   ListItemText,
-  ListItemSecondaryAction,
   IconButton,
   Typography,
 } from '@mui/material';
@@ -32,13 +31,11 @@ const FilesTab: React.FC<FilesTabProps> = ({
                 primary={file.attachment_name || file.id}
                 secondary={`${file.content_type} • ${new Date(file.created_at).toLocaleDateString()}`}
               />
-              <ListItemSecondaryAction>
                 <IconButton
                   onClick={(e) => onFileMenuOpen(e, file.id)}
                 >
                   <MoreVertIcon />
                 </IconButton>
-              </ListItemSecondaryAction>
             </ListItem>
           ))}
         </List>

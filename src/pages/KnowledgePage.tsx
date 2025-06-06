@@ -70,14 +70,19 @@ const KnowledgePage: React.FC = () => {
   const deleteSourceMutation = useDeleteSource();
   const updateResourceMutation = useUpdateResource();
   const addFileFromUrlMutation = useAddFileFromUrl();
-  const deleteFileMutation = useDeleteFile();
-
-  // Update resource text when resource data changes
+  const deleteFileMutation = useDeleteFile(); // Update resource text when resource data changes
   useEffect(() => {
     if (resourceData) {
       setResourceText(resourceData.text || "");
+    } else {
+      // Clear resource text when no resource data is available
+      setResourceText("");
     }
   }, [resourceData]);
+  // Calculate if resource already exists
+  const hasExistingResource = Boolean(
+    resourceData && resourceData.text && resourceData.text.trim().length > 0
+  );
 
   // REFACTORED: Source handling methods
   const handleCreateSource = async () => {
@@ -242,11 +247,12 @@ const KnowledgePage: React.FC = () => {
       console.error("Failed to delete file:", error);
     }
   };
-
   // Other handlers
   const handleSourceSelect = (source: SourceDto) => {
     setSelectedSource(source);
     setTabValue(0);
+    // Reset resource text when switching sources
+    setResourceText("");
   };
 
   const handleEditSourceClick = (source: SourceDto) => {
@@ -261,7 +267,8 @@ const KnowledgePage: React.FC = () => {
   if (isLoadingSources) {
     return <KnowledgeLoading />;
   }
-  return (    <KnowledgeExplorerLayout
+  return (
+    <KnowledgeExplorerLayout
       selectedSource={selectedSource}
       sources={sourcesData?.data || []}
       tabValue={tabValue}
@@ -278,6 +285,7 @@ const KnowledgePage: React.FC = () => {
       onFileMenuOpen={handleFileMenuOpen}
       onCreateSource={() => setIsCreateDialogOpen(true)}
       onUploadFile={() => fileInputRef.current?.click()}
+      hasExistingResource={hasExistingResource}
     >
       {/* Header */}
       <Fade in timeout={600}>

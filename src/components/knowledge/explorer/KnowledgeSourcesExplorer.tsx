@@ -22,7 +22,7 @@ import {
   Delete as DeleteIcon,
 } from '@mui/icons-material';
 import type { SourceDto } from '../../../models/knowledge';
-import type { ViewType } from '../KnowledgeExplorerLayout';
+import type { ViewType } from '../../../layouts/KnowledgeExplorerLayout';
 
 interface KnowledgeSourcesExplorerProps {
   sources: SourceDto[];

@@ -117,7 +117,7 @@ export const useResource = (sourceId: number | null) => {
     gcTime: 10 * 60 * 1000, // 10 minutes
     refetchInterval: false,
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    refetchOnMount: true, // Enable refetch on mount for source changes
     retry: 1,
   });
 };

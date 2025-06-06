@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Box,
   Toolbar,
@@ -8,7 +8,7 @@ import {
   Button,
   Menu,
   MenuItem,
-} from '@mui/material';
+} from "@mui/material";
 import {
   ViewList as ListViewIcon,
   ViewModule as CardsViewIcon,
@@ -16,10 +16,10 @@ import {
   Add as AddIcon,
   Upload as UploadIcon,
   MoreVert as MoreIcon,
-} from '@mui/icons-material';
-import type { SourceDto } from '../../../models/knowledge';
-import KnowledgeSourcesExplorer from './KnowledgeSourcesExplorer';
-import type { ViewType } from '../KnowledgeExplorerLayout';
+} from "@mui/icons-material";
+import type { SourceDto } from "../../../models/knowledge";
+import KnowledgeSourcesExplorer from "./KnowledgeSourcesExplorer";
+import type { ViewType } from "../../../layouts/KnowledgeExplorerLayout";
 
 interface KnowledgeExplorerProps {
   sources: SourceDto[];
@@ -67,19 +67,19 @@ const KnowledgeExplorer: React.FC<KnowledgeExplorerProps> = ({
   };
 
   return (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
       {/* Explorer Toolbar */}
       <Toolbar
         variant="dense"
         sx={{
           minHeight: 40,
-          backgroundColor: '#f0f0f0',
-          borderBottom: '1px solid #d0d0d0',
+          backgroundColor: "#f0f0f0",
+          borderBottom: "1px solid #d0d0d0",
           px: 1,
-          justifyContent: 'space-between',
+          justifyContent: "space-between",
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <Tooltip title="Refresh">
             <IconButton size="small" onClick={() => window.location.reload()}>
               <RefreshIcon fontSize="small" />
@@ -91,8 +91,8 @@ const KnowledgeExplorer: React.FC<KnowledgeExplorerProps> = ({
           <Tooltip title="List View">
             <IconButton
               size="small"
-              color={viewType === 'list' ? 'primary' : 'default'}
-              onClick={() => onViewTypeChange('list')}
+              color={viewType === "list" ? "primary" : "default"}
+              onClick={() => onViewTypeChange("list")}
             >
               <ListViewIcon fontSize="small" />
             </IconButton>
@@ -101,23 +101,23 @@ const KnowledgeExplorer: React.FC<KnowledgeExplorerProps> = ({
           <Tooltip title="Cards View">
             <IconButton
               size="small"
-              color={viewType === 'cards' ? 'primary' : 'default'}
-              onClick={() => onViewTypeChange('cards')}
+              color={viewType === "cards" ? "primary" : "default"}
+              onClick={() => onViewTypeChange("cards")}
             >
               <CardsViewIcon fontSize="small" />
             </IconButton>
           </Tooltip>
         </Box>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <Button
             size="small"
             variant="contained"
             startIcon={<AddIcon />}
             onClick={onCreateSource}
             sx={{
-              fontSize: '0.75rem',
-              minWidth: 'auto',
+              fontSize: "0.75rem",
+              minWidth: "auto",
               px: 1,
             }}
           >
@@ -133,7 +133,7 @@ const KnowledgeExplorer: React.FC<KnowledgeExplorerProps> = ({
       </Toolbar>
 
       {/* Explorer Content */}
-      <Box sx={{ flex: 1, overflow: 'hidden' }}>
+      <Box sx={{ flex: 1, overflow: "hidden" }}>
         <KnowledgeSourcesExplorer
           sources={sources}
           selectedSource={selectedSource}
@@ -151,12 +151,12 @@ const KnowledgeExplorer: React.FC<KnowledgeExplorerProps> = ({
         open={Boolean(menuAnchor)}
         onClose={handleMenuClose}
         anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right',
+          vertical: "bottom",
+          horizontal: "right",
         }}
         transformOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
+          vertical: "top",
+          horizontal: "right",
         }}
       >
         <MenuItem onClick={handleCreateSource}>

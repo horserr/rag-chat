@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Box,
   Toolbar,
@@ -6,14 +6,14 @@ import {
   Tooltip,
   Typography,
   Collapse,
-} from '@mui/material';
+} from "@mui/material";
 import {
   ChevronLeft as CollapseIcon,
   ChevronRight as ExpandIcon,
   Info as InfoIcon,
-} from '@mui/icons-material';
-import type { SourceDto, FileDto } from '../../../models/knowledge';
-import KnowledgeDetailsTabs from './KnowledgeDetailsTabs';
+} from "@mui/icons-material";
+import type { SourceDto, FileDto } from "../../../models/knowledge";
+import KnowledgeDetailsTabs from "./KnowledgeDetailsTabs";
 
 interface CollapsibleDetailsPanelProps {
   selectedSource: SourceDto | null;
@@ -24,9 +24,13 @@ interface CollapsibleDetailsPanelProps {
   onSaveResource: () => void;
   isSavingResource: boolean;
   files: FileDto[];
-  onFileMenuOpen: (event: React.MouseEvent<HTMLElement>, fileId: string) => void;
+  onFileMenuOpen: (
+    event: React.MouseEvent<HTMLElement>,
+    fileId: string
+  ) => void;
   isCollapsed: boolean;
   onToggleCollapsed: (collapsed: boolean) => void;
+  hasExistingResource?: boolean;
 }
 
 const CollapsibleDetailsPanel: React.FC<CollapsibleDetailsPanelProps> = ({
@@ -41,40 +45,49 @@ const CollapsibleDetailsPanel: React.FC<CollapsibleDetailsPanelProps> = ({
   onFileMenuOpen,
   isCollapsed,
   onToggleCollapsed,
+  hasExistingResource = false,
 }) => {
   return (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
       {/* Details Panel Header */}
       <Toolbar
         variant="dense"
         sx={{
           minHeight: 40,
-          backgroundColor: '#f8f8f8',
-          borderBottom: '1px solid #d0d0d0',
+          backgroundColor: "#f8f8f8",
+          borderBottom: "1px solid #d0d0d0",
           px: 1,
-          justifyContent: 'space-between',
+          justifyContent: "space-between",
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <InfoIcon fontSize="small" color="action" />
           <Typography variant="body2" color="text.secondary">
-            {selectedSource ? 'Details' : 'Select a source to view details'}
+            {selectedSource ? "Details" : "Select a source to view details"}
           </Typography>
         </Box>
 
-        <Tooltip title={isCollapsed ? 'Expand Details Panel' : 'Collapse Details Panel'}>
+        <Tooltip
+          title={
+            isCollapsed ? "Expand Details Panel" : "Collapse Details Panel"
+          }
+        >
           <IconButton
             size="small"
             onClick={() => onToggleCollapsed(!isCollapsed)}
           >
-            {isCollapsed ? <ExpandIcon fontSize="small" /> : <CollapseIcon fontSize="small" />}
+            {isCollapsed ? (
+              <ExpandIcon fontSize="small" />
+            ) : (
+              <CollapseIcon fontSize="small" />
+            )}
           </IconButton>
         </Tooltip>
       </Toolbar>
 
       {/* Details Content */}
       <Collapse in={!isCollapsed} orientation="horizontal">
-        <Box sx={{ height: 'calc(100% - 40px)', minWidth: 400 }}>
+        <Box sx={{ height: "calc(100% - 40px)", minWidth: 400 }}>
           {selectedSource ? (
             <KnowledgeDetailsTabs
               selectedSource={selectedSource}
@@ -86,19 +99,25 @@ const CollapsibleDetailsPanel: React.FC<CollapsibleDetailsPanelProps> = ({
               isSavingResource={isSavingResource}
               files={files}
               onFileMenuOpen={onFileMenuOpen}
+              hasExistingResource={hasExistingResource}
             />
           ) : (
             <Box
               sx={{
-                height: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                height: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
                 p: 3,
               }}
             >
-              <Typography variant="body1" color="text.secondary" textAlign="center">
-                Select a knowledge source from the explorer to view its details and manage resources.
+              <Typography
+                variant="body1"
+                color="text.secondary"
+                textAlign="center"
+              >
+                Select a knowledge source from the explorer to view its details
+                and manage resources.
               </Typography>
             </Box>
           )}

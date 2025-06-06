@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { Box, Container, Fade, Slide } from '@mui/material';
-import { KnowledgeExplorer } from './explorer';
-import { CollapsibleDetailsPanel } from './panels';
-import type { SourceDto, FileDto } from '../../models/knowledge';
+import React, { useState } from "react";
+import { Box, Container, Fade, Slide } from "@mui/material";
+import { KnowledgeExplorer } from "../components/knowledge/explorer";
+import { CollapsibleDetailsPanel } from "../components/knowledge/panels";
+import type { SourceDto, FileDto } from "../models/knowledge";
 
-export type ViewType = 'list' | 'cards';
+export type ViewType = "list" | "cards";
 
 interface KnowledgeExplorerLayoutProps {
   selectedSource: SourceDto | null;
@@ -20,10 +20,14 @@ interface KnowledgeExplorerLayoutProps {
   onResourceTextChange: (text: string) => void;
   onSaveResource: () => void;
   isSavingResource: boolean;
-  onFileMenuOpen: (event: React.MouseEvent<HTMLElement>, fileId: string) => void;
+  onFileMenuOpen: (
+    event: React.MouseEvent<HTMLElement>,
+    fileId: string
+  ) => void;
   onCreateSource?: () => void;
   onUploadFile?: () => void;
   children?: React.ReactNode;
+  hasExistingResource?: boolean;
 }
 
 const KnowledgeExplorerLayout: React.FC<KnowledgeExplorerLayoutProps> = ({
@@ -43,9 +47,10 @@ const KnowledgeExplorerLayout: React.FC<KnowledgeExplorerLayoutProps> = ({
   onFileMenuOpen,
   onCreateSource,
   onUploadFile,
-  children
+  children,
+  hasExistingResource = false,
 }) => {
-  const [viewType, setViewType] = useState<ViewType>('list');
+  const [viewType, setViewType] = useState<ViewType>("list");
   const [isPanelCollapsed, setIsPanelCollapsed] = useState(false);
 
   return (
@@ -82,7 +87,9 @@ const KnowledgeExplorerLayout: React.FC<KnowledgeExplorerLayoutProps> = ({
                   backgroundColor: "#fafafa",
                   transition: "all 0.3s ease",
                 }}
-              >                <KnowledgeExplorer
+              >
+                {" "}
+                <KnowledgeExplorer
                   sources={sources}
                   selectedSource={selectedSource}
                   onSourceSelect={onSourceSelect}
@@ -107,6 +114,7 @@ const KnowledgeExplorerLayout: React.FC<KnowledgeExplorerLayoutProps> = ({
                   minWidth: 0, // Allow shrinking
                 }}
               >
+                {" "}
                 <CollapsibleDetailsPanel
                   selectedSource={selectedSource}
                   tabValue={tabValue}
@@ -119,6 +127,7 @@ const KnowledgeExplorerLayout: React.FC<KnowledgeExplorerLayoutProps> = ({
                   onFileMenuOpen={onFileMenuOpen}
                   isCollapsed={isPanelCollapsed}
                   onToggleCollapsed={setIsPanelCollapsed}
+                  hasExistingResource={hasExistingResource}
                 />
               </Box>
             </Fade>
